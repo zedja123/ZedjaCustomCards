@@ -45,6 +45,10 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 	end
 end
 
+function s.spfilter(c)
+	return c:IsSetCard(0xf10) and c:IsSpecialSummonable()
+end
+
 function s.gytg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk == 0 then return Duel.GetLocationCount(tp, LOCATION_MZONE) > 0
 		and Duel.IsExistingMatchingCard(s.spfilter, tp, LOCATION_GRAVE, 0, 1, nil, e, tp)
