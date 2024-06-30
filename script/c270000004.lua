@@ -17,6 +17,7 @@ function c270000004.initial_effect(c)
 	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetHintTiming(TIMING_END_PHASE)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetCountLimit(1,id)
 	e2:SetCondition(s.thcon)
@@ -32,7 +33,7 @@ function s.banishCost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==tp and Duel.GetCurrentPhase()==PHASE_END
+	return Duel.GetCurrentPhase()==PHASE_END
 end
 
 function s.thfilter(c)
