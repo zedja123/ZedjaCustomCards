@@ -1,4 +1,5 @@
 --Prismiant Tactical Revenge
+local s, id = GetID()
 function c270000004.initial_effect(c)
 	-- Negate effect and shuffle into Deck
 	local e1=Effect.CreateEffect(c)
