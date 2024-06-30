@@ -31,7 +31,7 @@ function s.setcond(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.thfilter(c)
-	return c:IsSetCard(0xf10) and c:IsAbleToHand() and c:IsFaceup() and not c:GetOriginalCode() ~= c270000004
+	return c:IsSetCard(0xf10) and c:IsAbleToHand() and c:IsFaceup() and not c:IsCode(270000004)
 end
 
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
