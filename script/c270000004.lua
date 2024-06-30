@@ -15,21 +15,16 @@ function c270000004.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_TOHAND)
-	e2:SetType(EFFECT_TYPE_TRIGGER_O)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_PHASE+PHASE_END)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetHintTiming(TIMING_END_PHASE)
 	e2:SetCountLimit(1, {id, 2})
 	e2:SetCondition(s.thcon)
-	e2:SetCost(s.banishCost)
+	e2:SetCost(aux.bfgcost)
 	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e1)
-end
-
-function s.banishCost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
-	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
 end
 
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
