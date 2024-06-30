@@ -74,5 +74,5 @@ function spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function matfilter(c,lc,sumtype,tp)
-	return c:IsRace(RACE_ROCK,lc,sumtype,tp) and not c:IsCode(c270000011)
+	return c:IsRace(RACE_ROCK,lc,sumtype,tp) and not c:IsSummonCode(lc,sumtype,tp,id)
 end
