@@ -26,17 +26,17 @@ function c270000004.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 
-function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentPhase()==PHASE_END
-end
-
-function s.thfilter(c)
-	return c:IsFaceup() and c:IsAbleToHand() and c:ListsCode(0xf10)
-end
-
 function s.banishCost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
+end
+
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetTurnPlayer()==tp and Duel.GetCurrentPhase()==PHASE_END
+end
+
+function s.thfilter(c)
+	return c:IsFaceup() and c:IsSetCard(0xf10) and c:IsAbleToHand()
 end
 
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
