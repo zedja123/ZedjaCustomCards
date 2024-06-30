@@ -21,7 +21,7 @@ function c270000004.initial_effect(c)
 	e2:SetCountLimit(1,id)
 	e2:SetCondition(s.setcond)
 	e2:SetCost(aux.bfgcost)
-	e2:SetTarget(s.settg)
+	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thtop)
 	c:RegisterEffect(e2)
 end
