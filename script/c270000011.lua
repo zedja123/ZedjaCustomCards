@@ -56,7 +56,7 @@ function spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function spfilter(c,e,tp)
-	return c:IsSetCard(0xf10) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)  and not c:IsSummonCode(lc,sumtype,tp,id)
+	return c:IsSetCard(0xf10) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(id)
 end
 
 function sptg(e,tp,eg,ep,ev,re,r,rp,chk)
