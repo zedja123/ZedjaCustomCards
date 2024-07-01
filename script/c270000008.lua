@@ -46,7 +46,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.spfilter(c)
-	return c:IsSetCard(0xf10) and c:GetType(TYPE_MONSTER)
+	return c:IsSetCard(0xf10) and c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
 function s.gytg(e, tp, eg, ep, ev, re, r, rp, chk)
