@@ -46,7 +46,7 @@ function s.spop(e, tp, eg, ep, ev, re, r, rp)
 end
 
 function s.spfilter(c)
-	return c:IsSetCard(0xf10)
+	return c:IsSetCard(0xf10) and c:IsMonster() and Card.IsSpecialSummonable()
 end
 
 function s.gytg(e, tp, eg, ep, ev, re, r, rp, chk)
