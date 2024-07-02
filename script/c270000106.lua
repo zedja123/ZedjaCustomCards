@@ -30,16 +30,32 @@ function s.filter(c,tp)
 	return c:IsFaceup() and c:IsControler(tp) and c:IsCanBeXyzMaterial(nil,tp) and c:IsCanBeEffectTarget()
 end
 
-function s.xyzfilter(c,e,tp,mg)
-	return c:IsSetCard(0xf11) and (not chk or Duel.GetLocationCountFromEx(tp,tp,mg,c)>0)
+function s.xyzfilter(c,mg,tp,chk)
+	return c:IsXyzSummonable(nil,mg,2,2) and (not chk or Duel.GetLocationCountFromEx(tp,tp,mg,c)>0)
+end
+function s.mfilter1(c,mg,exg,tp)
+	return mg:IsExists(s.mfilter2,1,c,c,exg,tp)
+end
+function s.zonecheck(c,tp,g)
+	return Duel.GetLocationCountFromEx(tp,tp,g,c)>0 and c:IsXyzSummonable(nil,g)
+end
+function s.mfilter2(c,mc,exg,tp)
+	local g=Group.FromCards(c,mc)
+	return exg:IsExists(s.zonecheck,1,nil,tp,g)
 end
 
 function s.xyztg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc,tp) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,0,2,nil,tp)
-		and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,Group.CreateGroup()) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,2,2,nil,tp)
+	if chkc then return false end
+	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+	local exg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,mg)
+	if chk==0 then return mg:IsExists(s.mfilter1,1,nil,mg,exg,tp) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local sg1=mg:FilterSelect(tp,s.mfilter1,1,1,nil,mg,exg,tp)
+	local tc1=sg1:GetFirst()
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local sg2=mg:FilterSelect(tp,s.mfilter2,1,1,tc1,tc1,exg,tp)
+	sg1:Merge(sg2)
+	Duel.SetTargetCard(sg1)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
