@@ -39,7 +39,7 @@ function tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.tgfilter(c,e,tp)
-	return c:IsSetCard(0xf10) and c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0xf10) and c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
 end
 
 function tgop(e,tp,eg,ep,ev,re,r,rp)
