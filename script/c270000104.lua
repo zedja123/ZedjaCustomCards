@@ -33,10 +33,10 @@ function c270000104.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_IGNITION)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1, {id, 3})
-	e4:SetCondition(s.tdcon)
-	e4:SetCost(s.tdcost)
-	e4:SetTarget(s.tdtg)
-	e4:SetOperation(s.tdop)
+	e4:SetCondition(s.condition)
+	e4:SetCost(s.cost)
+	e4:SetTarget(s.target)
+	e4:SetOperation(s.operation)
 	c:RegisterEffect(e4)
 end
 
@@ -78,36 +78,34 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 ---- shuffle bla
-function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
+function s.cfilter(c)
+	return c:IsFaceup() and c:IsSetCard(0xf11)
+end
+
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsMainPhase()
 end
 
-function s.banfilter(c)
-	return c:IsType(TYPE_SPELL) and c:IsAbleToRemoveAsCost()
-end
-
-function s.tdcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil) end
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil,TYPE_SPELL) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil) and Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,nil,exclude)
+	local g=Duel.SelectMatchingCard(tp,Card.IsType,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil,TYPE_SPELL)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
-	e:SetLabelObject(g:GetFirst())
+	e:SetLabel(g:GetFirst():GetCode())
 end
 
-function s.tdfilter(c,exclude)
-	return c:IsAbleToDeck() and c~=exclude
+function s.filter(c,e)
+	return c:IsAbleToDeck() and (c:IsLocation(LOCATION_GRAVE) or c:IsLocation(LOCATION_REMOVED)) and c:GetCode()~=e:GetLabel()
 end
 
-function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local exclude=e:GetLabelObject()
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,nil,exclude) end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,nil,e) end
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_GRAVE+LOCATION_REMOVED)
 end
 
-function s.tdop(e,tp,eg,ep,ev,re,r,rp)
-	local exclude=e:GetLabelObject()
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,3,nil,exclude)
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,3,nil,e)
 	if #g>0 then
 		Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
 	end
