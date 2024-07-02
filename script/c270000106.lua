@@ -72,7 +72,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.XyzSummon(tp,xyz,nil,g)
 	end
 end
-fun
 
 function s.thfilter(c)
 	return c:IsSetCard(0xf11) and c:IsType(TYPE_SPELL) and not c:IsCode(id) and c:IsAbleToHand()
