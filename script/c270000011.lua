@@ -22,7 +22,7 @@ function c270000011.initial_effect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1, {id, 2})
+	e1:SetCountLimit(1, {id, 2})
 	e2:SetCost(spcost)
 	e2:SetTarget(sptg)
 	e2:SetOperation(spop)
@@ -56,7 +56,7 @@ function spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function spfilter(c,e,tp)
-	return c:IsSetCard(0xf10) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(id)
+	return c:IsSetCard(0xf10) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
 function sptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -74,5 +74,5 @@ function spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function matfilter(c,lc,sumtype,tp)
-	return c:IsRace(RACE_ROCK,lc,sumtype,tp) and not c:IsSummonCode(lc,sumtype,tp,id)
+	return c:IsRace(RACE_ROCK,lc,sumtype,tp)
 end
