@@ -30,6 +30,7 @@ function c270000104.initial_effect(c)
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,2))
 	e4:SetCategory(CATEGORY_TODECK)
+	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e4:SetType(EFFECT_TYPE_IGNITION)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1, {id, 3})
@@ -95,12 +96,16 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.filter(c,e)
-	return c:IsAbleToDeck() and (c:IsLocation(LOCATION_GRAVE) or c:IsLocation(LOCATION_REMOVED))
+	return c:IsAbleToDeck() and (c:IsLocation(LOCATION_GRAVE) or c:IsLocation(LOCATION_REMOVED)) and c:GetCode()~=e:GetLabel()
+end
+
+function s.tdfilter(c,e)
+	return c:IsAbleToDeck() and c:IsCanBeEffectTarget(e) and c:GetCode()~=e:GetLabel()
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,nil,e) end
-	local g=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,nil)
+	local g=Duel.GetMatchingGroup(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,nil,e)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED) and chkc:IsControler(tp) and s.tdfilter(chkc,e) end
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,tp,LOCATION_GRAVE+LOCATION_REMOVED)
 end
 
