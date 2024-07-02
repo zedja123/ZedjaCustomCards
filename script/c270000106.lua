@@ -6,10 +6,11 @@ function s.initial_effect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,{id,1})
-	e1:SetTarget(s.xyztg)
-	e1:SetOperation(s.xyzop)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 	
 	-- Add "Wiccanthrope" Spell when banished
@@ -26,10 +27,9 @@ function s.initial_effect(c)
 end
 
 
-function s.filter(c,tp)
-	return c:IsFaceup() and c:IsControler(tp) and c:IsCanBeEffectTarget()
+function s.filter(c,e)
+	return c:IsFaceup() and c:IsCanBeEffectTarget(e)
 end
-
 function s.xyzfilter(c,mg,tp,chk)
 	return c:IsXyzSummonable(nil,mg,2,2) and (not chk or Duel.GetLocationCountFromEx(tp,tp,mg,c)>0)
 end
@@ -43,8 +43,7 @@ function s.mfilter2(c,mc,exg,tp)
 	local g=Group.FromCards(c,mc)
 	return exg:IsExists(s.zonecheck,1,nil,tp,g)
 end
-
-function s.xyztg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 	local exg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,mg)
@@ -59,17 +58,21 @@ function s.xyztg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
-function s.xyzop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	if g:FilterCount(Card.IsRelateToEffect,nil,e)~=2 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local xyzg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,g,g)
-	if xyzg and #xyzg>0 then
+function s.tfilter(c,e)
+	return c:IsRelateToEffect(e) and c:IsFaceup()
+end
+
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(s.tfilter,nil,e)
+	if #g<2 then return end
+	local xyzg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,g,tp,true)
+	if #xyzg>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local xyz=xyzg:Select(tp,1,1,nil):GetFirst()
-		Duel.XyzSummon(tp,xyz,g,g)
+		Duel.XyzSummon(tp,xyz,nil,g)
 	end
 end
+fun
 
 function s.thfilter(c)
 	return c:IsSetCard(0xf11) and c:IsType(TYPE_SPELL) and not c:IsCode(id) and c:IsAbleToHand()
