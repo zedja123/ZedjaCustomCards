@@ -38,8 +38,8 @@ function tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
 
-function tgfilter(c)
-	return c:IsSetCard(0xf10) and c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(0xf11) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
 function tgop(e,tp,eg,ep,ev,re,r,rp)
@@ -56,7 +56,7 @@ function spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function spfilter(c,e,tp)
-	return c:IsSetCard(0xf10) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(c270000011)
+	return c:IsSetCard(0xf10) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
 function sptg(e,tp,eg,ep,ev,re,r,rp,chk)
