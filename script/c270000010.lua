@@ -39,13 +39,12 @@ function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.desfilter(c,tp)
-	return not c:IsControler(tp) and c:IsType(TYPE_MONSTER)
+	return not (c:IsControler(tp) and c:IsSetCard(0xf11) and c:IsType(TYPE_MONSTER))
 end
 
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,tp)
-	local sg=g:Filter(function(c) return not c:IsSetCard(0xf10) end,nil)
-	Duel.Destroy(sg,REASON_EFFECT)
+	Duel.Destroy(g,REASON_EFFECT)
 end
 
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
