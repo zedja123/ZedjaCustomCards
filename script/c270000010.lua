@@ -43,7 +43,7 @@ function s.desfilter(c,tp)
 end
 
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
+	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,tp)
 	local sg=g:Filter(function(c) return not c:IsSetCard(0xf10) end,nil)
 	Duel.Destroy(sg,REASON_EFFECT)
 end
