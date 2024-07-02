@@ -38,7 +38,7 @@ function tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
 
-function s.spfilter(c,e,tp)
+function s.tgfilter(c,e,tp)
 	return c:IsSetCard(0xf10) and c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
