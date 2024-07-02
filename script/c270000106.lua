@@ -27,7 +27,7 @@ end
 
 
 function s.filter(c,tp)
-	return c:IsFaceup() and c:IsControler(tp) and c:IsCanBeXyzMaterial(s.xyzfilter,tp) and c:IsCanBeEffectTarget()
+	return c:IsFaceup() and c:IsControler(tp) and c:IsCanBeXyzMaterial(nil,tp) and c:IsCanBeEffectTarget()
 end
 
 function s.xyzfilter(c,e,tp,mg)
