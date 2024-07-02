@@ -83,7 +83,7 @@ function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.banfilter(c,tp)
-	return c:IsType(TYPE_SPELL) and c:IsAbleToRemoveAsCost() and Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,c)
+	return c:IsType(TYPE_SPELL) and c:IsAbleToRemoveAsCost() and Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,c) and c:IsPosition(POS_FACEUP)
 end
 
 function s.tdcost(e,tp,eg,ep,ev,re,r,rp,chk)
