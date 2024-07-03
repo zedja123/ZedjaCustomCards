@@ -101,7 +101,7 @@ function s.lvcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.lvop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,nil,e)
 	local ct=Duel.GetFieldGroupCount(tp,LOCATION_MZONE,LOCATION_MZONE)
 	local tc=g:GetFirst()
 	for tc in aux.Next(g) do
