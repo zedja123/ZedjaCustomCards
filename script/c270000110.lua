@@ -31,7 +31,7 @@ function c270000110.initial_effect(c)
 end
 
 function s.ovfilter(c,tp,lc)
-	return c:IsFaceup() and c:IsRankBelow(4) and c:IsSetCard(0xf11,lc,SUMMON_TYPE_XYZ,tp) and not c:IsCode(id)
+	return c:IsFaceup() and c:IsRankBelow(4) and c:IsSetCard(0xf11,lc,SUMMON_TYPE_XYZ,tp)--and not c:IsCode(id)
 end
 
 -- ATK/DEF boost function
