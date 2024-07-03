@@ -57,8 +57,12 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
+function s.banfilter(c)
+	return (c:IsAbleToDeck() or c:IsAbleToHand()) and c:IsFaceup()
+end
+
 function s.tdfilter(c, tp)
-	return (c:IsAbleToDeck() or c:IsAbleToHand()) and c:IsFaceup() and Duel.IsExistingMatchingCard(c,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_REMOVED,1,c)
+	return (c:IsAbleToDeck() or c:IsAbleToHand()) and c:IsFaceup() and Duel.IsExistingMatchingCard(s.banfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,c)
 end
 
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
