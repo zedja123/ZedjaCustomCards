@@ -97,6 +97,7 @@ function s.detachop(e,tp,eg,ep,ev,re,r,rp)
 			if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)~=0 then 
 				Duel.Hint(HINT_CARD,0,id)
 				Duel.Damage(1-tp,500,REASON_EFFECT)
+			end
 		end
 	end
 end
