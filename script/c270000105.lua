@@ -105,7 +105,7 @@ function s.lvop(e,tp,eg,ep,ev,re,r,rp)
 	local ct=Duel.GetFieldGroupCount(tp,LOCATION_MZONE,LOCATION_MZONE)
 	for tc in aux.Next(g) do
 		print(tc)
-		Debug.Message("applying effect lvl/rank")
+		Debug.Message(print(tc)+"applying effect lvl/rank")
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_LEVEL)
