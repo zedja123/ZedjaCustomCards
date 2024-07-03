@@ -94,8 +94,9 @@ function s.detachop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 			local g=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
 			Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
-			Duel.Hint(HINT_CARD,0,id)
-			Duel.Damage(1-tp,500,REASON_EFFECT)
+			if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)~=0 then 
+				Duel.Hint(HINT_CARD,0,id)
+				Duel.Damage(1-tp,500,REASON_EFFECT)
 		end
 	end
 end
