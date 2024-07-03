@@ -58,7 +58,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.tdfilter(c)
-	return c:IsAbleToDeck() or c:IsSetCard(0xf11) and c:IsType(TYPE_SPELL) and c:IsAbleToHand() and c:IsFaceup()
+	return c:IsAbleToDeck() and c:IsType(TYPE_SPELL) and c:IsAbleToHand() and c:IsFaceup()
 end
 
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
