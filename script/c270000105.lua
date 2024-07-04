@@ -59,7 +59,7 @@ end
 
 
 function s.tdfilter(c,tp)
-	return c:IsAbleToDeck() and c:IsAbleToHand() and c:IsFaceup()
+	return c:IsFaceup()
 end
 
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
