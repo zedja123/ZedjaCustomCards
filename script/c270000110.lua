@@ -38,8 +38,13 @@ end
 function s.atktg(e,c)
 	return c:IsSetCard(0xf11) and c:IsType(TYPE_MONSTER)
 end
+
+function s.atkspellbanish(e,c)
+	return c:IsType(TYPE_SPELL) c:IsFaceup()
+end
+
 function s.atkval(e,c)
-	return Duel.GetMatchingGroupCount(Card.IsType,e:GetHandlerPlayer(),LOCATION_REMOVED,LOCATION_REMOVED,nil,TYPE_SPELL)*300
+	return Duel.GetMatchingGroupCount(s.atkspellbanish,e:GetHandlerPlayer(),LOCATION_REMOVED,LOCATION_REMOVED,nil,nil)*300
 end
 
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
