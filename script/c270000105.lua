@@ -76,9 +76,9 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 	local opt=Duel.SelectEffect(tp,
 		  {b1,aux.Stringid(id,3)},
 		  {b2,aux.Stringid(id,4)})
-		if opt==0 then
+		if opt==1 then
 			Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
-		elseif opt==1 then
+		elseif opt==2 then
 			Duel.SendtoHand(tc,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,tc)
 	end
