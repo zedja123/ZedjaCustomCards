@@ -62,7 +62,6 @@ function c270000105.tdfilter(c, tp)
 end
 
 function c270000105.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil,tp) end
 	local b1=c270000105.tdop(e,tp,eg,ep,ev,re,r,rp,0)
 	local b2=c270000105.thop(e,tp,eg,ep,ev,re,r,rp,0)
 	if chk==0 then return b1 or b2 end
