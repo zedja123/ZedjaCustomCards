@@ -58,26 +58,42 @@ end
 
 
 function c270000105.tdfilter(c, tp)
-	return c:IsAbleToDeck() and c:IsAbleToHand() and c:IsFaceup()
+	return c:IsAbleToDeck() and c:IsFaceup()
+end
+
+function c270000105.thfilter(c, tp)
+	return c:IsAbleToHand() and c:IsFaceup()
 end
 
 function c270000105.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=c270000105.tdop(e,tp,eg,ep,ev,re,r,rp,0)
 	local b2=c270000105.thop(e,tp,eg,ep,ev,re,r,rp,0)
-	if chk==0 then return Duel.IsExistingMatchingCard(c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil,tp) b1 or b2 end
+	if chk==0 then return b1 or b2 end
 	local op=Duel.SelectOption(tp,
 		{b1,aux.Stringid(270000105,3)},
 		{b2,aux.Stringid(270000105,4)})
 	if op==1 then
 		e:SetCategory(CATEGORY_TODECK)
 		e:SetOperation(c270000105.tdop)
+		c25311006.tdtg(e,tp,eg,ep,ev,re,r,rp,1)
 	elseif op==0 then
 		e:SetCategory(CATEGORY_TOHAND)
 		e:SetOperation(c270000105.thop)
+		c25311006.thtg(e,tp,eg,ep,ev,re,r,rp,1)
 	end
 end
 
-function c270000105.tdop(e,tp,eg,ep,ev,re,r,rp)
+function c25311006.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.SelectMatchingCard(tp,c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,0,tp,tc)
+end
+
+function c25311006.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.SelectMatchingCard(tp,c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,0,tp,tc)
+end
+
+function c270000105.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	if tc then
 		if tc:IsSetCard(0xf11) and tc:IsType(TYPE_SPELL) and tc:IsControler(tp) then
@@ -87,7 +103,7 @@ function c270000105.tdop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function c270000105.thop(e,tp,eg,ep,ev,re,r,rp)
+function c270000105.tdop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	if tc then
 		if not tc:IsSetCard(0xf11) then
