@@ -79,7 +79,6 @@ end
 
 function c270000105.tdop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local tc:GetFirst()
 	if tc then
 		if tc:IsSetCard(0xf11) and tc:IsType(TYPE_SPELL) and tc:IsControler(tp) then
 				Duel.SendtoHand(tc,nil,REASON_EFFECT)
@@ -90,7 +89,6 @@ end
 
 function c270000105.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local tc:GetFirst()
 	if tc then
 		if not tc:IsSetCard(0xf11) then
 				Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
