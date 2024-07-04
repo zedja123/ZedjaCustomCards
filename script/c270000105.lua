@@ -64,7 +64,7 @@ end
 function c270000105.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=c270000105.tdop(e,tp,eg,ep,ev,re,r,rp,0)
 	local b2=c270000105.thop(e,tp,eg,ep,ev,re,r,rp,0)
-	if chk==0 then return Duel.IsExistingMatchingCard(c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil,tp) and b1 or b2 end
+	if chk==0 then return Duel.IsExistingMatchingCard(c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil,tp) b1 or b2 end
 	local op=Duel.SelectOption(tp,
 		{b1,aux.Stringid(270000105,3)},
 		{b2,aux.Stringid(270000105,4)})
