@@ -58,7 +58,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 
-function s.tdfilter(c, tp)
+function s.tdfilter(c,tp)
 	return c:IsAbleToDeck() and c:IsAbleToHand() and c:IsFaceup()
 end
 
