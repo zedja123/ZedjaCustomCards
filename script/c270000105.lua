@@ -73,12 +73,12 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=g:GetFirst()
 	local b1 = tc:IsAbleToDeck()
 	local b2 = tc:IsSpell() and tc:IsControler(tp) and tc:IsSetCard(0xf11) and tc:IsAbleToHand()
-	local opt=Duel.SelectEffect(tp,
+	local opt=Duel.SelectOption(tp,
 		  {b1,aux.Stringid(id,3)},
 		  {b2,aux.Stringid(id,4)})
-		if opt==1 then
+		if opt==0 then
 			Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
-		elseif opt==2 then
+		elseif opt==1 then
 			Duel.SendtoHand(tc,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,tc)
 	end
