@@ -62,9 +62,10 @@ function c270000105.tdfilter(c, tp)
 end
 
 function c270000105.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return
 	local b1=c270000105.tdop(e,tp,eg,ep,ev,re,r,rp,0)
 	local b2=c270000105.thop(e,tp,eg,ep,ev,re,r,rp,0)
-	if chk==0 then return b1 or b2 end
+	if chk==0 then return Duel.IsExistingMatchingCard(c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil,tp) and b1 or b2 end
 	local op=Duel.SelectOption(tp,
 		{b1,aux.Stringid(270000105,3)},
 		{b2,aux.Stringid(270000105,4)})
@@ -79,8 +80,7 @@ end
 
 function c270000105.tdop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectMatchingCard(tp,c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil,tp)
-	local tc=g:GetFirst()
+	local tc:GetFirst()
 	if tc then
 		if tc:IsSetCard(0xf11) and tc:IsType(TYPE_SPELL) and tc:IsControler(tp) then
 				Duel.SendtoHand(tc,nil,REASON_EFFECT)
@@ -91,8 +91,7 @@ end
 
 function c270000105.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectMatchingCard(tp,c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil,tp)
-	local tc=g:GetFirst()
+	local tc:GetFirst()
 	if tc then
 		if not tc:IsSetCard(0xf11) then
 				Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
