@@ -79,6 +79,8 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 				Duel.SendtoHand(tc,nil,REASON_EFFECT)
 				Duel.ConfirmCards(1-tp,tc)
 			end
+		else
+			Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
 		end
 	end
 end
