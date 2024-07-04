@@ -75,20 +75,20 @@ function c270000105.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if op==1 then
 		e:SetCategory(CATEGORY_TODECK)
 		e:SetOperation(c270000105.tdop)
-		c25311006.tdtg(e,tp,eg,ep,ev,re,r,rp,1)
+		c270000105.tdtg(e,tp,eg,ep,ev,re,r,rp,1)
 	elseif op==0 then
 		e:SetCategory(CATEGORY_TOHAND)
 		e:SetOperation(c270000105.thop)
-		c25311006.thtg(e,tp,eg,ep,ev,re,r,rp,1)
+		c270000105.thtg(e,tp,eg,ep,ev,re,r,rp,1)
 	end
 end
 
-function c25311006.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function c270000105.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.SelectMatchingCard(tp,c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,0,tp,tc)
 end
 
-function c25311006.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function c270000105.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.SelectMatchingCard(tp,c270000105.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,0,tp,tc)
 end
