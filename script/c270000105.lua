@@ -73,7 +73,6 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=g:GetFirst()
 	local b1 = tc:IsAbleToDeck()
 	local b2 = tc:IsSpell() and tc:IsControler(tp) and c:IsSetCard(0xf11) and tc:IsAbleToHand()
-
 	local opt=Duel.SelectEffect(tp,
 		  {b1,aux.Stringid(id,3)},
 		  {b2,aux.Stringid(id,4)})
