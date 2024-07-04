@@ -1,4 +1,4 @@
--- Define the card script
+-- Prismiant Spectrum
 local s,id=GetID()
 function c270000003.initial_effect(c)
 	-- Special Summon effect
