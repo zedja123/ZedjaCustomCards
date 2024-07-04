@@ -40,7 +40,7 @@ function s.atktg(e,c)
 end
 
 function s.atkspellbanish(e,c)
-	return c:IsType(TYPE_SPELL) c:IsFaceup()
+	return c:IsType(TYPE_SPELL) and c:IsFaceup()
 end
 
 function s.atkval(e,c)
