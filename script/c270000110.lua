@@ -40,11 +40,11 @@ function s.atktg(e,c)
 end
 
 function s.atkspellbanish(e,c)
-	return c:IsFaceup()
+	return c:IsSpell() and c:IsFaceup()
 end
 
 function s.atkval(e,c)
-	return Duel.GetMatchingGroupCount(s.atkspellbanish,e:GetHandlerPlayer(),LOCATION_REMOVED,LOCATION_REMOVED,TYPE_SPELL)*300
+	return Duel.GetMatchingGroupCount(s.atkspellbanish,e:GetHandlerPlayer(),LOCATION_REMOVED,LOCATION_REMOVED,nil)*300
 end
 
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
