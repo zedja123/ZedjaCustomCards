@@ -44,7 +44,7 @@ function s.atkspellbanish(c)
 end
 
 function s.atkval(e,c)
-	return Duel.GetMatchingGroupCount(s.atkspellbanish,nil,LOCATION_REMOVED,LOCATION_REMOVED,nil)*300
+	return Duel.GetMatchingGroupCount(s.atkspellbanish,e:GetHandlerPlayer(),LOCATION_REMOVED,LOCATION_REMOVED,nil)*300
 end
 
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
