@@ -90,7 +90,6 @@ function s.detachop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetCode(EFFECT_DISABLE_EFFECT)
 		e2:SetValue(RESET_TURN_SET+RESETS_STANDARD)
 		tc:RegisterEffect(e2)
-		Duel.BreakEffect()
 		if tc and Card.IsCanBeDisabledByEffect(tc,e,REASON_EFFECT)~=0 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 			local g=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
