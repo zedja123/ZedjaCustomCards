@@ -43,6 +43,7 @@ end
 function s.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0xf11) and not c:IsCode(id)
 end
+
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,nil)
 end
