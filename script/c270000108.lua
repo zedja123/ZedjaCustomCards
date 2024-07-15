@@ -70,9 +70,7 @@ function s.setfilter(c)
 end
 function s.detachtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
-		and Duel.IsExistingMatchingCard(s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil)
-		and Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil) end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp,Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
@@ -88,7 +86,7 @@ function s.detachop(e,tp,eg,ep,ev,re,r,rp)
 			if Duel.Remove(sg,POS_FACEUP,REASON_COST)~=0 then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 				local sc=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil)
-				if #tg>0 then
+				if #sc>0 then
 						Duel.SSet(tp,sc)
 						Duel.ConfirmCards(1-tp,sc)
 						local e1=Effect.CreateEffect(e:GetHandler())
