@@ -69,7 +69,7 @@ end
 
 function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
+	if tc then
 		if tc:IsSetCard(0xf11) and tc:IsType(TYPE_SPELL) and tc:IsControler(tp) and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
 			Duel.SendtoHand(tc,nil,REASON_EFFECT)
 		else
