@@ -68,15 +68,18 @@ function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.tdop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc then
-		if tc:IsSetCard(0xf11) and tc:IsType(TYPE_SPELL) and tc:IsControler(tp) and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+	local g=Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil,tp)
+	local tc=g:GetFirst()
+	if tc and tc:IsRelateToEffect(e) then
+		if tc:IsSetCard(0xf11) and tc:IsType(TYPE_SPELL) and tc:IsControler(tp) and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
 			Duel.SendtoHand(tc,nil,REASON_EFFECT)
 		else
 			Duel.SendtoDeck(tc,nil,2,REASON_EFFECT)
 		end
 	end
 end
+
 function s.lvcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsMainPhase()
 end
