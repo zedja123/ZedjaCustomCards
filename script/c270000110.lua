@@ -92,7 +92,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			local sg=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
 			if Duel.Remove(sg,POS_FACEUP,REASON_COST)~=0 then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-				local tg=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_DECK,0,1,1,nil)
+				local tg=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_DECK,0,1,1,TYPE_SPELL)
 				if #tg>0 and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_MZONE,0,1,nil,tp) then
 					Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 					local xyz=Duel.SelectMatchingCard(tp,s.xyzfilter,tp,LOCATION_MZONE,0,1,1,nil,tp):GetFirst()
