@@ -82,20 +82,24 @@ function s.detachop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsRelateToEffect(e) then
 		if Duel.Destroy(tc,REASON_EFFECT)~=0 then
+			if Duel.IsExistingMatchingCard(s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil) 
+			and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-			local g=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
-			if #g>0 and Duel.Remove(g,POS_FACEUP,REASON_EFFECT)~=0 then
+			local sg=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
+				if Duel.Remove(sg,POS_FACEUP,REASON_COST)~=0 then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 				local sc=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil):GetFirst()
-				if sc then
-					Duel.SSet(tp,sc)
-					Duel.ConfirmCards(1-tp,sc)
-					local e1=Effect.CreateEffect(e:GetHandler())
-					e1:SetType(EFFECT_TYPE_SINGLE)
-					e1:SetCode(EFFECT_QP_ACT_IN_SET_TURN)
-					e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-					e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-					sc:RegisterEffect(e1)
+					if sc then
+						Duel.SSet(tp,sc)
+						Duel.ConfirmCards(1-tp,sc)
+						local e1=Effect.CreateEffect(e:GetHandler())
+						e1:SetType(EFFECT_TYPE_SINGLE)
+						e1:SetCode(EFFECT_QP_ACT_IN_SET_TURN)
+						e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+						e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+						sc:RegisterEffect(e1)
+				
+					end
 				end
 			end
 		end
