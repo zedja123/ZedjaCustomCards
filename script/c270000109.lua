@@ -93,14 +93,13 @@ function s.detachop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetValue(RESET_TURN_SET)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e2)
-		if tc and Card.IsCanBeDisabledByEffect(tc,e,REASON_EFFECT)~=0 then
+		-- Optional banish a Spell and inflict damage
+		if tc and Card.IsCanBeDisabledByEffect(tc,e,REASON_EFFECT)~=0
+			and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-			local g=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
-			Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
-			Duel.BreakEffect() 
-			Duel.Hint(HINT_CARD,0,id)
-			Duel.Damage(1-tp,500,REASON_EFFECT)
-			
+			local sg=Duel.SelectMatchingCard(tp,s.spellfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
+			if Duel.Remove(sg,POS_FACEUP,REASON_COST)~=0 then
+				Duel.Damage(1-tp,500,REASON_EFFECT)
+			end
 		end
-	end
 end
