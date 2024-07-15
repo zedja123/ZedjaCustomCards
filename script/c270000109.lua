@@ -93,8 +93,7 @@ function s.detachop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e2)
 		-- Optional banish a Spell and inflict damage
-		if tc and Card.IsCanBeDisabledByEffect(tc,e,REASON_EFFECT)~=0 
-			and Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil) then
+		if tc and Card.IsCanBeDisabledByEffect(tc,e,REASON_EFFECT)~=0 then
 			local sg=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 			if Duel.SelectYesNo(tp,aux.Stringid(id,2)) 
