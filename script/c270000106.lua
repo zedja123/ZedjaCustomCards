@@ -9,8 +9,8 @@ function s.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,{id,1})
-	e1:SetTarget(s.target)
-	e1:SetOperation(s.activate)
+	e1:SetTarget(s.xyztg)
+	e1:SetOperation(s.xyzop)
 	c:RegisterEffect(e1)
 	
 	-- Add "Wiccanthrope" Spell when banished
