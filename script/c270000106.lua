@@ -46,8 +46,9 @@ end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-	local exg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,mg)
-	if chk==0 then return mg:IsExists(s.mfilter1,1,nil,mg,exg,tp) end
+	local mustg=aux.GetMustBeMaterialGroup(tp,mg,tp,nil,nil,REASON_XYZ)
+	if #mustg>0 and (#mustg>2 or not mustg:IsExists(Card.IsSetCard,1,nil,0xf11)) then return false end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,mg,tp,true) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	local sg1=mg:FilterSelect(tp,s.mfilter1,1,2,nil,mg,exg,tp)
 	Duel.SetTargetCard(sg1)
@@ -60,7 +61,7 @@ end
 
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(s.tfilter,nil,e)
-	if #g<1 then return end
+	if #g<2 then return end
 	local xyzg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,g,tp,true)
 	if #xyzg>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
