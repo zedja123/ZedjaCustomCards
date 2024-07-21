@@ -28,13 +28,13 @@ function c270000008.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.spcon(e, tp, eg, ep, ev, re, r, rp)
-	local g = Duel.GetFieldGroup(tp, LOCATION_MZONE, 0)
-	return #g > 0 and g:FilterCount(Card.IsSetCard, nil, 0xf10)
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
+	return g:GetCount()>0 and g:FilterCount(s.spfilter,nil)==g:GetCount()
 end
 
 function s.spfilter(c)
-	return c:IsSetCard(0xf10) and c:IsType(TYPE_MONSTER)
+	return c:IsSetCard(0xf10) and c:IsType(TYPE_MONSTER) and c:IsFaceup()
 end
 
 function s.gytg(e, tp, eg, ep, ev, re, r, rp, chk)
