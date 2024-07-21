@@ -28,7 +28,7 @@ function c270000008.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.sprcon(e,c)
+function s.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
