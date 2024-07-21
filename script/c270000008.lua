@@ -30,7 +30,7 @@ end
 
 function s.spcon(e, tp, eg, ep, ev, re, r, rp)
 	local g = Duel.GetFieldGroup(tp, LOCATION_MZONE, 0)
-	return #g > 0 and g:FilterCount(Card.IsSetCard, nil, 0xf10) == #g
+	return #g > 0 and g:FilterCount(Card.IsSetCard, nil, 0xf10)
 end
 
 function s.spfilter(c)
