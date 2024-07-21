@@ -47,8 +47,9 @@ function s.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0xf11) and not c:IsCode(id)
 end
 
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,nil)
+function s.spcon(e,c)
+	if c==nil then return true end
+	return Duel.IsExistingMatchingCard(s.filter,c:GetControler(),LOCATION_MZONE,0,1,nil)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
