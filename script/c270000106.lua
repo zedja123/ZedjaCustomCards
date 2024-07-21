@@ -27,22 +27,33 @@ function s.initial_effect(c)
 end
 
 
+-- Filter for targeting face-up monsters
 function s.filter(c,e)
 	return c:IsFaceup() and c:IsCanBeEffectTarget(e)
 end
+
+-- Filter for Xyz monsters that can be summoned using the selected materials
 function s.xyzfilter(c,mg,tp,chk)
-	return c:IsXyzSummonable(nil,mg,2,2) and c:IsSetCard(0xf11) and (not chk or Duel.GetLocationCountFromEx(tp,tp,mg,c)>0)
+	return c:IsXyzSummonable(nil,mg,1,2) and c:IsSetCard(0xf11) and (not chk or Duel.GetLocationCountFromEx(tp,tp,mg,c)>0)
 end
+
+-- Helper function to check if there's a valid Xyz summon using selected materials
 function s.mfilter1(c,mg,exg,tp)
 	return mg:IsExists(s.mfilter2,1,c,c,exg,tp)
 end
+
+-- Check if a specific Xyz monster can be summoned from the Extra Deck
 function s.zonecheck(c,tp,g)
 	return Duel.GetLocationCountFromEx(tp,tp,g,c)>0 and c:IsXyzSummonable(nil,g)
 end
+
+-- Helper function for filtering the second material
 function s.mfilter2(c,mc,exg,tp)
 	local g=Group.FromCards(c,mc)
 	return exg:IsExists(s.zonecheck,1,nil,tp,g)
 end
+
+-- Target up to 2 monsters you control for the Xyz Summon
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
@@ -51,20 +62,24 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	local sg1=mg:FilterSelect(tp,s.mfilter1,1,1,nil,mg,exg,tp)
 	local tc1=sg1:GetFirst()
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local sg2=mg:FilterSelect(tp,s.mfilter2,1,1,tc1,tc1,exg,tp)
-	sg1:Merge(sg2)
+	if mg:IsExists(s.mfilter2,1,tc1,tc1,exg,tp) then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+		local sg2=mg:FilterSelect(tp,s.mfilter2,1,1,tc1,tc1,exg,tp)
+		sg1:Merge(sg2)
+	end
 	Duel.SetTargetCard(sg1)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
+-- Filter for ensuring the targeted monsters are still valid
 function s.tfilter(c,e)
 	return c:IsRelateToEffect(e) and c:IsFaceup()
 end
 
+-- Perform the Xyz Summon using the selected materials
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(s.tfilter,nil,e)
-	if #g<2 then return end
+	if #g<1 then return end
 	local xyzg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,g,tp,true)
 	if #xyzg>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
