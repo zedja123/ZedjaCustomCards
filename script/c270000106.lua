@@ -44,6 +44,7 @@ local sg=aux.SelectUnselectGroup(g,e,tp,1,2,s.rescon,1,tp,HINTMSG_XMATERIAL,s.re
 Duel.SetTargetCard(sg)
 Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
+end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 local g=Duel.GetTargetCards(e):Filter(Card.IsFaceup,nil)
 if #g<1 then return end
