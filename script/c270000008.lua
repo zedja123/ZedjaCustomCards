@@ -28,16 +28,16 @@ function c270000008.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.spcon(e,c)
+function s.sprcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0)>0
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
+		and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)>0
+		and not Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 
-function s.spfilter(c)
-	return c:IsType(TYPE_MONSTER) and c:IsFaceup() or not c:IsSetCard(0xf10)
+function s.rcfilter(c)
+	return c:IsFaceup() and not c:IsSetCard(0xf10)
 end
 
 function s.gytg(e, tp, eg, ep, ev, re, r, rp, chk)
