@@ -30,11 +30,6 @@ function c270000008.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.spcon(e, tp, eg, ep, ev, re, r, rp)
-	local g = Duel.GetFieldGroup(tp, LOCATION_MZONE, 0)
-	return #g > 0 and g:FilterCount(Card.IsSetCard, nil, 0xf10) == #g
-end
-
 function s.sptg(e, tp, eg, ep, ev, re, r, rp, chk)
 	if chk == 0 then return Duel.GetLocationCount(tp, LOCATION_MZONE) > 0 and e:GetHandler():IsCanBeSpecialSummoned(e, 0, tp, false, false) end
 	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
