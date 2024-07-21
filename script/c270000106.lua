@@ -9,8 +9,8 @@ function s.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,{id,1})
-	e1:SetTarget(s.xyztg)
-	e1:SetOperation(s.xyzop)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 	
 	-- Add "Wiccanthrope" Spell when banished
@@ -26,34 +26,36 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
--- Target up to 2 "Wiccanthrope" monsters you control
-function s.filter(c,e,tp)
-	return c:IsFaceup() and c:IsSetCard(0xf11) and c:IsCanBeEffectTarget(e) and c:IsCanBeXyzMaterial()
-end
 
-function s.xyztg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc,e,tp) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,0,1,nil,e,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,2,nil,e,tp)
+function s.filter(c,e)
+	return c:IsFaceup() and c:IsCanBeEffectTarget(e)
+end
+function s.xyzfilter(c,mg,tp,chk)
+	return c:IsXyzSummonable(nil,mg,2,2) and c:IsSetCard(0xf11) and (not chk or Duel.GetLocationCountFromEx(tp,tp,mg,c)>0)
+end
+function s.mfilter1(c,mg,exg,tp)
+	return mg:IsExists(s.mfilter2,1,c,c,exg,tp)
+end
+function s.zonecheck(c,tp,g)
+	return Duel.GetLocationCountFromEx(tp,tp,g,c)>0 and c:IsXyzSummonable(nil,g)
+end
+function s.mfilter2(c,mc,exg,tp)
+	local g=Group.FromCards(c,mc)
+	return exg:IsExists(s.zonecheck,1,nil,tp,g)
+end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return false end
+	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+	local exg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,mg)
+	if chk==0 then return mg:IsExists(s.mfilter1,1,nil,mg,exg,tp) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local sg1=mg:FilterSelect(tp,s.mfilter1,1,1,nil,mg,exg,tp)
+	local tc1=sg1:GetFirst()
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local sg2=mg:FilterSelect(tp,s.mfilter2,1,1,tc1,tc1,exg,tp)
+	sg1:Merge(sg2)
+	Duel.SetTargetCard(sg1)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-end
-
-function s.xyzop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
-	if g:GetCount()<1 then return end
-	if g:GetCount()>1 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-		g=g:Select(tp,1,2,nil)
-	end
-	local xyzg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_EXTRA,0,nil)
-	if xyzg:GetCount()==0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sc=xyzg:Select(tp,1,1,nil):GetFirst()
-	if sc then
-		Duel.XyzSummon(tp,sc,g)
-	end
 end
 
 function s.tfilter(c,e)
