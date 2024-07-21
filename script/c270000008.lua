@@ -28,11 +28,10 @@ function c270000008.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.spcon(e,c)
-	if c==nil then return true end
-	local tp=c:GetControler()
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
+		and not Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_MZONE,0,1,e:GetHandler())
 end
 
 function s.spfilter(c)
