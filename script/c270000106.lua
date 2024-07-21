@@ -31,7 +31,7 @@ function s.filter(c,e)
 	return c:IsFaceup() and c:IsCanBeEffectTarget(e)
 end
 function s.xyzfilter(c,mg,tp,chk)
-	return c:IsXyzSummonable(nil,mg,2,2) and c:IsSetCard(0xf11) and (not chk or Duel.GetLocationCountFromEx(tp,tp,mg,c)>0)
+	return c:IsXyzSummonable(nil,mg,1,2) and c:IsSetCard(0xf11) and (not chk or Duel.GetLocationCountFromEx(tp,tp,mg,c)>0)
 end
 function s.mfilter1(c,mg,exg,tp)
 	return mg:IsExists(s.mfilter2,1,c,c,exg,tp)
