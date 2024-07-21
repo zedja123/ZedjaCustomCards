@@ -9,8 +9,6 @@ function c270000008.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCondition(s.spcon)
-	e1:SetTarget(s.sptg)
-	e1:SetOperation(s.spop)
 	e1:SetCountLimit(1, {id, 1})
 	c:RegisterEffect(e1)
 
