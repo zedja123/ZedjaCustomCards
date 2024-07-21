@@ -15,7 +15,6 @@ function c270000010.initial_effect(c)
 	e1:SetTarget(s.destg)
 	e1:SetOperation(s.desop)
 	c:RegisterEffect(e1)
-
 	-- Quick Effect to increase ATK
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
@@ -29,23 +28,29 @@ function c270000010.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
+-- Check if the card was Synchro Summoned
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
 end
 
+-- Target all cards on the field except "Prismiant" monsters you control
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,tp)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,0,0)
+	local g=Duel.GetFieldGroup(tp,LOCATION_ONFIELD,LOCATION_ONFIELD)
+	local sg=g:Filter(s.filter,nil,tp)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,sg,#sg,0,0)
 end
 
-function s.desfilter(c,tp)
-	return not (c:IsControler(tp) and c:IsSetCard(0xf10) and c:IsType(TYPE_MONSTER))
+-- Filter out "Prismiant" monsters you control
+function s.filter(c,tp)
+	return not (c:IsFaceup() and c:IsSetCard(0xf12) and c:IsControler(tp) and c:IsType(TYPE_MONSTER))
 end
 
+-- Destroy the targeted cards
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,tp)
-	Duel.Destroy(g,REASON_EFFECT)
+	local g=Duel.GetFieldGroup(tp,LOCATION_ONFIELD,LOCATION_ONFIELD)
+	local sg=g:Filter(s.filter,nil,tp)
+	Duel.Destroy(sg,REASON_EFFECT)
 end
 
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
