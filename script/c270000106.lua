@@ -44,7 +44,6 @@ local sg=aux.SelectUnselectGroup(g,e,tp,1,2,s.rescon,1,tp,HINTMSG_XMATERIAL,s.re
 Duel.SetTargetCard(sg)
 Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
-end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 local g=Duel.GetTargetCards(e):Filter(Card.IsFaceup,nil)
 if #g<1 then return end
@@ -53,6 +52,7 @@ if #xyzg>0 then
 Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 local xyz=xyzg:Select(tp,1,1,nil):GetFirst()
 Duel.XyzSummon(tp,xyz,nil,g)
+end
 end
 
 function s.thfilter(c)
