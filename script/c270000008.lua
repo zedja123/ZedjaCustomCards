@@ -36,7 +36,7 @@ function s.spcon(e,c)
 		and not Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 
-function s.rcfilter(c)
+function s.spfilter(c)
 	return c:IsFaceup() and not c:IsSetCard(0xf10)
 end
 
