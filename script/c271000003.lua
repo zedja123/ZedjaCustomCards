@@ -133,7 +133,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local tc=Duel.SelectMatchingCard(tp,s.spfilter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp):GetFirst()
 	if tc then
-		Duel.XyzSummon(tp,tc,nil,nil,0,0)
+		Duel.SpecialSummon(tc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
 		if tc:IsLocation(LOCATION_MZONE) then
 			Duel.Overlay(tc,Group.FromCards(c))
 		end
