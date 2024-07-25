@@ -74,14 +74,31 @@ end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.NegateActivation(ev) then
 		local c=e:GetHandler()
-		local opt=Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1))
+		local opt=0
+		
+		-- Determine valid options
+		local destroyOption = Duel.IsExistingMatchingCard(s.desfilter,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_DECK,0,1,nil)
+		local summonOption = Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil,e,tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		
+		if destroyOption and summonOption then
+			opt=Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1))
+		elseif destroyOption then
+			opt=0
+		elseif summonOption then
+			opt=1
+		else
+			return
+		end
+		
 		if opt==0 then
+			-- Destroy 1 FIRE monster from your hand, field, or Deck
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 			local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_DECK,0,1,1,nil)
 			if #g>0 then
 				Duel.Destroy(g,REASON_EFFECT)
 			end
 		else
+			-- Special Summon 1 "Fire King" monster from your Deck or GY with a different Type than the monsters you control
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,e,tp)
 			if #g>0 then
