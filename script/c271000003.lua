@@ -67,13 +67,17 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
 end
 
+function s.desfilter(c)
+	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsDestructable()
+end
+
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.NegateActivation(ev) then
 		local c=e:GetHandler()
 		local opt=Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1))
 		if opt==0 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-			local g=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_DECK,0,1,1,nil)
+			local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_DECK,0,1,1,nil)
 			if #g>0 then
 				Duel.Destroy(g,REASON_EFFECT)
 			end
