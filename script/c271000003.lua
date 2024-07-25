@@ -97,7 +97,8 @@ end
 
 -- If this card is destroyed condition
 function s.spcon(c,e,tp,eg,ep,ev,re,r,rp)
-	return c:IsReason(REASON_DESTROY) and c:IsSummonType(SUMMON_TYPE_SYNCHRO)
+	local c=e:GetHandler()
+	return c:IsReason(REASON_BATTLE) or (c:IsReason(REASON_EFFECT) and c:IsSummonType(SUMMON_TYPE_SYNCHRO)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
