@@ -61,12 +61,17 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.RegisterEffect(e1,tp)
 	end
 end
-function s.aclimit(e,re,tp)
-	return not re:GetHandler():IsAttribute(ATTRIBUTE_FIRE)
+
+function s.actlimit(e,re,rp)
+	local rc=re:GetHandler()
+	return re:IsActiveType(TYPE_MONSTER) and not rc:IsAttribute(ATTRIBUTE_FIRE)
 end
+
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsReason(REASON_EFFECT) and e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
+	local c=e:GetHandler()
+	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_LINK)
 end
+
 function s.desfilter(c)
 	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsDestructable()
 end
