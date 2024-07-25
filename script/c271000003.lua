@@ -59,7 +59,7 @@ end
 
 -- Negate effect and apply one of the following effects
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return re:IsActiveType(TYPE_MONSTER) and Duel.IsChainNegatable(ev)
+	return (re:IsActiveType(TYPE_MONSTER) or re:IsHasType(EFFECT_TYPE_ACTIVATE)) and Duel.IsChainNegatable(ev)
 end
 
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
