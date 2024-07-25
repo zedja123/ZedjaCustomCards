@@ -26,7 +26,7 @@ function c271000002.initial_effect(c)
 	e2:SetCondition(s.descon)
 	e2:SetTarget(s.destg)
 	e2:SetOperation(s.desop)
-	e2:SetCountLimit(1,id,EFFECT_COUNT_CODE_DUEL)
+	e2:SetCountLimit(2,id,EFFECT_COUNT_CODE_DUEL)
 	c:RegisterEffect(e2)
 end
 function s.matfilter(c,lc,sumtype,tp)
