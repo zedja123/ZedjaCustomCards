@@ -92,7 +92,7 @@ function s.spfilter(c,e,tp)
 end
 
 -- If this card is destroyed condition
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+function s.spcon(c,e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsReason(REASON_DESTROY) and c:IsSummonType(SUMMON_TYPE_SYNCHRO)
 end
 
