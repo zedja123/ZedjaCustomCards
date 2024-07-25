@@ -30,7 +30,7 @@ function s.initial_effect(c)
 	
 	-- If this card is destroyed: Special Summon "Garunix Eternity, Hyang of the Fire Kings" and attach this card as material
 	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_ATTACH_MATERIAL)
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_DESTROYED)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
