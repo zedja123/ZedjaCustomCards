@@ -5,7 +5,7 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetRange(LOCATION_HAND+LOCATION_SZONE)
+	e1:SetRange(LOCATION_SZONE)
 	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_DUEL)
 	e1:SetCondition(s.condition)
 	e1:SetTarget(s.target)
@@ -18,7 +18,7 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter1(c,e,tp)
-	return c:IsSetCard(0x1083) and c:IsType(TYPE_XYZ) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) 
+	return c:IsSetCard(0x1083) and c:IsType(TYPE_XYZ) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not (c:IsSetCard(0x1048) or c:IsSetCard(0x1073))
 end
 
 function s.filter2(c,e,tp,mc)
