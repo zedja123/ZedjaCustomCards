@@ -23,7 +23,11 @@ function s.filter1(c,e,tp)
 		and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,c,c:GetRank()+1,pg)
 end
 
-function s.filter2(c,e,tp,mc)
+function s.filter2(c,e,tp)
+	return (c:IsSetCard(0x1073) or c:IsSetCard(0x1048)) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
+end
+
+function s.filter3(c,e,tp,mc)
 	return c:IsRank(mc:GetRank()+1) and (c:IsSetCard(0x1073) or c:IsSetCard(0x1048)) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 end
 
@@ -43,7 +47,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	if #g1>0 and Duel.SpecialSummon(g1,0,tp,tp,false,false,POS_FACEUP)~=0 then
 		local mc=g1:GetFirst()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g2=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mc)
+		local g2=Duel.SelectMatchingCard(tp,s.filter3,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mc)
 		local sc=g2:GetFirst()
 		if sc then
 			Duel.Overlay(sc,Group.FromCards(mc))
