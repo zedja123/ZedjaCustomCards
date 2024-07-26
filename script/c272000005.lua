@@ -94,9 +94,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
 			else return end
 			if op==0 then
-				Duel.SpecialSummon(tc,0,tp,tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(sg,0,tp,tp,true,true,POS_FACEUP)
 			else
-				Duel.SpecialSummon(tc,0,tp,1-tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(sg,0,tp,1-tp,true,true,POS_FACEUP)
 			end
 		end
 		Duel.ShuffleDeck(1-tp)
