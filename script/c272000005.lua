@@ -32,7 +32,6 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 			and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,nil)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA+LOCATION_GRAVE)
-	Duel.SetOperationInfo(0,CATEGORY_XYZ_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
