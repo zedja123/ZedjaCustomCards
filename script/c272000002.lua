@@ -48,20 +48,6 @@ function s.initial_effect(c)
 	e5:SetTarget(s.sptg)
 	e5:SetOperation(s.spop)
 	c:RegisterEffect(e5)
-	
-	--Special Xyz Summon condition
-	local e6=Effect.CreateEffect(c)
-	e6:SetType(EFFECT_TYPE_FIELD)
-	e6:SetCode(EFFECT_SPSUMMON_PROC)
-	e6:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e6:SetRange(LOCATION_EXTRA)
-	e5:SetCountLimit(1,{id, 2})
-	e6:SetCondition(s.xyzcon)
-	e6:SetTarget(s.xyztg)
-	e6:SetOperation(s.xyzop)
-	e6:SetValue(SUMMON_TYPE_XYZ)
-	c:RegisterEffect(e7)
-	
 	--Cannot be used as Xyz material
 	local e7=Effect.CreateEffect(c)
 	e7:SetType(EFFECT_TYPE_SINGLE)
