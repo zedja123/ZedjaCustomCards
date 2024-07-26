@@ -11,8 +11,17 @@ function s.initial_effect(c)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
+	-- Effect 1: Banish from GY to look at opponent's Deck and Extra Deck, Special Summon 1 monster
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCountLimit(2,id,EFFECT_COUNT_CODE_DUEL)
+	e2:SetCost(aux.bfgcost)
+	e2:SetOperation(s.operation)
+	c:RegisterEffect(e2)
 end
-
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp and Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2
 end
@@ -55,4 +64,22 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 			sc:CompleteProcedure()
 		end
 	end
+end
+
+function s.operation2(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,0,LOCATION_DECK+LOCATION_EXTRA,nil)
+	if #g==0 then return end
+	Duel.ConfirmCards(tp,g)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local sg=g:Select(tp,1,1,nil)
+	if sg:GetFirst():IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		local pos=POS_FACEUP
+		if sg:GetFirst():IsLocation(LOCATION_EXTRA) then
+			pos=POS_FACEUP_DEFENSE
+		end
+		Duel.SpecialSummon(sg,0,tp,tp,false,false,pos)
+	end
+	Duel.ShuffleDeck(1-tp)
 end
