@@ -45,7 +45,8 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		local sc=g2:GetFirst()
 		if sc then
 			Duel.Overlay(sc,Group.FromCards(mc))
-			Duel.XyzSummon(tp,sc,nil)
+			Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
+			sc:CompleteProcedure()
 		end
 	end
 end
