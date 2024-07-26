@@ -18,8 +18,8 @@ function s.costfilter(c,e)
 	return c:IsSetCard(0x83) and c:IsAbleToRemoveAsCost()
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_GRAVE,0,2,nil) end
-	local g=Duel.SelectMatchingCard(tp,s.costfilter2,tp,LOCATION_GRAVE,0,2,2,nil,e)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_GRAVE,0,2,e:GetHandler()) end
+	local g=Duel.SelectMatchingCard(tp,s.costfilter2,tp,LOCATION_GRAVE,0,2,2,e:GetHandler(),e)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function s.spfilter(c,e,tp)
