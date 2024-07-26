@@ -15,7 +15,7 @@ function s.initial_effect(c)
 end
 
 function s.costfilter(c)
-	return c:IsSetCard(0x83) and c:IsAbleToRemoveAsCost() and not c:IsCode(id)
+	return c:IsSetCard(0x83) and c:IsAbleToRemoveAsCost() and not e:GetHandler()
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_GRAVE,0,2,nil) end
