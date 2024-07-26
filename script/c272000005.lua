@@ -66,20 +66,20 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.operation2(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local g=Duel.GetMatchingGroup(aux.TRUE,tp,0,LOCATION_DECK+LOCATION_EXTRA,nil)
-	if #g==0 then return end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetFieldGroupCount(tp,0,LOCATION_EXTRA+LOCATION_DECK)>0 and Duel.IsPlayerCanSpecialSummon(tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,1-tp,LOCATION_EXTRA+LOCATION_DECK)
+end
+
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetFieldGroup(tp,0,LOCATION_EXTRA+LOCATION_DECK)
+	if #g<1 then return end
 	Duel.ConfirmCards(tp,g)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sg=g:Select(tp,1,1,nil)
-	if sg:GetFirst():IsCanBeSpecialSummoned(e,0,tp,false,false) then
-		local pos=POS_FACEUP
-		if sg:GetFirst():IsLocation(LOCATION_EXTRA) then
-			pos=POS_FACEUP_DEFENSE
-		end
-		Duel.SpecialSummon(sg,0,tp,tp,false,false,pos)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local sg=g:FilterSelect(tp,1,1,nil,tp,POS_FACEUP)
+	if #sg>0 then
+		Duel.SpecialSummon(sg,POS_FACEUP,REASON_EFFECT)
 	end
+	Duel.ShuffleExtra(1-tp)
 	Duel.ShuffleDeck(1-tp)
 end
