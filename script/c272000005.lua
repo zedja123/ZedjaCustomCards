@@ -82,11 +82,23 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if #g==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=g:Select(tp,1,1,nil)
-	if sg:GetFirst():IsLocation(LOCATION_EXTRA) then
-		Duel.SpecialSummon(sg,0,tp,1-tp,false,false,POS_FACEUP)
-	else
-		Duel.SpecialSummon(sg,0,tp,1-tp,false,false,POS_FACEUP)
-	end
-	Duel.ShuffleDeck(1-tp)
-	Duel.ShuffleExtra(1-tp)
+		if sg then
+			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and sg:IsCanBeSpecialSummoned(e,0,tp,true,true,POS_FACEUP)
+			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and sg:IsCanBeSpecialSummoned(e,0,tp,true,true,POS_FACEUP,1-tp)
+			local op=0
+			if b1 and b2 then
+				op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
+			elseif b1 then
+				op=Duel.SelectOption(tp,aux.Stringid(id,2))
+			elseif b2 then
+				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
+			else return end
+			if op==0 then
+				Duel.SpecialSummon(tc,0,tp,tp,true,true,POS_FACEUP)
+			else
+				Duel.SpecialSummon(tc,0,tp,1-tp,true,true,POS_FACEUP)
+			end
+		end
+		Duel.ShuffleDeck(1-tp)
+		Duel.ShuffleExtra(1-tp)
 end
