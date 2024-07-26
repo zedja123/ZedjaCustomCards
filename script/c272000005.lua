@@ -21,8 +21,8 @@ function s.filter1(c,e,tp)
 	return c:IsSetCard(0x1083) and not (c:IsSetCard(0x1048) or c:IsSetCard(0x1073)) and c:IsType(TYPE_XYZ) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
-function s.filter2(c,e,tp,mc)
-	return c:IsSetCard(0x1048) or c:IsSetCard(0x1073) and c:IsRank(mc:GetRank()+1) and mc:IsCanBeXyzMaterial(c,tp)
+function s.filter2(c,e,tp,tc)
+	return c:IsSetCard(0x1048) or c:IsSetCard(0x1073) and mc:IsCanBeXyzMaterial(c,tp)
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -41,7 +41,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	if #g1>0 and Duel.SpecialSummon(g1,0,tp,tp,false,false,POS_FACEUP)~=0 then
 		local mc=g1:GetFirst()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g2=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mc)
+		local g2=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,tc:GetRank()+1)
 		local sc=g2:GetFirst()
 		if sc then
 			Duel.Overlay(sc,Group.FromCards(mc))
