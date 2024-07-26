@@ -24,9 +24,7 @@ function s.filter1(c,e,tp)
 end
 
 function s.filter2(c,e,tp,mc)
-	return c:IsType(TYPE_XYZ) and mc:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp)
-		and c:IsRank(mc:GetRank()+1) and (c:IsSetCard(0x1073) or c:IsSetCard(0x1048))  and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0
-		and mc:IsCanBeXyzMaterial(c,tp) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
+	return c:IsRank(mc:GetRank()+1) and (c:IsSetCard(0x1073) or c:IsSetCard(0x1048)) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
