@@ -3,6 +3,7 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	--xyz summon
 	Xyz.AddProcedure(c,nil,12,2,s.ovfilter,aux.Stringid(id,0))
+	c:SetUniqueOnField(1,0,id)
 	c:EnableReviveLimit()
 	--Indestructible by battle and card effects
 	local e1=Effect.CreateEffect(c)
