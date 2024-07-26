@@ -2,7 +2,7 @@
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--xyz summon
-	Xyz.AddProcedure(c,nil,12,2)
+	Xyz.AddProcedure(c,nil,12,2,s.ovfilter,aux.Stringid(id,0))
 	c:EnableReviveLimit()
 	--Indestructible by battle and card effects
 	local e1=Effect.CreateEffect(c)
@@ -69,6 +69,10 @@ function s.initial_effect(c)
 	e7:SetCode(EFFECT_CANNOT_BE_XYZ_MATERIAL)
 	e7:SetValue(1)
 	c:RegisterEffect(e7)
+end
+
+function s.ovfilter(c,tp,lc)
+	return c:IsFaceup() and c:IsRankBelow(8) and not (c:IsRankBelow(7) or c:IsRankAbove(9)) and c:IsSetCard(0x1083,lc,SUMMON_TYPE_XYZ,tp)
 end
 
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
