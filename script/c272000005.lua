@@ -85,7 +85,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if sg:GetFirst():IsLocation(LOCATION_EXTRA) then
 		Duel.SpecialSummon(sg,0,tp,1-tp,false,false,POS_FACEUP)
 	else
-		Duel.SpecialSummon(sc,0,tp,1-tp,false,false,POS_FACEUP)
+		Duel.SpecialSummon(sg,0,tp,1-tp,false,false,POS_FACEUP)
 	end
 	Duel.ShuffleDeck(1-tp)
 	Duel.ShuffleExtra(1-tp)
