@@ -14,7 +14,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 
-function s.costfilter(c)
+function s.costfilter(c,e)
 	return c:IsSetCard(0x83) and c:IsAbleToRemoveAsCost() and not e:GetHandler()
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
