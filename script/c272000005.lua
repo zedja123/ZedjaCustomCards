@@ -18,7 +18,7 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter1(c,e,tp)
-	return c:IsSetCard(0x1083) and c:IsType(TYPE_XYZ) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x1083) and not (c:IsSetCard(0x1048) or c:IsSetCard(0x1073)) and c:IsType(TYPE_XYZ) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
 function s.filter2(c,e,tp,mc)
