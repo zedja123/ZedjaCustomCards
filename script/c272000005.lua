@@ -26,7 +26,7 @@ end
 function s.filter2(c,e,tp,mc,rk,pg)
 	if c.rum_limit and not c.rum_limit(mc,e) then return false end
 	return c:IsType(TYPE_XYZ) and mc:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp)
-		and c:IsRank(rk) and (c:IsSetCard(0x1073) or c:IsSetCard(0x1048))  and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0
+		and c:IsRank(mc:GetRank()+1) and (c:IsSetCard(0x1073) or c:IsSetCard(0x1048))  and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0
 		and mc:IsCanBeXyzMaterial(c,tp) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 end
 
@@ -46,7 +46,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	if #g1>0 and Duel.SpecialSummon(g1,0,tp,tp,false,false,POS_FACEUP)~=0 then
 		local mc=g1:GetFirst()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g2=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,tc:GetRank()+1)
+		local g2=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mc)
 		local sc=g2:GetFirst()
 		if sc then
 			Duel.Overlay(sc,Group.FromCards(mc))
