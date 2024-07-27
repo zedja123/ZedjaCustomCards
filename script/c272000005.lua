@@ -66,11 +66,11 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c,e,tp)
-	return c:IsMonster() and Duel.GetLocationCountFromEx(1-tp,tp,nil,c)>0 or Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
+	return c:IsMonster()
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,1-tp,LOCATION_DECK|LOCATION_EXTRA,0,1,nil,e,tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,1-tp,LOCATION_DECK|LOCATION_EXTRA,0,1,nil,e,tp) and Duel.GetLocationCountFromEx(1-tp,tp,nil,c)>0 or Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK+LOCATION_EXTRA)
 end
 
