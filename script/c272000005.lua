@@ -66,7 +66,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c,e,tp)
-	return c:IsMonster()
+	return c:IsMonster() and c:IsCanBeSpecialSummoned()
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -80,12 +80,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmCards(tp,g)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=g:Select(tp,1,1,nil)
-		if sg:GetFirst():IsLinkMonster() then
-			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(tp,tp,c)>0 
-			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(1-tp,tp,c)>0
-			local op=0
-		elseif not sg:GetFirst():IsLinkMonster() then
-			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		if sg then
+			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
 			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
 			local op=0
 			if b1 and b2 then
