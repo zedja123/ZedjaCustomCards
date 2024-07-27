@@ -65,7 +65,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c,e,tp)
-	return c:IsType(TYPE_MONSTER) or Duel.GetLocationCountFromEx(1-tp,tp,nil,c)>0 or Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
+	return c:IsType(TYPE_MONSTER)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
