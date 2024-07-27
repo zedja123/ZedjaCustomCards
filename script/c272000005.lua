@@ -80,14 +80,11 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmCards(tp,g)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=g:Select(tp,1,1,nil)
-		if sg:IsLinkMonster() then
+		if sg then
 			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(tp,tp,c)>0 
 			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(1-tp,tp,c)>0
 			local op=0
-		elseif not sg:IsLinkMonster() then
-			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
-			local op=0
+		else
 			if b1 and b2 then
 				op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
 			elseif b1 then
