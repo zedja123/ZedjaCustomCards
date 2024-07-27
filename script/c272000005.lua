@@ -82,7 +82,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmCards(tp,g)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=g:Select(tp,1,1,nil)
-		if not sg:IsLinkMonster() then
+		if not sg:IsType(TYPE_LINK) then
 			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
 			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
 			local op=0
@@ -99,7 +99,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 				Duel.SpecialSummon(sg,0,tp,1-tp,true,true,POS_FACEUP)
 			end
 		end
-		if sg:IsLinkMonster() then
+		if sg:IsType(TYPE_LINK) then
 			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():GetLinkedZone(tp)
 			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0  and e:GetHandler():GetLinkedZone(1-tp)
 			local op=0
