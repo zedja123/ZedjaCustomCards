@@ -65,7 +65,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.filter(c,e,tp)
+function s.filter(c)
 	return c:IsMonster()
 end
 
