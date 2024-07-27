@@ -92,9 +92,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
 			else return end
 			if op==0 then
-				Duel.SpecialSummon(sg,0,tp,tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(gf,0,tp,tp,true,true,POS_FACEUP)
 			else
-				Duel.SpecialSummon(sg,0,tp,1-tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(gf,0,tp,1-tp,true,true,POS_FACEUP)
 			end
 		elseif not gf:IsLinkMonster() then
 			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -108,9 +108,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
 			else return end
 			if op==0 then
-				Duel.SpecialSummon(sg,0,tp,tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(gf,0,tp,tp,true,true,POS_FACEUP)
 			else
-				Duel.SpecialSummon(sg,0,tp,1-tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(gf,0,tp,1-tp,true,true,POS_FACEUP)
 			end
 		end
 		Duel.ShuffleDeck(1-tp)
