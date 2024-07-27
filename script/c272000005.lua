@@ -80,8 +80,25 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmCards(tp,g)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=g:Select(tp,1,1,nil)
-		if sg then
-			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
+		if sg and sg:IsType(TYPE_LINK) then
+			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(tp,tp,c)>0 
+			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(1-tp,tp,c)>0
+			local op=0
+			if b1 and b2 then
+				op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
+			elseif b1 then
+				op=Duel.SelectOption(tp,aux.Stringid(id,2))
+			elseif b2 then
+				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
+			else return end
+			if op==0 then
+				Duel.SpecialSummon(sg,0,tp,tp,true,true,POS_FACEUP)
+			else
+				Duel.SpecialSummon(sg,0,tp,1-tp,true,true,POS_FACEUP)
+			end
+		end
+		if sg and not sg:IsType(TYPE_LINK) then
+			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
 			local op=0
 			if b1 and b2 then
