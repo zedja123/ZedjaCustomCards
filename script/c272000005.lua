@@ -67,7 +67,6 @@ end
 function s.spfilter(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and ((c:IsLocation(LOCATION_DECK) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0)
 		or (c:IsLocation(LOCATION_EXTRA) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0))
-end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK|LOCATION_EXTRA,0,1,nil,e,tp) end
@@ -75,11 +74,12 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.SelectMatchingCard(tp,s.spfilter,1-tp,LOCATION_DECK+LOCATION_EXTRA,0,1,1,TYPE_MONSTER,e,tp)
+	local g=Duel.GetFieldGroup(tp,0,LOCATION_EXTRA_LOCATION_DECK)
 	if #g==0 then return end
 	Duel.ConfirmCards(tp,g)
+	local gr=Duel.SelectMatchingCard(tp,s.spfilter,1-tp,LOCATION_DECK+LOCATION_EXTRA,0,1,1,TYPE_MONSTER,e,tp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sg=g:Select(tp,1,1,nil)
+	local sg=gr:Select(tp,1,1,nil)
 	local gf=sg:GetFirst()
 		if gf:IsLinkMonster() then
 			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
