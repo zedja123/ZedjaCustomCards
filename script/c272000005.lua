@@ -14,6 +14,7 @@ function s.initial_effect(c)
 	-- Effect 1: Banish from GY to look at opponent's Deck and Extra Deck, Special Summon 1 monster
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_GRAVE)
@@ -66,7 +67,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c,e,tp)
-	return c:IsMonster() and c:IsCanBeSpecialSummoned()
+	return c:IsMonster()
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
