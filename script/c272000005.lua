@@ -68,11 +68,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c,e,tp)
-	return c:IsMonster() or Duel.GetMatchingGroup(s.filter2,1-tp,0,LOCATION_DECK+LOCATION_EXTRA,nil,e,tp)
-end
-
-function s.filter2(c,e,tp)
-	return c:IsLinkMonster() and e:GetHandler():GetLinkedZone(tp)
+	return c:IsMonster()
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -86,9 +82,26 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmCards(tp,g)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=g:Select(tp,1,1,nil)
-		if sg then
+		if not sg:IsLinkMonster() then
 			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
 			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
+			local op=0
+			if b1 and b2 then
+				op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
+			elseif b1 then
+				op=Duel.SelectOption(tp,aux.Stringid(id,2))
+			elseif b2 then
+				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
+			else return end
+			if op==0 then
+				Duel.SpecialSummon(sg,0,tp,tp,true,true,POS_FACEUP)
+			else
+				Duel.SpecialSummon(sg,0,tp,1-tp,true,true,POS_FACEUP)
+			end
+		end
+		if sg:IsLinkMonster() then
+			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():GetLinkedZone(tp)
+			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0  and e:GetHandler():GetLinkedZone(1-tp)
 			local op=0
 			if b1 and b2 then
 				op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
