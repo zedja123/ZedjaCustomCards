@@ -65,7 +65,8 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.spfilter(c,e,tp)
-		return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCountFromEx(tp,1-tp,nil,c)>0 or Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
+	return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and ((c:IsLocation(LOCATION_DECK) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0)
+		or (c:IsLocation(LOCATION_EXTRA) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0))
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK|LOCATION_EXTRA,0,1,nil,e,tp) end
@@ -78,7 +79,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmCards(tp,g)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local gr=Duel.SelectMatchingCard(tp,s.spfilter,1-tp,LOCATION_DECK+LOCATION_EXTRA,0,1,1,TYPE_MONSTER,e,tp)
-	local gf=gr:GetFirst()
+	local sg=gr:Select(tp,1,1,nil):GetFirst()
 		if gf:IsLinkMonster() then
 			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(1-tp,tp,nil,c)>0
@@ -91,9 +92,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
 			else return end
 			if op==0 then
-				Duel.SpecialSummon(gf,0,tp,tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(sg,0,tp,tp,true,true,POS_FACEUP)
 			else
-				Duel.SpecialSummon(gf,0,tp,1-tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(sg,0,tp,1-tp,true,true,POS_FACEUP)
 			end
 		elseif not gf:IsLinkMonster() then
 			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -107,9 +108,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
 			else return end
 			if op==0 then
-				Duel.SpecialSummon(gf,0,tp,tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(sg,0,tp,tp,true,true,POS_FACEUP)
 			else
-				Duel.SpecialSummon(gf,0,tp,1-tp,true,true,POS_FACEUP)
+				Duel.SpecialSummon(sg,0,tp,1-tp,true,true,POS_FACEUP)
 			end
 		end
 		Duel.ShuffleDeck(1-tp)
