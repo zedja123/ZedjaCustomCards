@@ -14,7 +14,6 @@ function s.initial_effect(c)
 	-- Effect 1: Banish from GY to look at opponent's Deck and Extra Deck, Special Summon 1 monster
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_GRAVE)
@@ -67,13 +66,12 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c,e,tp)
-	return c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,true,true) and (c:IsLocation(LOCATION_DECK) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 or Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0)
-		or (c:IsLocation(LOCATION_EXTRA) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 or Duel.GetLocationCountFromEx(tp,1-tp,nil,c)>0)
+	return c:IsMonster()
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK|LOCATION_EXTRA,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,1-tp,LOCATION_DECK+LOCATION_EXTRA)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 or Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and Duel.GetMatchingGroup(s.filter,1-tp,0,LOCATION_DECK+LOCATION_EXTRA,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,0)
 end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
