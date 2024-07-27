@@ -50,7 +50,6 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCountFromEx(tp)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g1=Duel.SelectMatchingCard(tp,s.filter1,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,1,1,nil,e,tp)
 	if #g1>0 and Duel.SpecialSummon(g1,0,tp,tp,false,false,POS_FACEUP)~=0 then
