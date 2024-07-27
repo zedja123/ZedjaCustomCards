@@ -77,7 +77,6 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_DECK+LOCATION_EXTRA,nil,e,tp)
 	if #g==0 then return end
 	Duel.ConfirmCards(tp,g)
