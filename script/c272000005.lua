@@ -80,6 +80,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_DECK+LOCATION_EXTRA,nil,e,tp)
 	if #g==0 then return end
+	Duel.ConfirmCards(tp,g)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=g:Select(tp,1,1,nil)
 		if sg then
