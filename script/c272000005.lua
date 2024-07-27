@@ -66,7 +66,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c,e,tp)
-	return c:IsMonster()
+	return c:IsMonster() and Duel.GetLocationCountFromEx(tp,tp,nil,nil)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
