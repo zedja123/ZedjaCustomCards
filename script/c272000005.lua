@@ -75,7 +75,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.SelectMatchingCard(tp,s.spfilter,1-tp,LOCATION_DECK|LOCATION_EXTRA,0,1,1,TYPE_MONSTER,e,tp)
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,1-tp,LOCATION_DECK+LOCATION_EXTRA,0,1,1,TYPE_MONSTER,e,tp)
 	if #g==0 then return end
 	Duel.ConfirmCards(tp,g)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
