@@ -68,7 +68,11 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.filter(c,e,tp)
-	return c:IsMonster()
+	return c:IsMonster() or Duel.GetMatchingGroup(s.filter2,1-tp,0,LOCATION_DECK+LOCATION_EXTRA,nil,e,tp)
+end
+
+function s.filter2(c,e,tp)
+	return c:IsLinkMonster() and e:GetHandler():GetLinkedZone(tp)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
