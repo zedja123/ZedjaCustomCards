@@ -2,7 +2,8 @@
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--xyz summon
-	Xyz.AddProcedure(c,nil,12,2)
+	Xyz.AddProcedure(c,nil,12,2,s.ovfilter,aux.Stringid(id,0))
+	c:SetUniqueOnField(1,0,id)
 	c:EnableReviveLimit()
 	--Indestructible by battle and card effects
 	local e1=Effect.CreateEffect(c)
@@ -48,20 +49,6 @@ function s.initial_effect(c)
 	e5:SetTarget(s.sptg)
 	e5:SetOperation(s.spop)
 	c:RegisterEffect(e5)
-	
-	--Special Xyz Summon condition
-	local e6=Effect.CreateEffect(c)
-	e6:SetType(EFFECT_TYPE_FIELD)
-	e6:SetCode(EFFECT_SPSUMMON_PROC)
-	e6:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e6:SetRange(LOCATION_EXTRA)
-	e5:SetCountLimit(1,{id, 2})
-	e6:SetCondition(s.xyzcon)
-	e6:SetTarget(s.xyztg)
-	e6:SetOperation(s.xyzop)
-	e6:SetValue(SUMMON_TYPE_XYZ)
-	c:RegisterEffect(e7)
-	
 	--Cannot be used as Xyz material
 	local e7=Effect.CreateEffect(c)
 	e7:SetType(EFFECT_TYPE_SINGLE)
@@ -69,6 +56,10 @@ function s.initial_effect(c)
 	e7:SetCode(EFFECT_CANNOT_BE_XYZ_MATERIAL)
 	e7:SetValue(1)
 	c:RegisterEffect(e7)
+end
+
+function s.ovfilter(c,tp,lc)
+	return c:IsFaceup() and c:IsRankBelow(8) and not (c:IsRankBelow(7) or c:IsRankAbove(9)) and c:IsSetCard(0x1083,lc,SUMMON_TYPE_XYZ,tp)
 end
 
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
