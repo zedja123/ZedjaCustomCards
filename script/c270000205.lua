@@ -62,13 +62,13 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 		if tc:IsLocation(LOCATION_GRAVE) and tc:IsType(TYPE_MONSTER) then
 			Duel.BreakEffect()
 			Duel.MoveToField(tc,tp,tc:GetOwner(),LOCATION_SZONE,POS_FACEUP,true)
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_CHANGE_TYPE)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_TURN_SET)
-			e1:SetValue(TYPE_CONTINUOUS+TYPE_SPELL)
-			tc:RegisterEffect(e1)
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetCode(EFFECT_CHANGE_TYPE)
+		e1:SetValue(TYPE_SPELL|TYPE_CONTINUOUS)
+		e1:SetReset(RESET_EVENT|(RESETS_STANDARD&~RESET_TURN_SET))
+		tc:RegisterEffect(e1)
 		end
 	end
 end

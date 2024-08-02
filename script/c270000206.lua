@@ -1,4 +1,4 @@
---Ashens Ruller - Artorias
+--Ashens Ruler - Artorias
 local s,id=GetID()
 function s.initial_effect(c)
 	-- Special Summon itself from hand
@@ -26,14 +26,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.spfilter(c)
-	return c:IsRace(RACE_ZOMBIE)
-end
 
-function s.spcon(tp,e,c)
+
+function s.spcon(e,c)
 	if c==nil then return true end
+	local g=Duel.GetFieldGroup(c:GetControler(),LOCATION_GRAVE,0)
+	local monsters = g:Filter(Card.IsType, nil, TYPE_MONSTER)
 	return Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0
-		and Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0,nil)==0 or not Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE,0,1,nil)
+		and Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0,nil)==0 or (monsters:GetCount()>0 and monsters:FilterCount(Card.IsRace, nil, RACE_ZOMBIE) == monsters:GetCount())
 end
 
 function s.tgfilter(c)
@@ -59,13 +59,13 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 		local tc=g2:GetFirst()
 		if tc then
 			Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
-			local e1=Effect.CreateEffect(e:GetHandler())
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_CHANGE_TYPE)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET)
-			e1:SetValue(TYPE_CONTINUOUS+TYPE_SPELL)
-			tc:RegisterEffect(e1)
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetCode(EFFECT_CHANGE_TYPE)
+		e1:SetValue(TYPE_SPELL|TYPE_CONTINUOUS)
+		e1:SetReset(RESET_EVENT|(RESETS_STANDARD&~RESET_TURN_SET))
+		tc:RegisterEffect(e1)
 		end
 	end
 end
