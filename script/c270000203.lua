@@ -22,7 +22,7 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_TO_GRAVE)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCountLimit(1,{id,1})
-	e3:SetCondition(s.drcon)
+--	e3:SetCondition(s.drcon)
 	e3:SetCost(s.drcost)
 	e3:SetTarget(s.drtg)
 	e3:SetOperation(s.drop)
@@ -62,7 +62,7 @@ function s.splimit(e,c)
 end
 
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsReason(REASON_EFFECT)
+	return e:GetHandler():IsReason(REASON_EFFECT+REASON_
 end
 
 function s.cfilter(c)
