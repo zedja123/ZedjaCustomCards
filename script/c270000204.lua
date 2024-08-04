@@ -22,7 +22,6 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_TO_GRAVE)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCountLimit(1,{id,1})
---	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
@@ -57,10 +56,6 @@ end
 
 function s.splimit(e,c)
 	return not c:IsRace(RACE_ZOMBIE) and not c:IsType(TYPE_TOKEN)
-end
-
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsReason(REASON_EFFECT)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
