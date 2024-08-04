@@ -77,7 +77,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.splimit(e,c)
-	return not c:IsRace(RACE_ZOMBIE)
+	return not c:IsRace(RACE_ZOMBIE) and not c:IsType(TYPE_TOKEN)
 end
 
 -- Replacement effect target
