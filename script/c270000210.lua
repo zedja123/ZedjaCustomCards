@@ -24,12 +24,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 
 	-- If Link Summoned, make all monsters Zombie-Type
+	-- Make all monsters Zombie-Type while on the field
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetCode(EFFECT_CHANGE_RACE)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetTargetRange(LOCATION_MZONE+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE)
+	e2:SetValue(RACE_ZOMBIE)
 	e2:SetCondition(s.zombifycon)
-	e2:SetOperation(s.zombifyop)
 	c:RegisterEffect(e2)
 
 	-- Special Summon from either GY
@@ -69,18 +71,6 @@ end
 -- Check if Link Summoned
 function s.zombifycon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
-end
-
--- Make all monsters on the field and in GY Zombie-Type
-function s.zombifyop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_CHANGE_RACE)
-	e1:SetTargetRange(LOCATION_MZONE+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE)
-	e1:SetValue(RACE_ZOMBIE)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-	Duel.RegisterEffect(e1,tp)
 end
 -- Special Summon from either GY
 function s.spfilter(c,e,tp)
