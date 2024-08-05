@@ -3,7 +3,7 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Link Summon procedure
 	c:EnableReviveLimit()
-	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsSetCard,0xf13),1,1)
+	Link.AddProcedure(c,aux.FilterBoolFunctionEx(s.matfilter),1,1)
 
 	-- Special Summon from Deck
 	local e1=Effect.CreateEffect(c)
@@ -36,6 +36,9 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
+function s.matfilter(e,c)
+	return c:IsSetCard(0xf13) and c:IsLevelAbove(0) and c:IsLevelBelow(1)
+end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0xf13) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
