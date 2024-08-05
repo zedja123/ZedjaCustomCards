@@ -3,7 +3,7 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Link Summon procedure
 	c:EnableReviveLimit()
-	Link.AddProcedure(c,aux.FilterBoolFunctionEx(s.matfilter),1,1)
+	Link.AddProcedure(c,s.matfilter,1,1)
 
 	-- Special Summon from Deck
 	local e1=Effect.CreateEffect(c)
