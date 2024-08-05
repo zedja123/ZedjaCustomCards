@@ -36,24 +36,22 @@ function s.initial_effect(c)
 	e3:SetOperation(s.thop)
 	e3:SetCountLimit(1,{id,2})
 	c:RegisterEffect(e3)
-	-- Place in Pendulum Zone from Extra Deck
+	-- Place in Pendulum Zone
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,3))
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e4:SetDescription(aux.Stringid(id,0))
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e4:SetRange(LOCATION_EXTRA)
 	e4:SetCondition(s.pzcon)
-	e4:SetTarget(s.pztg)
 	e4:SetOperation(s.pzop)
-	e4:SetCountLimit(1,{id,3})
 	c:RegisterEffect(e4)
-	-- Grant effect to Link monster
+	-- While a Link monster points to this card, that card gains the effect
 	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e5:SetCode(EVENT_ADJUST)
 	e5:SetRange(LOCATION_MZONE)
-	e5:SetTargetRange(LOCATION_MZONE,0)
-	e5:SetTarget(s.eftg)
-	e5:SetLabelObject(s.granteff)
+	e5:SetCondition(s.linkcon)
+	e5:SetOperation(s.linkop)
 	c:RegisterEffect(e5)
 end
 
@@ -122,35 +120,70 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.pzcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(Card.IsType,1,nil,TYPE_LINK) and eg:IsExists(Card.IsSetCard,1,nil,0xf13)
-end
-
-function s.pztg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1) end
+	return eg:IsExists(Card.IsSetCard,1,nil,0xf13) and Duel.GetLocationCount(tp,LOCATION_PZONE)>0
 end
 
 function s.pzop(e,tp,eg,ep,ev,re,r,rp)
-	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return end
-	Duel.MoveToField(e:GetHandler(),tp,tp,LOCATION_PZONE,POS_FACEUP,true)
+	local c=e:GetHandler()
+	if c:IsFaceup() and c:IsLocation(LOCATION_EXTRA) and Duel.GetLocationCount(tp,LOCATION_PZONE)>0 then
+		Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
+	end
 end
 
-function s.eftg(e,c)
-	return c:IsType(TYPE_LINK)
+function s.linkcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsLinked()
 end
 
-function s.granteff(e,c)
-	-- Quick Effect: Add 1 "Lavoisier Sphere Field" from Deck to hand
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,4))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(1)
-	e1:SetTarget(s.lavoisiersearchtg)
-	e1:SetOperation(s.lavoisiersearchop)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	c:RegisterEffect(e1)
-	return e1
+function s.linkop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=c:GetLinkedGroup()
+	local tc=g:GetFirst()
+	while tc do
+		if not tc:IsHasEffect(id) then
+			local e1=Effect.CreateEffect(c)
+			e1:SetDescription(aux.Stringid(id,0))
+			e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+			e1:SetType(EFFECT_TYPE_IGNITION)
+			e1:SetRange(LOCATION_MZONE)
+			e1:SetCountLimit(1)
+			e1:SetTarget(s.sptg)
+			e1:SetOperation(s.spop)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e1,true)
+		end
+		tc=g:GetNext()
+	end
+end
+
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(0xXXXXX) and c:IsType(TYPE_PENDULUM) and (c:IsLocation(LOCATION_GRAVE) or (c:IsLocation(LOCATION_EXTRA) and c:IsFaceup()))
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE+LOCATION_EXTRA)
+end
+
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,1,nil,e,tp)
+	if #g>0 then
+		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		local tc=g:GetFirst()
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_DISABLE)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e1)
+		local e2=Effect.CreateEffect(e:GetHandler())
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetCode(EFFECT_DISABLE_EFFECT)
+		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e2)
+	end
 end
 
 function s.lavoisiersearchfilter(c)
