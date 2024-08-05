@@ -36,9 +36,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.matfilter(e,c)
-	return c:IsSetCard(0xf13) and c:IsLevelAbove(0) and c:IsLevelBelow(2)
+function s.matfilter(c,lc,sumtype,tp)
+	return c:IsSetCard(0xf13,lc,sumtype,tp) and c:IsLevel(1)
 end
+
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0xf13) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end

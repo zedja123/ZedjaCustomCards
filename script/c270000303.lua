@@ -1,7 +1,7 @@
--- Lavoisier Proust
+--Lavoisier Bertha
 local s,id,o=GetID()
-function s.initial_effect(c)
-	-- Pendulum Summon
+function c270000303.initial_effect(c)
+		-- Pendulum Summon
 	Pendulum.AddProcedure(c)
 	-- Special Summon from Pendulum Zone
 	local e1=Effect.CreateEffect(c)
@@ -35,56 +35,21 @@ function s.initial_effect(c)
 	e3:SetOperation(s.pzop)
 	e3:SetCountLimit(1,{id,4})
 	c:RegisterEffect(e3)
-	-- Add 1 "Lavoisier" monster from Deck to hand
+
+	-- Add 1 "Lavoisier" Spell/Trap from Deck to hand when Summoned
 	local e4=Effect.CreateEffect(c)
 	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e4:SetCode(EVENT_SUMMON_SUCCESS)
+	e4:SetProperty(EFFECT_FLAG_DELAY)
+	e4:SetCountLimit(1,{id,5})
 	e4:SetTarget(s.thtg)
 	e4:SetOperation(s.thop)
-	e4:SetCountLimit(1,{id,3})
 	c:RegisterEffect(e4)
-	-- Add 1 "Lavoisier Sphere Field" from Deck to hand
-	local e5=Effect.CreateEffect(c)
-	e5:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e5:SetType(EFFECT_TYPE_IGNITION)
-	e5:SetRange(LOCATION_MZONE)
-	e5:SetCountLimit(1,{id,5})
-	e5:SetTarget(s.thtg2)
-	e5:SetOperation(s.thop2)
+	local e5=e4:Clone()
+	e5:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e5)
-	-- While a Link monster points to this card, that card gains the effect
-	local e6=Effect.CreateEffect(c)
-	e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
-	e6:SetRange(LOCATION_MZONE)
-	e6:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
-	e6:SetTarget(s.eftg)
-	e6:SetLabelObject(e5)
-	c:RegisterEffect(e6)
 end
-
-function s.thfilter2(c)
-	return c:IsCode(270000308) and c:IsAbleToHand()
-end
-
-function s.thtg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
-end
-
-function s.thop2(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,s.thfilter2,tp,LOCATION_DECK,0,1,1,nil)
-	if #g>0 then
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,g)
-	end
-end
-
-function s.eftg(e,c)
-	return c:GetLinkedGroup():IsContains(e:GetHandler())
-end
-
 -- Pendulum Effects
 function s.spcon1(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0
@@ -130,25 +95,6 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP)
 end
 
--- Monster Effects
-function s.thfilter(c)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_MONSTER) and not c:IsCode(id) and c:IsAbleToHand()
-end
-
-function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
-end
-
-function s.thop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if #g>0 then
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,g)
-	end
-end
-
 function s.pzfilter(c,tp)
 	return c:IsType(TYPE_LINK) and c:IsSetCard(0xf13) and c:IsControler(tp)
 end
@@ -169,42 +115,22 @@ function s.pzop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.spfilter(c,e,tp)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_PENDULUM) and (c:IsLocation(LOCATION_GRAVE) or (c:IsLocation(LOCATION_EXTRA) and c:IsFaceup()))
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+--Monster effects
+
+function s.thfilter(c)
+	return c:IsSetCard(0xf13) and (c:IsType(TYPE_SPELL) or c:IsType(TYPE_TRAP)) and c:IsAbleToHand()
 end
 
-function s.spfilter(c,tp)
-	return c:IsType(TYPE_LINK) and c:IsSetCard(0xf13) and c:IsControler(tp)
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.spfilter,1,nil,tp)
-end
-
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		local zone=0
-		for tc in aux.Next(eg) do
-			if s.spfilter(tc,tp) then
-				zone=zone|tc:GetLinkedZone(tp)
-			end
-		end
-		return Duel.GetLocationCount(tp,LOCATION_MZONE,tp,LOCATION_REASON_TOFIELD,zone)>0
-			and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false)
-	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-end
-
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if not c:IsRelateToEffect(e) then return end
-	local zone=0
-	for tc in aux.Next(eg) do
-		if s.spfilter(tc,tp) then
-			zone=zone|tc:GetLinkedZone(tp)
-		end
-	end
-	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP,zone)>0 then
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
 	end
 end
