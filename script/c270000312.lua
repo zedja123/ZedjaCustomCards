@@ -37,7 +37,7 @@ function s.initial_effect(c)
 end
 
 function s.matfilter(e,c)
-	return c:IsSetCard(0xf13) and c:IsLevelAbove(0) and c:IsLevelBelow(1)
+	return c:IsSetCard(0xf13) and c:IsLevelAbove(0) and c:IsLevelBelow(2)
 end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0xf13) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
