@@ -50,7 +50,6 @@ function s.initial_effect(c)
 	-- Grant effect to Link monster
 	local e5=Effect.CreateEffect(c)
 	e5:SetType(EFFECT_TYPE_FIELD)
-	e5:SetCode(EFFECT_GRANT)
 	e5:SetRange(LOCATION_MZONE)
 	e5:SetTargetRange(LOCATION_MZONE,0)
 	e5:SetTarget(s.eftg)
