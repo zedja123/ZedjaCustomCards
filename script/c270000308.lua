@@ -12,7 +12,7 @@ function s.initial_effect(c)
 	
 	-- Negate opponent's card/effect activation in response to "Lavoisier" cards/effects
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
+	e2:SetCategory(CATEGORY_NEGATE)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_CHAINING)
 	e2:SetRange(LOCATION_FZONE)
@@ -20,7 +20,7 @@ function s.initial_effect(c)
 	e2:SetCondition(s.negcon)
 	e2:SetCost(s,negcost)
 	e2:SetTarget(s.negtg)
-	e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp) Duel.NegateEffect(ev) end)
+	e2:SetOperation(s.negop)
 	c:RegisterEffect(e2)
 end
 
@@ -52,7 +52,7 @@ function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	if ch<=0 then return false end
 	local cplayer=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_CONTROLER)
 	local ceff=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_EFFECT)
-	if Duel.IsTurnPlayer(e:GetHandler) and re:GetHandler():IsDisabled() or not Duel.IsChainDisablable(ev) then return false end
+	if re:GetHandler():IsDisabled() or not Duel.IsChainDisablable(ev) then return false end
 	return ep==1-tp and cplayer==tp and ceff:GetHandler():IsSetCard(0xf13) and (ceff:GetHandler():IsMonster() or  and ceff:GetHandler():IsSpell() or  and ceff:GetHandler():IsTrap())
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
