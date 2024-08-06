@@ -170,7 +170,7 @@ end
 -- Shuffle and spsummon with = shuffled
 
 function s.shfilter(c)
-	return c:IsType(0xf13) and c:IsAbleToDeckOrExtraAsCost() and c:IsFaceup()
+	return c:IsSetCard(0xf13) and c:IsAbleToDeckOrExtraAsCost() and c:IsFaceup()
 end
 function s.spfilter3(c,e,tp,ct,g)
 	return c:IsSetCard(0xf13) and c:IsType(TYPE_LINK) and c:IsLink(ct)
