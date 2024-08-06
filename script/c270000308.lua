@@ -51,7 +51,7 @@ function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	if ch<=0 then return false end
 	local cplayer=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_CONTROLER)
 	local ceff=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_EFFECT)
-	if re:GetHandler():IsDisabled() or not Duel.IsChainDisablable(ev) then return false end
+	if Duel.IsTurnPlayer(e:GetHandler) and re:GetHandler():IsDisabled() or not Duel.IsChainDisablable(ev) then return false end
 	return ep==1-tp and cplayer==tp and ceff:GetHandler():IsSetCard(0xf13)
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
