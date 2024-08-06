@@ -167,19 +167,21 @@ end
 
 -- Shuffle and spsummon with = shuffled
 
+-- Shuffle and spsummon with = shuffled
+
 function s.shfilter(c)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeckOrExtraAsCost() and c:IsFaceup()
+	return c:IsType(0xf13) and c:IsAbleToDeckOrExtraAsCost() and c:IsFaceup()
 end
-function s.spfilter1(c,e,tp,ct,g)
+function s.spfilter3(c,e,tp,ct,g)
 	return c:IsSetCard(0xf13) and c:IsType(TYPE_LINK) and c:IsLink(ct)
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP)
 		and Duel.GetLocationCountFromEx(tp,tp,g,c)>0
 end
 function s.spcost3(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=Duel.GetMatchingGroup(s.shfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,nil)
+	local g=Duel.GetMatchingGroup(s.shfilter3,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,nil)
 	local nums={}
 	for i=1,#g do
-		if Duel.IsExistingMatchingCard(s.spfilter1,tp,LOCATION_EXTRA,0,1,nil,e,tp,i,g) then
+		if Duel.IsExistingMatchingCard(s.spfilter3,tp,LOCATION_EXTRA,0,1,nil,e,tp,i,g) then
 			table.insert(nums,i)
 		end
 	end
@@ -200,7 +202,7 @@ function s.spop3(e,tp,eg,ep,ev,re,r,rp)
 	local ct=e:GetLabel()
 	if not ct then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.spfilter1,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,ct)
+	local g=Duel.SelectMatchingCard(tp,s.spfilter3,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,ct)
 	if #g>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
