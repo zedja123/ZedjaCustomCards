@@ -172,11 +172,7 @@ end
 function s.shfilter(c)
 	return c:IsSetCard(0xf13) and c:IsAbleToDeckOrExtraAsCost() and c:IsFaceup()
 end
-<<<<<<< HEAD
 function s.spfilter3(c,e,tp,ct,g)
-=======
-function s.spfilter(c,e,tp,ct,g)
->>>>>>> parent of 3cac231 (Update c270000303.lua)
 	return c:IsSetCard(0xf13) and c:IsType(TYPE_LINK) and c:IsLink(ct)
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP)
 		and Duel.GetLocationCountFromEx(tp,tp,g,c)>0
@@ -185,11 +181,7 @@ function s.spcost3(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(s.shfilter3,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,nil)
 	local nums={}
 	for i=1,#g do
-<<<<<<< HEAD
 		if Duel.IsExistingMatchingCard(s.spfilter3,tp,LOCATION_EXTRA,0,1,nil,e,tp,i,g) then
-=======
-		if Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,i,g) then
->>>>>>> parent of 3cac231 (Update c270000303.lua)
 			table.insert(nums,i)
 		end
 	end
@@ -210,29 +202,25 @@ function s.spop3(e,tp,eg,ep,ev,re,r,rp)
 	local ct=e:GetLabel()
 	if not ct then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-<<<<<<< HEAD
 	local g=Duel.SelectMatchingCard(tp,s.spfilter3,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,ct)
-=======
-	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,ct)
->>>>>>> parent of 3cac231 (Update c270000303.lua)
 	if #g>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
 
-function s.spfilter1(c,tp)
+function s.spfilter(c,tp)
 	return c:IsType(TYPE_LINK) and c:IsSetCard(0xf13) and c:IsControler(tp)
 end
 
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.spfilter1,1,nil,tp)
+	return eg:IsExists(s.spfilter,1,nil,tp)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local zone=0
 		for tc in aux.Next(eg) do
-			if s.spfilter1(tc,tp) then
+			if s.spfilter(tc,tp) then
 				zone=zone|tc:GetLinkedZone(tp)
 			end
 		end
