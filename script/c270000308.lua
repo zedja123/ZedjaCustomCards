@@ -38,7 +38,7 @@ function s.cfilter(c,tp)
 	return c:IsFaceup() and c:IsControler(tp) and c:IsSetCard(0xf13)
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==1-tp and re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) and Duel.IsChainNegatable(ev)
+	return rp==1-tp and Duel.IsChainNegatable(ev)
 		and Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS):IsExists(s.cfilter,1,nil,tp)
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
