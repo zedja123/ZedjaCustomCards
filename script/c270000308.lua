@@ -38,23 +38,27 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 
 -- Negate opponent's card/effect activation in response to "Lavoisier" cards/effects
-function s.cfilter(c)
-	return c:IsType(TYPE_MONSTER) and (c:IsLocation(LOCATION_HAND) or c:IsFaceup())
-end
-function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	local ch=ev-1
-	if ch==0 or not (ep==1-tp and Duel.IsChainDisablable(ev)) or re:GetHandler():IsDisabled()) then return false end
-	local ch_player,ch_eff=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_PLAYER,CHAININFO_TRIGGERING_EFFECT)
-	local ch_c=ch_eff:GetHandler()
-	return ch_player==tp and ((ch_c:IsSetCard(0xf13) and ch_eff:IsMonsterEffect()) and ch_eff:IsSpellTrapEffect())
-end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil)
 	Duel.Destroy(g,REASON_COST)
 end
+function s.cfilter(c)
+	return c:IsType(TYPE_MONSTER) and (c:IsLocation(LOCATION_HAND) or c:IsFaceup())
+end
+function s.negcon(e,tp,eg,ep,ev,re,r,rp)
+	local ch=Duel.GetCurrentChain(true)-1
+	if ch<=0 then return false end
+	local cplayer=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_CONTROLER)
+	local ceff=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_EFFECT)
+	if Duel.IsTurnPlayer(e:GetHandler)re:GetHandler():IsDisabled() or not Duel.IsChainDisablable(ev) then return false end
+	return ep==1-tp and cplayer==tp and ceff:GetHandler():IsSetCard(0xf13) and (ceff:GetHandler():IsMonster() or  and ceff:GetHandler():IsSpell() or  and ceff:GetHandler():IsTrap())
+end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
+	if chk==0 then return not re:GetHandler():IsStatus(STATUS_DISABLED) end
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
+end
+function s.negop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.NegateEffect(ev)
 end
