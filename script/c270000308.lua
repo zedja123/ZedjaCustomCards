@@ -18,7 +18,6 @@ function s.initial_effect(c)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetCountLimit(1,{id,2})
 	e2:SetCondition(s.negcon)
-	e2:SetCost(s,negcost)
 	e2:SetTarget(s.negtg)
 	e2:SetOperation(s.negop)
 	c:RegisterEffect(e2)
@@ -38,15 +37,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 
 -- Negate opponent's card/effect activation in response to "Lavoisier" cards/effects
-function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil)
-	Duel.Destroy(g,REASON_COST)
-end
-function s.cfilter(c)
-	return c:IsType(TYPE_MONSTER) and (c:IsLocation(LOCATION_HAND) or c:IsFaceup())
-end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	local ch=Duel.GetCurrentChain(true)-1
 	if ch<=0 then return false end
