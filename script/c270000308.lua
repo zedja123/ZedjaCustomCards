@@ -11,11 +11,13 @@ function s.initial_effect(c)
 	
 	-- Negate opponent's card/effect activation in response to "Lavoisier" cards/effects
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_NEGATE)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_CHAINING)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetCondition(s.negcon)
+	e2:SetCost(s.negcost)
+	e2:SetTarget(s.negtg)
 	e2:SetOperation(s.negop)
 	c:RegisterEffect(e2)
 end
@@ -34,21 +36,26 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 
 -- Negate opponent's card/effect activation in response to "Lavoisier" cards/effects
-function s.cfilter(c,tp)
-	return c:IsFaceup() and c:IsControler(tp) and c:IsSetCard(0xf13)
+function s.cfilter(c)
+	return c:IsType(TYPE_MONSTER) and (c:IsLocation(LOCATION_HAND) or c:IsFaceup())
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==1-tp and Duel.IsChainNegatable(ev)
-		and Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS):IsExists(s.cfilter,1,nil,tp)
+	local ex,tc,loc,locp=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_CONTROLER)
+	return rp==1-tp and Duel.IsChainNegatable(ev) and ex
+		and (loc & (LOCATION_HAND+LOCATION_MZONE+LOCATION_SZONE+LOCATION_FZONE+LOCATION_GRAVE+LOCATION_REMOVED+LOCATION_EXTRA))~=0
+		and locp==tp and ex:GetHandler():IsSetCard(0xf13)
+end
+function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil)
+	Duel.Destroy(g,REASON_COST)
+end
+function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsChainNegatable(ev) end
+	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.IsExistingMatchingCard(Card.IsDestructable,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil)
-		and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil)
-		if #g>0 then
-			Duel.Destroy(g,REASON_EFFECT)
-			Duel.NegateActivation(ev)
-		end
+	return Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re)
 	end
 end
