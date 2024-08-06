@@ -38,17 +38,24 @@ end
 
 -- Negate opponent's card/effect activation in response to "Lavoisier" cards/effects
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
+	if not (ep==1-tp and Duel.IsChainDisablable(ev)) or re:GetHandler():IsDisabled() then return false end
 	local ch=Duel.GetCurrentChain(true)-1
-	if ch<=0 then return false end
-	local cplayer=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_CONTROLER)
-	local ceff=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_EFFECT)
-	if re:GetHandler():IsDisabled() or not Duel.IsChainDisablable(ev) then return false end
-	return ep==1-tp and cplayer==tp and ceff:GetHandler():IsSetCard(0xf13) and ceff:GetHandler():IsMonster()
+	if ch>0 then
+		local cplayer=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_CONTROLER)
+		local ceff=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_EFFECT)
+		if cplayer==tp and ceff:GetHandler():IsSetCard(0xf13) and ceff:IsMonsterEffect() then
+			return true
+		end
+	end
 end
-function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return not re:GetHandler():IsStatus(STATUS_DISABLED) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.NegateEffect(ev)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)>0 then
+		Duel.NegateEffect(ev)
+	end
 end
