@@ -171,7 +171,7 @@ function s.shfilter(c)
 	return c:IsSetCard(0xf13) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeckOrExtraAsCost() and c:IsFaceup()
 end
 function s.spfilter(c,e,tp,ct,g)
-	return c:IsType(0xf13) and c:IsType(TYPE_LINK) and c:IsLink(ct)
+	return c:IsSetCard(0xf13) and c:IsType(TYPE_LINK) and c:IsLink(ct)
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP)
 		and Duel.GetLocationCountFromEx(tp,tp,g,c)>0
 end
