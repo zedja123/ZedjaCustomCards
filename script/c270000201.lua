@@ -50,9 +50,9 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if b1 and b2 then
 		opt=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
 	elseif b1 then
-		opt=Duel.SelectOption(tp,aux.Stringid(id,1))
+		opt=0
 	else
-		opt=Duel.SelectOption(tp,aux.Stringid(id,2))
+		opt=1
 	end
 
 	if opt==0 then
