@@ -6,6 +6,7 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND)
+	e1:SetCountLimit(1,{id,1})
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 	
@@ -15,7 +16,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_CHAINING)
 	e2:SetRange(LOCATION_FZONE)
-	e2:SetCountLimit(2,id)
+	e2:SetCountLimit(1,{id,2})
 	e2:SetCost(s.negcost)
 	e2:SetCondition(s.negcon)
 	e2:SetTarget(s.negtg)
@@ -27,9 +28,9 @@ function s.initial_effect(c)
 	e3:SetDescription(aux.Stringid(id,1))
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_FZONE)
-	e3:SetCountLimit(1)
-	e3:SetTarget(s.sstg)
-	e3:SetOperation(s.ssop)
+	e3:SetCountLimit(1,{id,3})
+	e3:SetTarget(s.sptg)
+	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
 end
 
@@ -71,29 +72,35 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
 
-function s.arsenfilter(c)
-	return c:IsCode(0xf14) and c:IsType(TYPE_MONSTER)
+function s.spfilter(c,e,tp)
+	return c:IsCode(0xf14) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,false,true)
 end
 
-function s.ssfilter(c,tp)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
+function s.mfilter(c)
+	return c:GetLevel()>0 and c:IsAbleToGrave()
 end
 
-function s.sstg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.arsenfilter,tp,LOCATION_DECK,0,1,nil)
-		and Duel.CheckReleaseGroup(tp,s.ssfilter,1,false,1,true,c,tp,nil,false,nil) end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then
+		local mg=Duel.GetRitualMaterial(tp)
+		return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp)
+			and mg:CheckWithSumGreater(s.spfilter,Card.GetLevel,7)
+	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 end
 
-function s.ssop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local rg=Duel.SelectReleaseGroup(tp,s.ssfilter,1,1,false,true,true,c,tp,nil,false,nil)
-	if #rg>0 then
-		Duel.Release(rg,REASON_EFFECT)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,s.arsenfilter,tp,LOCATION_DECK,0,1,1,nil)
-		if #g>0 then
-			Duel.SpecialSummon(g,SUMMON_TYPE_RITUAL,tp,tp,false,true,POS_FACEUP)
-		end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local mg=Duel.GetRitualMaterial(tp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local tg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
+	local tc=tg:GetFirst()
+	if tc then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+		local mat=mg:SelectWithSumGreater(tp,Card.GetLevel,tc:GetLevel())
+		tc:SetMaterial(mat)
+		Duel.ReleaseRitualMaterial(mat)
+		Duel.BreakEffect()
+		Duel.SpecialSummon(tc,SUMMON_TYPE_RITUAL,tp,tp,false,true,POS_FACEUP)
+		tc:CompleteProcedure()
 	end
 end
