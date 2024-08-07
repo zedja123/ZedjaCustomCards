@@ -24,14 +24,9 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	
 	-- Ritual Summon "Lavoisier Arsenal"
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,0))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	local e3=Ritual.CreateProc(c,RITPROC_GREATER,aux.FilterBoolFunction(Card.IsSetCard,0xf14),LOCATION_DECK,nil,aux.Stringid(id,1))
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_FZONE)
-	e3:SetCountLimit(1,{id,3})
-	e3:SetTarget(s.sptg)
-	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
 end
 
@@ -71,34 +66,4 @@ end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
-end
-
-function s.spfilter(c,e,tp)
-	return c:IsCode(0xf14) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-end
-
-function s.mfilter(c)
-	return c:IsLevelAbove(1) and c:IsAbleToGrave()
-end
-
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		local mg=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,nil)
-		return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) and mg:CheckWithSumGreater(Card.GetLevel,7)
-	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
-end
-
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local tg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
-	local tc=tg:GetFirst()
-	if tc then
-		local mg=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,nil)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-		local mat=mg:SelectWithSumGreater(tp,Card.GetLevel,tc:GetLevel())
-		Duel.SendtoGrave(mat,REASON_EFFECT+REASON_COST)
-		Duel.BreakEffect()
-		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
-	end
 end
