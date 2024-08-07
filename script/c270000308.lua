@@ -23,7 +23,7 @@ function s.initial_effect(c)
 	e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp) Duel.NegateEffect(ev) end)
 	c:RegisterEffect(e2)
 
-	local e3=Ritual.CreateProc(c,RITPROC_GREATER,aux.FilterBoolFunction(Card.IsSetCard,0xf14),nil,aux.Stringid(id,1))
+	local e3=Ritual.CreateProc(c,RITPROC_GREATER,aux.FilterBoolFunction(Card.IsSetCard,0xf14),nil,aux.Stringid(id,1),nil,nil,nil,nil,LOCATION_DECK,nil,nil,nil)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_FZONE)
 	c:RegisterEffect(e3)
