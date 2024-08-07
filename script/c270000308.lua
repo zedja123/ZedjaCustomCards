@@ -74,7 +74,7 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.spfilter(c,e,tp)
-	return c:IsCode(0xf14) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsCode(0xf14)
 end
 
 function s.mfilter(c)
