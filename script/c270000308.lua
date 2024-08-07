@@ -24,7 +24,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	
 	-- Ritual Summon "Lavoisier Arsenal"
-	local e3=Ritual.CreateProc(c,RITPROC_GREATER,aux.FilterBoolFunction(Card.IsSetCard,0xf14),LOCATION_DECK,nil,aux.Stringid(id,1))
+	local e3=Ritual.CreateProc(c,RITPROC_GREATER,aux.FilterBoolFunction(Card.IsSetCard,0xf14),nil,nil.nil,nil,LOCATION_DECK,nil,nil,nil)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_FZONE)
 	c:RegisterEffect(e3)
