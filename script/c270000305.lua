@@ -54,7 +54,7 @@ end
 
 -- Monster Effect: Trap negate, place in Pendulum Zone, and Special Summon 1 "Lavoisier" monster from Extra Deck
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
-	return rp~=tp and re:IsType(TYPE_TRAP) and Duel.IsChainNegatable(ev)
+	return rp~=tp and re:IsTrapEffect() and Duel.IsChainNegatable(ev)
 end
 
 function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
