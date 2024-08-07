@@ -29,8 +29,8 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_FZONE)
 	e3:SetCountLimit(1,{id,3})
-	e3:SetTarget(s.sptg)
-	e3:SetOperation(s.spop)
+	e3:SetTarget(s.rstg)
+	e3:SetOperation(s.rsop)
 	c:RegisterEffect(e3)
 end
 
@@ -80,7 +80,7 @@ function s.mfilter(c)
 	return c:GetLevel()>0 and c:IsAbleToGrave()
 end
 
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.rstg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local mg=Duel.GetRitualMaterial(tp)
 		return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp)
@@ -89,7 +89,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 end
 
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.rsop(e,tp,eg,ep,ev,re,r,rp)
 	local mg=Duel.GetRitualMaterial(tp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local tg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
