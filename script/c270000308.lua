@@ -74,7 +74,7 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.spfilter(c,e,tp)
-	return c:IsCode(0xf14)
+	return c:IsCode(0xf14) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
 function s.mfilter(c)
@@ -97,7 +97,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		local mg=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,nil)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
 		local mat=mg:SelectWithSumGreater(tp,Card.GetLevel,tc:GetLevel())
-		Duel.SendtoGrave(mat,REASON_EFFECT+REASON_MATERIAL)
+		Duel.SendtoGrave(mat,REASON_EFFECT+REASON_COST)
 		Duel.BreakEffect()
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	end
