@@ -23,12 +23,13 @@ function s.initial_effect(c)
 	e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp) Duel.NegateEffect(ev) end)
 	c:RegisterEffect(e2)
 	
-	-- Special Summon "Lavoisier Arsenal"
+	-- Ritual Summon "Lavoisier Arsenal"
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_RITUAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_FZONE)
-	e3:SetCountLimit(1,{id,3})
+	e3:SetCountLimit(1,{id,2})
 	e3:SetTarget(s.rstg)
 	e3:SetOperation(s.rsop)
 	c:RegisterEffect(e3)
