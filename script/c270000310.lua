@@ -61,7 +61,7 @@ end
 
 -- Tribute 1 card this card points to to destroy 1 card on the field
 function s.desfilter(c)
-	return c:IsFaceup() and c:IsCanBeEffectTarget(e)
+	return c:IsFaceup() and c:IsDestructable()
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingTarget(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) and e:GetHandler():GetLinkedGroup():IsExists(s.desfilter,1,nil) end
