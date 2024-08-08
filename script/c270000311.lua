@@ -30,7 +30,7 @@ function s.initial_effect(c)
 end
 
 function s.lcheck(g,lc,sumtype,tp)
-	return g:IsSetCard(0xf13,lc,sumtype,tp)
+	return g:IsExists(Card.IsSetCard,1,nil,0xf13,lc,sumtype,tp)
 end
 -- Target 1 "Lavoisier" Pendulum monster in Extra Deck
 function s.penfilter(c)
