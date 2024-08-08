@@ -34,7 +34,7 @@ function s.matfilter(c,lc,sumtype,tp)
 end
 
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0xf13) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0xf13) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsSetCard(0xf14)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
