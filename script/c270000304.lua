@@ -74,7 +74,6 @@ function s.tg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.op(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOEXTRA)
 	local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil):GetFirst()
 	if tc then
 		Duel.SendtoExtraP(tc,nil,REASON_EFFECT)
