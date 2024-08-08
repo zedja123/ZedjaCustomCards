@@ -48,7 +48,8 @@ end
 
 --Destroy this card to increase ATK
 function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.Destroy(e:GetHandler(),REASON_COST) end
+	if chk==0 then return e:GetHandler():IsDestructable() end
+	Duel.Destroy(e:GetHandler(),REASON_COST)
 end
 
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)

@@ -78,7 +78,8 @@ end
 
 -- Cost: Destroy this card
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	return Duel.Destroy(e:GetHandler(),REASON_COST)
+	if chk==0 then return e:GetHandler():IsDestructable() end
+	Duel.Destroy(e:GetHandler(),REASON_COST)
 end
 
 -- Target 1 "Lavoisier" card in the GY
