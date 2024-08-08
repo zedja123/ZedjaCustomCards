@@ -67,6 +67,10 @@ function c270000303.initial_effect(c)
 	e8:SetLabelObject(e7)
 	c:RegisterEffect(e8)
 end
+function s.eftg(e,c)
+	return c:GetLinkedGroup():IsContains(e:GetHandler())
+end
+
 -- Pendulum Summon restriction
 function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
 	return not c:IsSetCard(0xf13) and (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
