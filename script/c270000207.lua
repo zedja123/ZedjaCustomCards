@@ -39,9 +39,12 @@ function s.indestg(e,c)
 	return c:IsSetCard(0xf12)
 end
 
+function s.cfilter(c)
+	return c:IsFacedown() or not c:IsRace(RACE_ZOMBIE)
+end
+
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return aux.exccon(e,tp,eg,ep,ev,re,r,rp)
-		and not Duel.IsExistingMatchingCard(aux.NOT(aux.FaceupFilter(Card.IsRace,RACE_ZOMBIE)),tp,LOCATION_MZONE,0,1,nil)
+	return not Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
