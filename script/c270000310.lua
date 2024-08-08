@@ -71,7 +71,7 @@ function s.descost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 -- Target: Destroy 1 card on the field
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
+	if chkc then return chkc:IsOnField() end
 	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,1,nil)
@@ -83,22 +83,6 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsRelateToEffect(e) then
 		Duel.Destroy(tc,REASON_EFFECT)
-	end
-end
-function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
-		local g=e:GetHandler():GetLinkedGroup():Filter(Card.IsControler,tp,nil)
-		if #g>0 then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-			local tg=Duel.SelectMatchingCard(tp,function(c)return c:IsControler(tp) and c:IsFaceup() and c:IsCanBeEffectTarget(e) end,tp,LOCATION_ONFIELD,0,1,1,nil)
-			if #tg>0 then
-				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-				local tcg=tg:GetFirst()
-				Duel.SendtoGrave(tcg,REASON_EFFECT)
-				Duel.Destroy(tc,REASON_EFFECT)
-			end
-		end
 	end
 end
 
