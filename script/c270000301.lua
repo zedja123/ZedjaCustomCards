@@ -203,5 +203,14 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP,zone)>0 then
+		-- Lock Extra Deck summons to "Lavoisier" monsters
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+		e1:SetTargetRange(1,0)
+		e1:SetTarget(s.extralimit)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1,tp)
 	end
 end
