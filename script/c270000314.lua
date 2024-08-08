@@ -35,14 +35,6 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetValue(8)
 	c:RegisterEffect(e3)
-	
-	-- Can be Pendulum Summoned as Level/Rank 8
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(EFFECT_PENDULUM_LEVEL)
-	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e4:SetValue(8)
-	c:RegisterEffect(e4)
 
 	-- Detach material to place a "Lavoisier" in Pendulum Zone
 	local e5=Effect.CreateEffect(c)
