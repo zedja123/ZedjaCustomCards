@@ -1,14 +1,14 @@
 -- Define the card
 local s,id=GetID()
 function s.initial_effect(c)
-	-- Pendulum Effect
+	-- Cannot Pendulum Summon except "Lavoisier" monsters
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_PENDULUM)
+	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
 	e1:SetRange(LOCATION_PZONE)
-	e1:SetCondition(s.pendulum_condition)
-	e1:SetValue(s.pendulum_limit)
+	e1:SetTargetRange(1,0)
+	e1:SetTarget(s.pendlimit)
 	c:RegisterEffect(e1)
 
 	local e2=Effect.CreateEffect(c)
@@ -44,12 +44,8 @@ function s.initial_effect(c)
 end
 
 -- Pendulum Effect: Restrict Pendulum Summons
-function s.pendulum_condition(e)
-	return e:GetHandler():IsFaceup() and e:GetHandler():IsType(TYPE_PENDULUM)
-end
-
-function s.pendulum_limit(e,c,sump,sumtype,sumpos,targetp)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_PENDULUM)
+function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
+	return not c:IsSetCard(0xf13) and (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
 end
 
 -- Pendulum Effect: Fusion Summon
