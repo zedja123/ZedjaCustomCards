@@ -89,9 +89,9 @@ function s.monster_target(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.monster_operation(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.IsExistingMatchingCard(nil,tp,LOCATION_CONTROL,0,1,nil) then
+	if Duel.IsExistingMatchingCard(nil,tp,LOCATION_ONFIELD,0,1,nil) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_CONTROL,0,1,1,nil)
+		local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_ONFIELD,0,1,1,nil)
 		if #g>0 then
 			Duel.Destroy(g,REASON_EFFECT)
 			if Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_EXTRA,0,2,nil,0xf13) then
