@@ -1,6 +1,9 @@
 -- Define the card
 local s,id=GetID()
 function s.initial_effect(c)
+	-- Synchro Summon Procedure
+	c:EnableReviveLimit()
+	Synchro.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsType,TYPE_TUNER),1,1,aux.FilterBoolFunctionEx(Card.IsType,TYPE_MONSTER),1,1)
 	-- Cannot Pendulum Summon except "Lavoisier" monsters
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
