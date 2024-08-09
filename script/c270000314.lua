@@ -118,26 +118,26 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- Cost to destroy this card
-function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsDestructable() end
-	Duel.Destroy(e:GetHandler(),REASON_COST)
+function s.spfilter(c,e,tp)
+	return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
--- Special Summon all Xyz Materials used for the Xyz Summon
-function s.spfilter(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and (c:IsLocation(LOCATION_GRAVE) or c:IsLocation(LOCATION_REMOVED))
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsDestructable() and c:GetMaterialCount()>0 end
+	Duel.Destroy(c,REASON_COST)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=e:GetHandler():GetOverlayGroup():Filter(s.spfilter,nil,e,tp)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>#g and #g>0 end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,#g,0,0)
+	local mg=e:GetHandler():GetMaterial()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>=#mg
+		and mg:IsExists(s.spfilter,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,mg,#mg,0,0)
 end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local g=e:GetHandler():GetOverlayGroup():Filter(s.spfilter,nil,e,tp)
+	local mg=e:GetHandler():GetMaterial()
+	local g=mg:Filter(s.spfilter,nil,e,tp)
 	if #g>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
