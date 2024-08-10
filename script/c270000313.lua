@@ -17,7 +17,11 @@ function s.initial_effect(c)
 	e1:SetCost(s.negcost)
 	e1:SetCondition(s.negcon)
 	e1:SetTarget(s.negtg)
-	e1:SetOperation(function(c,e,tp,eg,ep,ev,re,r,rp) local c=e:GetHandler() if Duel.NegateEffect(ev) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end end)
+	e1:SetOperation(function(c,e,tp,eg,ep,ev,re,r,rp) if Duel.NegateEffect(ev) then		 
+		local c=e:GetHandler()
+		if c:IsRelateToEffect(e) then
+			Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+		end end)
 	c:RegisterEffect(e1)
 	
 	-- Cannot be destroyed by battle
