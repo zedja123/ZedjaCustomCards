@@ -19,7 +19,7 @@ function s.initial_effect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1)
+	e2:SetCountLimit(1,{id,1})
 	e2:SetTarget(s.target)
 	e2:SetOperation(s.operation)
 	c:RegisterEffect(e2)
@@ -39,6 +39,8 @@ function s.initial_effect(c)
 	local e5=Effect.CreateEffect(c)
 	e5:SetType(EFFECT_TYPE_IGNITION)
 	e5:SetRange(LOCATION_MZONE)
+	e5:SetCountLimit(1,{id,3})
+	e5:SetCondition(s.con)
 	e5:SetTarget(s.pztg)
 	e5:SetOperation(s.pzop)
 	c:RegisterEffect(e5)
@@ -109,6 +111,11 @@ function s.monster_operation(e,tp,eg,ep,ev,re,r,rp)
 			end
 		end
 	end
+end
+
+
+function s.con(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1)
 end
 
 function s.pztg(e,tp,eg,ep,ev,re,r,rp,chk)
