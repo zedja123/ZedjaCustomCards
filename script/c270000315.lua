@@ -35,15 +35,14 @@ function s.initial_effect(c)
 	e3:SetOperation(s.monster_operation)
 	c:RegisterEffect(e3)
 
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e4:SetCode(EVENT_FREE_CHAIN)
-	e4:SetRange(LOCATION_PZONE)
-	e4:SetCountLimit(1,id)
-	e4:SetCost(s.pendulum_cost)
-	e4:SetTarget(s.pendulum_target)
-	e4:SetOperation(s.pendulum_operation)
-	c:RegisterEffect(e4)
+	-- Place in Pendulum Zone and additional Pendulum Summon effect
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetCondition(s.pzcon)
+	e5:SetTarget(s.pztg)
+	e5:SetOperation(s.pzop)
+	c:RegisterEffect(e5)
 end
 
 -- Pendulum Effect: Restrict Pendulum Summons
@@ -108,27 +107,53 @@ function s.monster_operation(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- Cost for placing the card in the Pendulum Zone
-function s.pendulum_cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsCanPlaceInPendulumZone(tp) end
-	-- Place the card in the Pendulum Zone as a cost
-	Duel.MoveToField(e:GetHandler(),tp,tp,LOCATION_PZONE,POS_FACEUP,true)
+function s.pzcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetTurnPlayer()==tp
 end
 
--- Target for additional Pendulum Summon
-function s.pendulum_target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
-	Duel.SetOperationInfo(0,CATEGORY_SUMMON,nil,0,tp,LOCATION_MZONE)
+function s.pzop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true) then
+		-- Allow an additional Pendulum Summon
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetCode(EFFECT_EXTRA_PENDULUM_SUMMON)
+		e1:SetTargetRange(LOCATION_HAND+LOCATION_EXTRA,0)
+		e1:SetRange(LOCATION_PZONE)
+		e1:SetCondition(s.pscon)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1,tp)
+	end
 end
 
--- Operation for additional Pendulum Summon
-function s.pendulum_operation(e,tp,eg,ep,ev,re,r,rp)
-	-- Additional Pendulum Summon during Main Phase
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_EXTRA_PENDULUM_SUMMON)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e1:SetTargetRange(1,0)
-	e1:SetReset(RESET_PHASE+PHASE_MAIN1)
-	Duel.RegisterEffect(e1,tp)
+function s.pscon(e)
+	return Duel.GetFlagEffect(e:GetHandlerPlayer(),id)==0
+end
+
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetFlagEffect(tp,id)==0
+end
+
+function s.pztg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+
+-- Activate effect to move the card to Pendulum Zone
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true) then
+		-- You can conduct 1 Pendulum Summon of a monster(s) in addition to your Pendulum Summon this turn
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetCode(EFFECT_EXTRA_PENDULUM_SUMMON)
+		e1:SetTargetRange(LOCATION_HAND+LOCATION_EXTRA,0)
+		e1:SetRange(LOCATION_PZONE)
+		e1:SetCondition(s.condition)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1,tp)
+		Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
+	end
 end
