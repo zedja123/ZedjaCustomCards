@@ -123,8 +123,8 @@ function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
 	local g2=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_ONFIELD,1,1,1,nil)
-	local Merge(g,g2)
-	Duel.Destroy(g,REASON_COST)
+	local group=Merge(g,g2)
+	Duel.Destroy(group,REASON_COST)
 end
 
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
