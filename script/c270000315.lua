@@ -131,15 +131,11 @@ function s.pzop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetCode(EFFECT_EXTRA_PENDULUM_SUMMON)
 		e1:SetTargetRange(LOCATION_HAND+LOCATION_EXTRA,0)
 		e1:SetRange(LOCATION_PZONE)
-		e1:SetCondition(s.pscon)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		Duel.RegisterEffect(e1,tp)
 	end
 end
 
-function s.pscon(e)
-	return Duel.GetFlagEffect(e:GetHandlerPlayer(),id)==0
-end
 
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetFlagEffect(tp,id)==0
