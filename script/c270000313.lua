@@ -7,18 +7,17 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	Fusion.AddProcMix(c,true,true,aux.FilterBoolFunction(Card.IsCode,270000301),aux.FilterBoolFunction(Card.IsCode,270000303),aux.FilterBoolFunction(Card.IsCode,270000304))
 
-	-- Pendulum Effect: Negate activation and Special Summon this card
+	-- Negate effect
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_NEGATE+CATEGORY_SPECIAL_SUMMON+CATEGORY_DESTROY)
+	e1:SetCategory(CATEGORY_DISABLE+CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_CHAINING)
 	e1:SetRange(LOCATION_PZONE)
-	e1:SetCountLimit(1,{id,1})
-	e1:SetCondition(s.negcon)
+	e1:SetCountLimit(1,{id,3})
 	e1:SetCost(s.negcost)
+	e1:SetCondition(s.negcon)
 	e1:SetTarget(s.negtg)
-	e1:SetOperation(s.negop)
+	e1:SetOperation(function(e,tp,eg,ep,ev,re,r,rp) Duel.NegateEffect(ev) end)
 	c:RegisterEffect(e1)
 	
 	-- Cannot be destroyed by battle
@@ -116,23 +115,22 @@ end
 
 -- Pendulum Effect: Negate and Special Summon
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and Duel.IsChainNegatable(ev)
+	local ch=ev-1
+	if ch==0 or not (ep==1-tp and Duel.IsChainDisablable(ev)) or re:GetHandler():IsDisabled() then return false end
+	local ch_player,ch_eff=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_PLAYER,CHAININFO_TRIGGERING_EFFECT)
+	local ch_c=ch_eff:GetHandler()
+	return Duel.GetTurnPlayer()==tp and ch_player==tp and ((ch_c:IsSetCard(0xf13) and ch_eff:IsMonsterEffect()) or ch_eff:IsSpellTrapEffect())
 end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDestructable,tp,LOCATION_ONFIELD+LOCATION_HAND,0,2,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDestructable,tp,LOCATION_ONFIELD,0,2,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,LOCATION_ONFIELD+LOCATION_HAND,0,2,2,nil)
+	local g=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,LOCATION_ONFIELD,0,2,2,nil)
 	Duel.Destroy(g,REASON_COST)
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
-end
-function s.negop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.NegateActivation(ev) and Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP) then
-		Duel.BreakEffect()
-	end
 end
 
 -- Place in Pendulum Zone when leaves the field
