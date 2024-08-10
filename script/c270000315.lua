@@ -87,16 +87,18 @@ function s.monster_target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,nil,1,tp,LOCATION_ONFIELD)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,2,tp,LOCATION_EXTRA)
 end
-
+function s.extrafaceup(c)
+	return c:IsSetCard(0xf13) and c:IsFaceup()
+end
 function s.monster_operation(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.IsExistingMatchingCard(nil,tp,LOCATION_ONFIELD,0,1,nil) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 		local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_ONFIELD,0,1,1,nil)
 		if #g>0 then
 			Duel.Destroy(g,REASON_EFFECT)
-			if Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_EXTRA,0,2,nil,0xf13) then
+			if Duel.IsExistingMatchingCard(s.extrafaceup,tp,LOCATION_EXTRA,0,1,nil) then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-				local hg=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_EXTRA,0,2,2,nil,0xf13)
+				local hg=Duel.SelectMatchingCard(tp,s.extrafaceup,tp,LOCATION_EXTRA,0,1,2,nil)
 				if #hg>0 then
 					Duel.SendtoHand(hg,nil,REASON_EFFECT)
 					Duel.ConfirmCards(1-tp,hg)
