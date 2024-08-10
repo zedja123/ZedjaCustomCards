@@ -121,6 +121,7 @@ function s.pztg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.pzop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	if Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true) then
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
 	e1:SetCode(EVENT_ADJUST)
