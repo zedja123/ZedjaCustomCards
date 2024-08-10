@@ -137,9 +137,9 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
 
-function s.negop(c,e,tp,eg,ep,ev,re,r,rp) 
-		if Duel.NegateEffect(ev) then		 
+function s.negop(c,e,tp,eg,ep,ev,re,r,rp)		  
 		local c=e:GetHandler()
+		if c:IsRelateToEffect(e) then
 			Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 		end
 end
