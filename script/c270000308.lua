@@ -20,7 +20,7 @@ function s.initial_effect(c)
 	e2:SetCost(s.negcost)
 	e2:SetCondition(s.negcon)
 	e2:SetTarget(s.negtg)
-	e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp) Duel.NegateEffect(ev) end)
+	e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp) if Duel.NegateEffect(ev) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end end)
 	c:RegisterEffect(e2)
 
 	local e3=Ritual.CreateProc(c,RITPROC_GREATER,aux.FilterBoolFunction(Card.IsSetCard,0xf14),nil,aux.Stringid(id,1),nil,nil,nil,nil,LOCATION_DECK,nil,nil,nil)
@@ -51,13 +51,15 @@ end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
+	local g2=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_ONFIELD,1,1,1,nil)
+	local Merge(g,g2)
 	Duel.Destroy(g,REASON_COST)
 end
 
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	local ch=ev-1
-	if ch==0 or not (ep==1-tp and Duel.IsChainDisablable(ev)) or re:GetHandler():IsDisabled() then return false end
+	if ch==0 or not (ep==1-tp and Duel.IsChainDisablable(ev)) or re:GetHandler():IsDisabled() and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then return false end
 	local ch_player,ch_eff=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_PLAYER,CHAININFO_TRIGGERING_EFFECT)
 	local ch_c=ch_eff:GetHandler()
 	return Duel.GetTurnPlayer()==tp and ch_player==tp and ((ch_c:IsSetCard(0xf13) and ch_eff:IsMonsterEffect()) or ch_eff:IsSpellTrapEffect())
