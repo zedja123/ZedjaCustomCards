@@ -122,15 +122,16 @@ end
 function s.pzop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true) then
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
-	e1:SetCode(EVENT_ADJUST)
-	e1:SetOperation(s.checkop)
-	e1:SetReset(RESET_PHASE+PHASE_END)
-	Duel.RegisterEffect(e1,tp)
-	s.checkop(e,tp)
-	Duel.RegisterFlagEffect(tp,id+100,RESET_PHASE+PHASE_END+RESET_SELF_TURN,0,1)
-	aux.RegisterClientHint(c,0,tp,1,0,aux.Stringid(id,0))
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
+		e1:SetCode(EVENT_ADJUST)
+		e1:SetOperation(s.checkop)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1,tp)
+		s.checkop(e,tp)
+		Duel.RegisterFlagEffect(tp,id+100,RESET_PHASE+PHASE_END+RESET_SELF_TURN,0, 1)
+		aux.RegisterClientHint(c,0,tp,1,0,aux.Stringid(id,0))]
+	end
 end
 function s.checkop(e,tp)
 	local lpz=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
