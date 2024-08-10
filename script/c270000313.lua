@@ -31,13 +31,15 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	
 	-- Place in Pendulum Zone if leaves the field
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e3:SetCode(EVENT_LEAVE_FIELD)
-	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e3:SetCondition(s.pencon)
-	e3:SetOperation(s.penop)
-	c:RegisterEffect(e3)
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCode(EVENT_LEAVE_FIELD)
+	e2:SetCondition(s.pencon)
+	e2:SetTarget(s.pentg)
+	e2:SetOperation(s.penop)
+	c:RegisterEffect(e2)
 	
 	-- Return cards to hand
 	local e4=Effect.CreateEffect(c)
@@ -136,9 +138,13 @@ end
 -- Place in Pendulum Zone when leaves the field
 function s.pencon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsFaceup() and c:IsPreviousLocation(LOCATION_MZONE) and Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1)
+	return c:IsFaceup() and c:IsPreviousLocation(LOCATION_MZONE)
+end
+function s.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.CheckPendulumZones(tp) end
 end
 function s.penop(e,tp,eg,ep,ev,re,r,rp)
+	if not Duel.CheckPendulumZones(tp) then return end
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
