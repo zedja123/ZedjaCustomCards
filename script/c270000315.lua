@@ -145,7 +145,7 @@ function s.checkop(e,tp)
 	end
 end
 function s.penfilter(c,e,tp,lscale,rscale)
-	return c:IsSetCard(0x306) and Pendulum.Filter(c,e,tp,lscale,rscale)
+	return Pendulum.Filter(c,e,tp,lscale,rscale)
 end
 function s.pencon(e,c,og)
 	if c==nil then return true end
