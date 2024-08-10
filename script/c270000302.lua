@@ -45,7 +45,7 @@ function c270000302.initial_effect(c)
 end
 
 function s.pslimit(e, c, sump, sumtype, sumpos, targetp)
-	return not c:IsSetCard(0xf13)
+	return not c:IsSetCard(0xf13) and (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
 end
 
 function s.pzfilter(c)
