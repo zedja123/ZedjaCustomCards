@@ -174,9 +174,9 @@ function s.pencon1(e,c,og)
 	local ft=Duel.GetLocationCountFromEx(tp)
 	if ft<=0 then return false end
 	if og then
-		return og:Filter(Card.IsLocation,nil,LOCATION_EXTRA):IsExists(Pendulum.Filter,1,nil,e,tp,lscale,rscale)
+		return og:Filter(Card.IsLocation,nil,LOCATION_EXTRA+LOCATION_HAND):IsExists(Pendulum.Filter,1,nil,e,tp,lscale,rscale)
 	else
-		return Duel.IsExistingMatchingCard(Pendulum.Filter,tp,LOCATION_EXTRA,0,1,nil,e,tp,lscale,rscale)
+		return Duel.IsExistingMatchingCard(Pendulum.Filter,tp,LOCATION_EXTRA+LOCATION_HAND,0,1,nil,e,tp,lscale,rscale)
 	end
 end
 function s.penop1(e,tp,eg,ep,ev,re,r,rp,c,sg,og)
@@ -189,13 +189,13 @@ function s.penop1(e,tp,eg,ep,ev,re,r,rp,c,sg,og)
 	ft=math.min(ft,aux.CheckSummonGate(tp) or ft)
 	if og then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=og:Filter(Card.IsLocation,nil,LOCATION_EXTRA):FilterSelect(tp,Pendulum.Filter,0,ft,nil,e,tp,lscale,rscale)
+		local g=og:Filter(Card.IsLocation,nil,LOCATION_EXTRA+LOCATION_HAND):FilterSelect(tp,Pendulum.Filter,0,ft,nil,e,tp,lscale,rscale)
 		if g then
 			sg:Merge(g)
 		end
 	else
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,Pendulum.Filter,tp,LOCATION_EXTRA,0,0,ft,nil,e,tp,lscale,rscale)
+		local g=Duel.SelectMatchingCard(tp,Pendulum.Filter,tp,LOCATION_EXTRA+LOCATION_HAND,0,0,ft,nil,e,tp,lscale,rscale)
 		if g then
 			sg:Merge(g)
 		end
@@ -218,9 +218,9 @@ function s.pencon2(e,c,og)
 	local ft=Duel.GetLocationCountFromEx(tp)
 	if ft<=0 then return false end
 	if og then
-		return og:Filter(Card.IsLocation,nil,LOCATION_EXTRA):IsExists(Pendulum.Filter,1,nil,e,tp,lscale,rscale)
+		return og:Filter(Card.IsLocation,nil,LOCATION_EXTRA+LOCATION_HAND):IsExists(Pendulum.Filter,1,nil,e,tp,lscale,rscale)
 	else
-		return Duel.IsExistingMatchingCard(Pendulum.Filter,tp,LOCATION_EXTRA,0,1,nil,e,tp,lscale,rscale)
+		return Duel.IsExistingMatchingCard(Pendulum.Filter,tp,LOCATION_EXTRA+LOCATION_HAND,0,1,nil,e,tp,lscale,rscale)
 	end
 end
 function s.penop2(e,tp,eg,ep,ev,re,r,rp,c,sg,og)
@@ -240,7 +240,7 @@ function s.penop2(e,tp,eg,ep,ev,re,r,rp,c,sg,og)
 		end
 	else
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,Pendulum.Filter,tp,LOCATION_EXTRA,0,0,ft,nil,e,tp,lscale,rscale)
+		local g=Duel.SelectMatchingCard(tp,Pendulum.Filter,tp,LOCATION_EXTRA+LOCATION_HAND,0,0,ft,nil,e,tp,lscale,rscale)
 		if g then
 			sg:Merge(g)
 		end
