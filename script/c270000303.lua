@@ -42,7 +42,7 @@ function c270000303.initial_effect(c)
 	c:RegisterEffect(e4)
 -- Shuffle and spsummon with = shuffled
 	local e6=Effect.CreateEffect(c)
-	e6:SetType(EFFECT_TYPE_QUICK_O)
+	e6:SetType(EFFECT_TYPE_IGNITION)
 	e6:SetCode(EVENT_FREE_CHAIN)
 	e6:SetRange(LOCATION_MZONE)
 	e6:SetCountLimit(1,{id,5})
