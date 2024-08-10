@@ -13,7 +13,7 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_CHAINING)
 	e1:SetRange(LOCATION_PZONE)
-	e1:SetCountLimit(1,{id,3})
+	e1:SetCountLimit(1,{id,1})
 	e1:SetCost(s.negcost)
 	e1:SetCondition(s.negcon)
 	e1:SetTarget(s.negtg)
@@ -114,6 +114,17 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 
 -- Pendulum Effect: Negate and Special Summon
+function s.cfilter(c)
+	return c:IsType(TYPE_MONSTER) and (c:IsLocation(LOCATION_HAND) or c:IsFaceup() and c:IsLocation(LOCATION_MZONE))
+end
+
+function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil)
+	Duel.Destroy(g,REASON_COST)
+end
+
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	local ch=ev-1
 	if ch==0 or not (ep==1-tp and Duel.IsChainDisablable(ev)) or re:GetHandler():IsDisabled() then return false end
@@ -121,16 +132,9 @@ function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	local ch_c=ch_eff:GetHandler()
 	return Duel.GetTurnPlayer()==tp and ch_player==tp and ((ch_c:IsSetCard(0xf13) and ch_eff:IsMonsterEffect()) or ch_eff:IsSpellTrapEffect())
 end
-function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDestructable,tp,LOCATION_ONFIELD,0,2,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,LOCATION_ONFIELD,0,2,2,nil)
-	Duel.Destroy(g,REASON_COST)
-end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
+	if chk==0 then return true end
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
 
 -- Place in Pendulum Zone when leaves the field
