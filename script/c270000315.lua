@@ -130,7 +130,7 @@ function s.pzop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.RegisterEffect(e1,tp)
 		s.checkop(e,tp)
 		Duel.RegisterFlagEffect(tp,id+100,RESET_PHASE+PHASE_END+RESET_SELF_TURN,0, 1)
-		aux.RegisterClientHint(c,0,tp,1,0,aux.Stringid(id,0))]
+		aux.RegisterClientHint(c,0,tp,1,0,aux.Stringid(id,0))
 	end
 end
 function s.checkop(e,tp)
