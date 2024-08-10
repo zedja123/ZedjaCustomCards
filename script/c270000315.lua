@@ -14,14 +14,14 @@ function s.initial_effect(c)
 	e1:SetTarget(s.pendlimit)
 	c:RegisterEffect(e1)
 
+	-- Fusion Summon
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCategory(CATEGORY_FUSION_SUMMON)
-	e2:SetRange(LOCATION_PZONE)
-	e2:SetCode(EVENT_FREE_CHAIN)
-	e2:SetCountLimit(1,{id,1})
-	e2:SetTarget(s.pendulum_target)
-	e2:SetOperation(s.pendulum_operation)
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1)
+	e2:SetTarget(s.target)
+	e2:SetOperation(s.operation)
 	c:RegisterEffect(e2)
 
 	-- Monster Effect
@@ -50,34 +50,44 @@ function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
 	return not c:IsSetCard(0xf13) and (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
 end
 
--- Pendulum Effect: Fusion Summon
-function s.pendulum_target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsCode,0xf13),tp,LOCATION_EXTRA,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_FUSION_SUMMON,nil,1,tp,LOCATION_EXTRA)
+function s.filter1(c,e)
+	return c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)
 end
 
-function s.pendulum_operation(e,tp,eg,ep,ev,re,r,rp)
-	local fusion_card_id = 0x123 -- Replace with the ID of "Lavoisier Amazing Draco - YOUCAN"
-	local mat_filter = function(c) return c:IsSetCard(0xf13) and (c:IsLocation(LOCATION_EXTRA) or c:IsLocation(LOCATION_GRAVE) or c:IsLocation(LOCATION_ONFIELD)) end
-	
-	if not e:GetHandler():IsRelateToEffect(e) then return end
-	
-	-- Select Fusion Material
-	local materials = Duel.GetMatchingGroup(mat_filter,tp,LOCATION_EXTRA+LOCATION_GRAVE+LOCATION_ONFIELD,0,nil)
-	if #materials == 0 then return end
-	
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-	local g = Duel.SelectMatchingCard(tp,mat_filter,tp,LOCATION_EXTRA+LOCATION_GRAVE+LOCATION_ONFIELD,0,1,99,nil)
-	if #g == 0 then return end
-	
-	-- Shuffle materials into Deck
-	Duel.SendtoDeck(g,nil,2,REASON_EFFECT)
-	
-	-- Fusion Summon
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local fusion_card = Duel.CreateToken(tp,fusion_card_id)
-	Duel.SpecialSummon(fusion_card,0,tp,tp,false,false,POS_FACEUP)
+function s.filter2(c,e,tp,m,f,chkf)
+	return c:IsType(TYPE_FUSION) and c:IsSetCard(0xf13) and c:IsCode(270000313) 
+		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf) and c:IsFacedown()
 end
+
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then
+		local chkf=tp
+		local mg1=Duel.GetFusionMaterial(tp):Filter(s.filter1,nil,e)
+		local mg2=Duel.GetMatchingGroup(s.filter1,tp,LOCATION_GRAVE+LOCATION_MZONE+LOCATION_EXTRA,0,nil,e)
+		mg1:Merge(mg2)
+		return Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
+	end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local chkf=tp
+	local mg1=Duel.GetFusionMaterial(tp):Filter(s.filter1,nil,e)
+	local mg2=Duel.GetMatchingGroup(s.filter1,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,nil,e)
+	mg1:Merge(mg2)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local tg=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mg1,nil,chkf)
+	local tc=tg:GetFirst()
+	if tc then
+		local mat=Duel.SelectFusionMaterial(tp,tc,mg1,nil,chkf)
+		tc:SetMaterial(mat)
+		Duel.SendtoDeck(mat,nil,2,REASON_EFFECT+REASON_FUSION+REASON_MATERIAL)
+		Duel.BreakEffect()
+		Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
+		tc:CompleteProcedure()
+	end
+end
+
 
 
 -- Monster Effect: Add "Lavoisier" monsters to hand
