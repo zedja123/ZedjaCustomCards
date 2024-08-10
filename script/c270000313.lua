@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	e1:SetCost(s.negcost)
 	e1:SetCondition(s.negcon)
 	e1:SetTarget(s.negtg)
-	e1:SetOperation(function(c,e,tp,eg,ep,ev,re,r,rp) c=e:GetHandler() if Duel.NegateEffect(ev) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end end)
+	e1:SetOperation(function(c,e,tp,eg,ep,ev,re,r,rp) if Duel.NegateEffect(ev) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end end)
 	c:RegisterEffect(e1)
 	
 	-- Cannot be destroyed by battle
@@ -121,7 +121,7 @@ function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g1=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,LOCATION_MZONE,0,1,1,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g2=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,g1:GetFirst())
-	local group=Group.Merge(g,g2)
+	local group=Group.Merge(g1,g2)
 	Duel.Destroy(group,REASON_COST)
 end
 
