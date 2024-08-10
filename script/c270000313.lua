@@ -17,11 +17,7 @@ function s.initial_effect(c)
 	e1:SetCost(s.negcost)
 	e1:SetCondition(s.negcon)
 	e1:SetTarget(s.negtg)
-	e1:SetOperation(function(c,e,tp,eg,ep,ev,re,r,rp) if Duel.NegateEffect(ev) then		 
-		local c=e:GetHandler()
-		if c:IsRelateToEffect(e) then
-			Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-		end end)
+	e1:SetOperation(s.negop)
 	c:RegisterEffect(e1)
 	
 	-- Cannot be destroyed by battle
@@ -141,6 +137,12 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
 
+function s.negop(c,e,tp,eg,ep,ev,re,r,rp) 
+		if Duel.NegateEffect(ev) then		 
+		local c=e:GetHandler()
+			Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+		end
+end
 -- Place in Pendulum Zone when leaves the field
 function s.pencon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
