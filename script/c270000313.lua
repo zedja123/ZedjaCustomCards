@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	e1:SetCost(s.negcost)
 	e1:SetCondition(s.negcon)
 	e1:SetTarget(s.negtg)
-	e1:SetOperation(function(e,tp,eg,ep,ev,re,r,rp) if Duel.NegateEffect(ev) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end end)
+	e1:SetOperation(function(e,tp,eg,ep,ev,re,r,rp) Duel.NegateEffect(ev) end)
 	c:RegisterEffect(e1)
 	
 	-- Cannot be destroyed by battle
@@ -115,15 +115,13 @@ end
 
 -- Pendulum Effect: Negate and Special Summon
 function s.cfilter(c)
-	return c:IsType(TYPE_MONSTER) and (c:IsLocation(LOCATION_HAND) or c:IsFaceup() and c:IsLocation(LOCATION_MZONE))
+	return c:IsType(TYPE_MONSTER)
 end
 
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
-	local g2=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_ONFIELD,1,1,1,nil)
-	local group=Merge(g,g2)
 	Duel.Destroy(group,REASON_COST)
 end
 
