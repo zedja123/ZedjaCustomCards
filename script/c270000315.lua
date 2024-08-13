@@ -20,8 +20,8 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,{id,1})
-	e2:SetTarget(s.target)
-	e2:SetOperation(s.operation)
+	e2:SetTarget(s.fustg)
+	e2:SetOperation(s.fusop)
 	c:RegisterEffect(e2)
 
 	-- Monster Effect
@@ -49,34 +49,35 @@ end
 function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
 	return not c:IsSetCard(0xf13) and (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
 end
-
-function s.filter1(c)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeck() and c:IsFaceup()
+-- Filter for "Lavoisier Amazing Draco - YOUCAN"
+function s.fusionfilter(c,e,tp,m,f,chkf)
+	return c:IsType(TYPE_FUSION) and c:IsCode(10000000) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
 end
 
-function s.filter2(c,e,tp,m,chkf)
-	return c:IsCode(270000313) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)and c:IsFacedown()
-end
-
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+-- Fusion Summon "Lavoisier Amazing Draco - YOUCAN"
+function s.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local chkf=tp
-		local mg1=Duel.GetMatchingGroup(s.filter1,tp,LOCATION_GRAVE+LOCATION_ONFIELD+LOCATION_EXTRA,0,nil)
-		return Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,chkf)
+		local mg1=Duel.GetFusionMaterial(tp)
+		local mg2=Duel.GetMatchingGroup(aux.FConditionCheckF,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,nil)
+		mg1:Merge(mg2)
+		return Duel.IsExistingMatchingCard(s.fusionfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
+function s.fusop(e,tp,eg,ep,ev,re,r,rp)
 	local chkf=tp
-	local mg1=Duel.GetMatchingGroup(s.filter1,tp,LOCATION_GRAVE+LOCATION_ONFIELD+LOCATION_EXTRA,0,nil)
+	local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsOnFieldOrInGY,nil)
+	local mg2=Duel.GetMatchingGroup(aux.FConditionCheckF,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,nil)
+	mg1:Merge(mg2)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local tg=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mg1,chkf)
-	local tc=tg:GetFirst()
+	local sg=Duel.SelectMatchingCard(tp,s.fusionfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mg1,nil,chkf)
+	local tc=sg:GetFirst()
 	if tc then
 		local mat=Duel.SelectFusionMaterial(tp,tc,mg1,nil,chkf)
 		tc:SetMaterial(mat)
-		Duel.SendtoDeck(mat,nil,SEQ_DECKSHUFFLE,REASON_EFFECT+REASON_FUSION+REASON_MATERIAL)
+		Duel.SendtoDeck(mat,nil,SEQ_DECKSHUFFLE,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
 		Duel.BreakEffect()
 		Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
 		tc:CompleteProcedure()
