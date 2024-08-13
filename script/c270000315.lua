@@ -49,28 +49,35 @@ end
 function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
 	return not c:IsSetCard(0xf13) and (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
 end
--- Filter for "Lavoisier Amazing Draco - YOUCAN"
-function s.fusionfilter(c,e,tp,m,f,chkf)
-	return c:IsType(TYPE_FUSION) and c:IsCode(270000313) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
-end
 
-function s.fusfilter(c)
-	return c:IsCode(270000301) and c:IsCode(270000303) and c:IsCode(270000304)
+-- Filter for "Lavoisier Amazing Draco - YOUCAN"
+function s.fusionfilter(c,e,tp,m,chkf)
+	return c:IsType(TYPE_FUSION) and c:IsCode(270000313) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) 
+		and c:CheckFusionMaterial(m,nil,chkf)
 end
 
 -- Fusion Summon "Lavoisier Amazing Draco - YOUCAN"
 function s.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local chkf=tp
-		local mg1=Duel.GetMatchingGroup(s.fusfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE+LOCATION_MZONE,0,nil)
+		local mg1=Duel.GetFusionMaterial(tp):Filter(s.filterMaterial,nil,e)
+		local mg2=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_EXTRA,0,nil)
+		mg1:Merge(mg2)
 		return Duel.IsExistingMatchingCard(s.fusionfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,chkf)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
+-- Filter for valid fusion materials
+function s.filterMaterial(c,e)
+	return c:IsOnField() or c:IsLocation(LOCATION_GRAVE) or c:IsFaceup() and c:IsLocation(LOCATION_EXTRA) and not c:IsImmuneToEffect(e)
+end
+
 function s.fusop(e,tp,eg,ep,ev,re,r,rp)
 	local chkf=tp
-	local mg1=Duel.GetMatchingGroup(s.fusfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE+LOCATION_MZONE,0,nil)
+	local mg1=Duel.GetFusionMaterial(tp):Filter(s.filterMaterial,nil,e)
+	local mg2=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_EXTRA,0,nil)
+	mg1:Merge(mg2)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=Duel.SelectMatchingCard(tp,s.fusionfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mg1,chkf)
 	local tc=sg:GetFirst()
@@ -83,7 +90,6 @@ function s.fusop(e,tp,eg,ep,ev,re,r,rp)
 		tc:CompleteProcedure()
 	end
 end
-
 
 -- Target 1 other card you control to destroy
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
