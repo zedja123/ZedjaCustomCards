@@ -18,7 +18,7 @@ function s.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetRange(LOCATION_MZONE)
+	e2:SetRange(LOCATION_PZONE)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetTarget(s.fustg)
 	e2:SetOperation(s.fusop)
@@ -51,7 +51,7 @@ function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
 end
 -- Filter for "Lavoisier Amazing Draco - YOUCAN"
 function s.fusionfilter(c,e,tp,m,f,chkf)
-	return c:IsType(TYPE_FUSION) and c:IsCode(10000000) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
+	return c:IsType(TYPE_FUSION) and c:IsCode(270000313) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
 end
 
 -- Fusion Summon "Lavoisier Amazing Draco - YOUCAN"
