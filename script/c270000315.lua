@@ -58,21 +58,26 @@ end
 function s.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local chkf=tp
-		local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsLocation,nil,LOCATION_GRAVE+LOCATION_ONFIELD)
+		local mg1=Duel.GetFusionMaterial(tp):Filter(s.filterMaterial,nil,e)
 		local mg2=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_EXTRA,0,nil)
 		mg1:Merge(mg2)
-		return Duel.IsExistingMatchingCard(s.fusionfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
+		return Duel.IsExistingMatchingCard(s.fusionfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,chkf)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
+-- Filter for valid fusion materials
+function s.filterMaterial(c,e)
+	return c:IsOnField() or c:IsLocation(LOCATION_GRAVE) and not c:IsImmuneToEffect(e)
+end
+
 function s.fusop(e,tp,eg,ep,ev,re,r,rp)
 	local chkf=tp
-	local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsLocation,nil,LOCATION_GRAVE+LOCATION_ONFIELD)
+	local mg1=Duel.GetFusionMaterial(tp):Filter(s.filterMaterial,nil,e)
 	local mg2=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_EXTRA,0,nil)
 	mg1:Merge(mg2)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sg=Duel.SelectMatchingCard(tp,s.fusionfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mg1,nil,chkf)
+	local sg=Duel.SelectMatchingCard(tp,s.fusionfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mg1,chkf)
 	local tc=sg:GetFirst()
 	if tc then
 		local mat=Duel.SelectFusionMaterial(tp,tc,mg1,nil,chkf)
@@ -83,7 +88,6 @@ function s.fusop(e,tp,eg,ep,ev,re,r,rp)
 		tc:CompleteProcedure()
 	end
 end
-
 
 
 -- Target 1 other card you control to destroy
