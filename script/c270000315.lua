@@ -51,7 +51,7 @@ function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
 end
 
 
--- Extra Deck and Graveyard Material Filter
+-- Filter for Fusion Materials
 function s.fextra(e,tp,mg)
 	return Duel.GetMatchingGroup(aux.NecroValleyFilter(Fusion.IsMonsterFilter(Card.IsFaceup,Card.IsAbleToDeck)),tp,LOCATION_GRAVE+LOCATION_EXTRA+LOCATION_REMOVED,0,nil)
 end
@@ -66,7 +66,7 @@ function s.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 		return Duel.IsExistingMatchingCard(s.fusionfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,chkf)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,0,tp,LOCATION_PUBLIC)
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,0,tp,LOCATION_GRAVE+LOCATION_EXTRA+LOCATION_REMOVED)
 end
 
 -- Perform Fusion Summon
