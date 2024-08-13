@@ -55,7 +55,7 @@ function s.fusionfilter(c,e,tp,m,f,chkf)
 end
 
 function s.fusfilter(c)
-	return IsCode(270000301) and IsCode(270000303) and IsCode(270000304)
+	return c:IsCode(270000301) and c:IsCode(270000303) and c:IsCode(270000304)
 end
 
 -- Fusion Summon "Lavoisier Amazing Draco - YOUCAN"
