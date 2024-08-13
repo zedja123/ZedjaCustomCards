@@ -92,7 +92,6 @@ function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler())
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,2,tp,LOCATION_EXTRA)
-	end
 end
 
 -- Destroy the targeted card and add up to 2 "Lavoisier" monsters from your Deck face-up in your Extra Deck to your hand
