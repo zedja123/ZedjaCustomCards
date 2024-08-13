@@ -51,7 +51,7 @@ function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
 end
 -- Filter for "Lavoisier Amazing Draco - YOUCAN"
 function s.fusionfilter(c,e,tp,m,f,chkf)
-	return c:IsType(TYPE_FUSION) and c:IsCode(10000000) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
+	return c:IsType(TYPE_FUSION) and c:IsCode(270000313) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
 end
 
 -- Fusion Summon "Lavoisier Amazing Draco - YOUCAN"
@@ -84,7 +84,8 @@ function s.fusop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
 		tc:CompleteProcedure()
 	end
-end-- Filter for "Lavoisier Amazing Draco - YOUCAN"
+end
+-- Filter for "Lavoisier Amazing Draco - YOUCAN"
 function s.fusionfilter(c,e,tp,m,f,chkf)
 	return c:IsType(TYPE_FUSION) and c:IsCode(270000313) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
 end
@@ -93,10 +94,9 @@ end
 function s.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local chkf=tp
-		local mg1=Duel.GetFusionMaterial(tp)
+		local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsLocation,nil,LOCATION_GRAVE+LOCATION_ONFIELD)
 		local mg2=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_EXTRA,0,nil)
 		mg1:Merge(mg2)
-		mg1=mg1:Filter(aux.FilterBoolFunction(Card.IsLocation,LOCATION_GRAVE+LOCATION_ONFIELD+LOCATION_EXTRA),nil)
 		return Duel.IsExistingMatchingCard(s.fusionfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
@@ -104,10 +104,9 @@ end
 
 function s.fusop(e,tp,eg,ep,ev,re,r,rp)
 	local chkf=tp
-	local mg1=Duel.GetFusionMaterial(tp)
+	local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsLocation,nil,LOCATION_GRAVE+LOCATION_ONFIELD)
 	local mg2=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_EXTRA,0,nil)
 	mg1:Merge(mg2)
-	mg1=mg1:Filter(aux.FilterBoolFunction(Card.IsLocation,LOCATION_GRAVE+LOCATION_ONFIELD+LOCATION_EXTRA),nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=Duel.SelectMatchingCard(tp,s.fusionfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mg1,nil,chkf)
 	local tc=sg:GetFirst()
