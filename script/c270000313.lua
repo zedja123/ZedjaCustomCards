@@ -76,7 +76,6 @@ function s.initial_effect(c)
 	e7:SetCost(s.cost)
 	e7:SetTarget(s.target)
 	e7:SetOperation(s.operation)
-	c:RegisterEffect(e7)
 	-- While a Link monster points to this card, that card gains the effect
 	local e8=Effect.CreateEffect(c)
 	e8:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
