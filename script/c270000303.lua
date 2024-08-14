@@ -169,41 +169,6 @@ function s.spop3(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.spfilter(c,tp)
-	return c:IsType(TYPE_LINK) and c:IsSetCard(0xf13) and c:IsControler(tp)
-end
-
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.spfilter,1,nil,tp)
-end
-
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		local zone=0
-		for tc in aux.Next(eg) do
-			if s.spfilter(tc,tp) then
-				zone=zone|tc:GetLinkedZone(tp)
-			end
-		end
-		return Duel.GetLocationCount(tp,LOCATION_MZONE,tp,LOCATION_REASON_TOFIELD,zone)>0
-			and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false)
-	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-end
-
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if not c:IsRelateToEffect(e) then return end
-	local zone=0
-	for tc in aux.Next(eg) do
-		if s.spfilter(tc,tp) then
-			zone=zone|tc:GetLinkedZone(tp)
-		end
-	end
-	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP,zone)>0 then
-	end
-end
-
 function s.spfilter3(c,e,tp)
 	return c:IsSetCard(0xf13) and c:IsType(TYPE_PENDULUM) and c:IsFaceup() and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCountFromEx(tp,rp,nil,c)>0
 end
