@@ -50,6 +50,13 @@ function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
 	return not c:IsSetCard(0xf13) and (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
 end
 
+function s.filter1(c)
+	return c:IsSetCard(0xf13) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeck() and c:IsFaceup()
+end
+
+function s.filter2(c,e,tp,m,chkf)
+	return c:IsCode(270000313) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)and c:IsFacedown()
+end
 
 function s.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
