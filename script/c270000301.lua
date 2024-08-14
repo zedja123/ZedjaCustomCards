@@ -49,6 +49,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e7)
 	-- Add 1 "Lavoisier Sphere Field" from Deck to hand
 	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,1))
 	e5:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e5:SetType(EFFECT_TYPE_IGNITION)
 	e5:SetRange(LOCATION_MZONE)

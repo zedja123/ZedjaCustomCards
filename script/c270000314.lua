@@ -38,7 +38,7 @@ function s.initial_effect(c)
 
 	-- Detach material to place a "Lavoisier" in Pendulum Zone
 	local e5=Effect.CreateEffect(c)
-	e5:SetDescription(aux.Stringid(id,0))
+	e5:SetDescription(aux.Stringid(id,1))
 	e5:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e5:SetType(EFFECT_TYPE_IGNITION)
 	e5:SetRange(LOCATION_MZONE)
@@ -51,7 +51,7 @@ function s.initial_effect(c)
 
 	-- Destroy this card to Special Summon all Xyz Materials used for its Xyz Summon
 	local e6=Effect.CreateEffect(c)
-	e6:SetDescription(aux.Stringid(id,1))
+	e6:SetDescription(aux.Stringid(id,2))
 	e6:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e6:SetType(EFFECT_TYPE_IGNITION)
 	e6:SetCode(EVENT_FREE_CHAIN)
