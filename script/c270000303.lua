@@ -50,14 +50,14 @@ function c270000303.initial_effect(c)
 	e6:SetOperation(s.spop3)
 	c:RegisterEffect(e6)
 	-- Special Summon "Lavoisier" Pendulum Monster
-	local e7=Effect.CreateEffect(c)
-	e7:SetDescription(aux.Stringid(id,1))
-	e7:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e7:SetType(EFFECT_TYPE_IGNITION)
-	e7:SetRange(LOCATION_MZONE)
-	e7:SetCountLimit(1, {id,6})
-	e7:SetTarget(s.sptg2)
-	e7:SetOperation(s.spop2)
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetCountLimit(1, {id,6})
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	-- While a Link monster points to this card, that card gains the effect
 	local e8=Effect.CreateEffect(c)
 	e8:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
@@ -169,33 +169,33 @@ function s.spop3(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.spfilter3(c,e,tp)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_PENDULUM) and c:IsFaceup() and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCountFromEx(tp,rp,nil,c)>0
+-- Filter function for "Lavoisier" Pendulum monsters in the GY or Extra Deck
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(0xf13) and c:IsType(TYPE_PENDULUM) and (c:IsFaceup() or c:IsLocation(LOCATION_GRAVE))
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
-function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
-		and Duel.IsExistingMatchingCard(s.spfilter3,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,nil,e,tp) end
+-- Target function for Special Summon
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE+LOCATION_EXTRA)
 end
 
-function s.spop2(e,tp,eg,ep,ev,re,r,rp)
+-- Operation function for Special Summon
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.spfilter3,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,1,nil,e,tp)
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,1,nil,e,tp)
 	if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 		local tc=g:GetFirst()
-		-- Negate its effects
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e1,true)
-		local e2=Effect.CreateEffect(e:GetHandler())
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_DISABLE_EFFECT)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e2,true)
+		if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
+			-- Negate the effects of the Special Summoned monster
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_DISABLE)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+			tc:RegisterEffect(e1,true)
+		end
 	end
 end
