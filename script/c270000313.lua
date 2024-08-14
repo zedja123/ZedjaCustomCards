@@ -73,7 +73,7 @@ function s.initial_effect(c)
 	e7:SetRange(LOCATION_MZONE)
 	e7:SetCode(EVENT_FREE_CHAIN)
 	e7:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetCountLimit(1,{id,4})
+	e7:SetCountLimit(1,{id,4})
 	e7:SetCost(s.cost)
 	e7:SetTarget(s.target)
 	e7:SetOperation(s.operation)
@@ -137,7 +137,7 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
 
-function s.negop(c,e,tp,eg,ep,ev,re,r,rp)		  
+function s.negop(c,e,tp,eg,ep,ev,re,r,rp)		 
 		local c=e:GetHandler()
 		if c:IsRelateToEffect(e) then
 			Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
