@@ -171,8 +171,8 @@ end
 
 -- Filter function for "Lavoisier" Pendulum monsters in the GY or Extra Deck
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_PENDULUM) and c:IsFaceup()
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCountFromEx(tp,rp,nil,c)>0
+	return c:IsSetCard(0xf13) and c:IsType(TYPE_PENDULUM) and (c:IsFaceup() or c:IsLocation(LOCATION_GRAVE))
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 
 -- Target function for Special Summon
@@ -189,7 +189,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,1,nil,e,tp)
 	if #g>0 then
 		local tc=g:GetFirst()
-		if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
+		if Duel.SpecialSummon(tc,0,tp,tp,true,true,POS_FACEUP)~=0 then
 			-- Negate the effects of the Special Summoned monster
 			local e1=Effect.CreateEffect(e:GetHandler())
 			e1:SetType(EFFECT_TYPE_SINGLE)
