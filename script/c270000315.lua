@@ -51,47 +51,29 @@ function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
 end
 
 
--- Filter for Fusion Materials
-function s.fextra(e,tp,mg)
-	return Duel.GetMatchingGroup(aux.NecroValleyFilter(Fusion.IsMonsterFilter(Card.IsFaceup,Card.IsAbleToDeck)),tp,LOCATION_GRAVE+LOCATION_EXTRA+LOCATION_REMOVED,0,nil)
-end
-
--- Target for Fusion Summon
 function s.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local chkf=tp
-		local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsAbleToDeck,nil)
-		local mg2=Duel.GetMatchingGroup(s.fextra,tp,LOCATION_GRAVE+LOCATION_EXTRA+LOCATION_REMOVED,0,nil)
-		mg1:Merge(mg2)
-		return Duel.IsExistingMatchingCard(s.fusionfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,chkf)
+		local mg1=Duel.GetMatchingGroup(s.filter1,tp,LOCATION_GRAVE+LOCATION_ONFIELD+LOCATION_EXTRA,0,nil)
+		return Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,chkf)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,0,tp,LOCATION_GRAVE+LOCATION_EXTRA+LOCATION_REMOVED)
 end
 
--- Perform Fusion Summon
 function s.fusop(e,tp,eg,ep,ev,re,r,rp)
 	local chkf=tp
-	local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsAbleToDeck,nil)
-	local mg2=Duel.GetMatchingGroup(s.fextra,tp,LOCATION_GRAVE+LOCATION_EXTRA+LOCATION_REMOVED,0,nil)
-	mg1:Merge(mg2)
+	local mg1=Duel.GetMatchingGroup(s.filter1,tp,LOCATION_GRAVE+LOCATION_ONFIELD+LOCATION_EXTRA,0,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local tg=Duel.SelectMatchingCard(tp,s.fusionfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mg1,chkf)
+	local tg=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mg1,chkf)
 	local tc=tg:GetFirst()
 	if tc then
 		local mat=Duel.SelectFusionMaterial(tp,tc,mg1,nil,chkf)
 		tc:SetMaterial(mat)
-		Duel.SendtoDeck(mat,nil,SEQ_DECKSHUFFLE,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
+		Duel.SendtoDeck(mat,nil,SEQ_DECKSHUFFLE,REASON_EFFECT+REASON_FUSION+REASON_MATERIAL)
 		Duel.BreakEffect()
 		Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
 		tc:CompleteProcedure()
 	end
-end
-
--- Fusion Summon Filter
-function s.fusionfilter(c,e,tp,mg,chkf)
-	return c:IsType(TYPE_FUSION) and c:IsCode(270000313) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) 
-		and c:CheckFusionMaterial(mg,nil,chkf)
 end
 
 -- Target 1 other card you control to destroy
