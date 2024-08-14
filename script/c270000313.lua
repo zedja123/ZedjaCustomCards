@@ -68,6 +68,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e5)
 	-- Quick Effect: Pay 3000 LP; Banish 1 monster in either GY
 	local e7=Effect.CreateEffect(c)
+	e7:SetDescription(aux.Stringid(id,1))
 	e7:SetCategory(CATEGORY_REMOVE)
 	e7:SetType(EFFECT_TYPE_QUICK_O)
 	e7:SetRange(LOCATION_MZONE)
