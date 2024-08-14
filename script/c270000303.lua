@@ -172,7 +172,7 @@ end
 -- Filter function for "Lavoisier" Pendulum monsters in the GY or Extra Deck
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0xf13) and c:IsType(TYPE_PENDULUM) and (c:IsFaceup() or c:IsLocation(LOCATION_GRAVE))
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCountFromEx(tp,rp,nil,c)>0
 end
 
 -- Target function for Special Summon
