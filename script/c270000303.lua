@@ -28,7 +28,6 @@ function c270000303.initial_effect(c)
 
 	-- Monster Effect: Destroy 1 card from your hand; Add 1 "Lavoisier" Spell/Trap
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,1))
 	e3:SetCategory(CATEGORY_DESTROY+CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_SUMMON_SUCCESS)
