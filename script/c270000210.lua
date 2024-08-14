@@ -3,7 +3,7 @@ function s.initial_effect(c)
 	-- Link Summon procedure
 	c:EnableReviveLimit()
 	c:SetUniqueOnField(1,0,id)
-	Link.AddProcedure(c,s.matfilter1,1,4)
+	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsType,TYPE_EFFECT+TYPE_TOKEN),1,4)
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_FIELD)
 	e0:SetProperty(EFFECT_FLAG_PLAYER_TARGET|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_SET_AVAILABLE)
@@ -45,10 +45,6 @@ function s.initial_effect(c)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
-end
-
-function s.matfilter1(c)
-	return c:IsRace(RACE_ZOMBIE)
 end
 function s.matfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0xf12) or c:IsRace(RACE_ZOMBIE) and c:GetSequence()<5
