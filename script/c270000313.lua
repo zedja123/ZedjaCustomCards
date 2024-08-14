@@ -29,12 +29,14 @@ function s.initial_effect(c)
 	e2:SetValue(1)
 	c:RegisterEffect(e2)
 	
-	-- Continuous effect to move the card to the Pendulum Zone
+	-- Place in Pendulum Zone if leaves the field
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_LEAVE_FIELD)
 	e2:SetCondition(s.pencon)
+	e2:SetTarget(s.pentg)
 	e2:SetOperation(s.penop)
 	c:RegisterEffect(e2)
 	
@@ -139,24 +141,19 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
--- Condition to check if the card leaving the field is the specific card
+-- Place in Pendulum Zone when leaves the field
 function s.pencon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	-- Check if the card was face-up and was in the monster zone before leaving the field
 	return c:IsFaceup() and c:IsPreviousLocation(LOCATION_MZONE)
 end
-
--- Operation to move the card to the Pendulum Zone
+function s.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.CheckPendulumZones(tp) end
+end
 function s.penop(e,tp,eg,ep,ev,re,r,rp)
+	if not Duel.CheckPendulumZones(tp) then return end
 	local c=e:GetHandler()
-	-- Check if the card is still on the field and can move to Pendulum Zone
 	if c:IsRelateToEffect(e) then
-		local p=c:GetControler()
-		-- Ensure Pendulum Zones are available
-		if Duel.CheckPendulumZones(p) then
-			-- Move the card to the Pendulum Zone
-			Duel.MoveToField(c,p,p,LOCATION_PZONE,POS_FACEUP,true)
-		end
+		Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
 	end
 end
 
