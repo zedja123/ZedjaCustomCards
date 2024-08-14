@@ -50,6 +50,7 @@ function c270000303.initial_effect(c)
 	e6:SetOperation(s.spop3)
 	c:RegisterEffect(e6)
 	-- Special Summon "Lavoisier" Pendulum Monster
+	local e7=Effect.CreateEffect(c)
 	e7:SetDescription(aux.Stringid(id,1))
 	e7:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e7:SetType(EFFECT_TYPE_IGNITION)
