@@ -55,7 +55,7 @@ function c270000303.initial_effect(c)
 	e7:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e7:SetType(EFFECT_TYPE_IGNITION)
 	e7:SetRange(LOCATION_MZONE)
-	e7:SetCountLimit(1, {id,6})
+	e7:SetCountLimit(1)
 	e7:SetTarget(s.sptg)
 	e7:SetOperation(s.spop)
 	-- While a Link monster points to this card, that card gains the effect
