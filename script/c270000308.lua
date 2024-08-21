@@ -26,6 +26,7 @@ function s.initial_effect(c)
 	local e3=Ritual.CreateProc(c,RITPROC_GREATER,aux.FilterBoolFunction(Card.IsSetCard,0xf14),nil,aux.Stringid(id,1),nil,nil,nil,nil,LOCATION_DECK,nil,nil,nil)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_FZONE)
+	e3:SetCountLimit(1,{id,1})
 	c:RegisterEffect(e3)
 end
 
