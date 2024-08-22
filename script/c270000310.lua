@@ -12,6 +12,7 @@ function s.initial_effect(c)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCountLimit(1,{id,1})
+	e1:SetCondition(s.spcon)
 	e1:SetTarget(s.thtg)
 	e1:SetOperation(s.thop)
 	c:RegisterEffect(e1)
@@ -42,6 +43,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
+-- Check if this card was Link Summoned
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
+end
 -- Add 1 "Lavoisier" Spell/Trap from your Deck to your hand
 function s.thfilter(c)
 	return c:IsSetCard(0xf13) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
