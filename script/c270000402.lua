@@ -44,7 +44,7 @@ end
 
 -- Function to specify the link material count
 function s.lvval(e,c,sc)
-	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK) and Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_MZONE,0)==0
+	return c:IsType(TYPE_LINK) and Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_MZONE,0)==0
 end
 
 -- Add 1 "Build Driver" Spell/Trap to hand
