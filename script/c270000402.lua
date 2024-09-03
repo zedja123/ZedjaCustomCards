@@ -37,13 +37,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 
--- Treat as 2 materials for Link Summon
+-- Function to check if this card can be treated as 2 materials
 function s.lmtg(e,c)
-	return c:IsSetCard(0xf15)
+	return c:IsSetCard(0xf15) and Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_MZONE,0)==0
 end
 
+-- Function to specify the link material count
 function s.lvval(e,c,sc)
-	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK)
+	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK) and Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_MZONE,0)==0
 end
 
 -- Add 1 "Build Driver" Spell/Trap to hand
