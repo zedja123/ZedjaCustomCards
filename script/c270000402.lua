@@ -1,15 +1,14 @@
 --Build Rider - Kiryu
+-- Build Rider - Kiryu
 local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Treat as 2 materials for Link Summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_LINK_MATERIAL)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetTargetRange(LOCATION_MZONE,0)
 	e1:SetTarget(s.lmtg)
 	e1:SetValue(s.lvval)
-	e1:SetOperation(s.matop)
 	c:RegisterEffect(e1)
 	
 	-- Add 1 "Build Driver" Spell/Trap to hand
@@ -17,7 +16,7 @@ function s.initial_effect(c)
 	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SUMMON_SUCCESS)
-	e2:SetCountLimit(1,{id,1})
+	e2:SetCountLimit(1,id)
 	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
@@ -34,18 +33,17 @@ function s.initial_effect(c)
 	e4:SetCondition(s.spcon)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
-	e4:SetCountLimit(1,{id,2})
+	e4:SetCountLimit(1,id+1)
 	c:RegisterEffect(e4)
 end
 
--- Function to check if this card can be treated as 2 materials
+-- Treat as 2 materials for Link Summon
 function s.lmtg(e,c)
-	return c:IsSetCard(0xf15) and Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_MZONE,0)==0
+	return c:IsSetCard(0xf15)
 end
 
--- Function to specify the link material count
 function s.lvval(e,c,sc)
-	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK) and Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_MZONE,0)==0
+	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK)
 end
 
 -- Add 1 "Build Driver" Spell/Trap to hand
