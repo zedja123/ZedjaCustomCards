@@ -67,6 +67,7 @@ end
 
 -- Check if a "Build Rider" Link monster leaves the field
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	local tc=tc:GetFirst()
 	return tc:IsControler(tp) and tc:IsSetCard(0xf15) and tc:IsType(TYPE_LINK) and tc:IsReason(REASON_BATTLE+REASON_EFFECT)
 end
 
