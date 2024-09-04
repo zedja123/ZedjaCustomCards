@@ -4,7 +4,7 @@ function s.initial_effect(c)
 	-- Link Summon procedure
 	c:EnableReviveLimit()
 	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),1,2)
-	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsCode,270000402),1,1)
+	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsCode,270000402),1,1,s.check_single_monster)
 	-- Attribute
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -35,6 +35,10 @@ function s.initial_effect(c)
 	e3:SetTarget(s.destg)
 	e3:SetOperation(s.desop)
 	c:RegisterEffect(e3)
+end
+
+function s.check_single_monster(c)
+	return Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0)==1 and Duel.GetFirstMatchingCard(aux.FilterFaceupFunction(Card.IsCode,270000402),c:GetControler(),LOCATION_MZONE,0,nil)
 end
 
 -- Check if the effect can be activated
