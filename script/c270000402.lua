@@ -67,8 +67,18 @@ end
 
 -- Check if a "Build Rider" Link monster leaves the field
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	local tc=tc:GetFirst()
-	return tc:IsControler(tp) and tc:IsSetCard(0xf15) and tc:IsType(TYPE_LINK) and tc:IsReason(REASON_BATTLE+REASON_EFFECT)
+	-- Ensure eg is not nil and contains the relevant cards
+	if eg:IsContains(e:GetHandler()) then
+		local tc=eg:GetFirst()
+		-- Check if the card that left is a "Build Rider" Link monster
+		while tc do
+			if tc:IsControler(tp) and tc:IsSetCard(0xf15) and tc:IsType(TYPE_LINK) and tc:IsReason(REASON_BATTLE+REASON_EFFECT) then
+				return true
+			end
+			tc=eg:GetNext()
+		end
+	end
+	return false
 end
 
 -- Target this card for Special Summon
