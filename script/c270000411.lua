@@ -4,7 +4,7 @@ function s.initial_effect(c)
 	-- Link Summon procedure
 	c:EnableReviveLimit()
 --	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),1,2)
-	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsCode,270000402),1,1,s.check_single_monster)
+	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsCode,270000402),1,1)
 	-- Attribute
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
