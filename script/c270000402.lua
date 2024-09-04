@@ -65,20 +65,29 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- Special Summon from GY
+-- Check if a "Build Rider" Link monster leaves the field
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD) and (eg:GetFirst():IsSetCard(0xf15) or eg:GetFirst():IsType(TYPE_LINK))
+	local tc=eg:GetFirst()
+	return tc:IsControler(tp) and tc:IsSetCard(0xf15) and tc:IsType(TYPE_LINK) and tc:IsReason(REASON_BATTLE+REASON_EFFECT)
 end
 
+-- Target this card for Special Summon
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetTargetCard(e:GetHandler())
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 
+-- Special Summon the card and banish it if it leaves the field
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	if e:GetHandler():IsRelateToEffect(e) then
-		Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP)
-		e:GetHandler():Banished()
-	end
+	local c=e:GetHandler()
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 then return end
+	-- Banish it when it leaves the field
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
+	e1:SetValue(LOCATION_REMOVED)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+	c:RegisterEffect(e1,true)
 end
