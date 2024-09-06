@@ -26,12 +26,19 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
+
+-- Filter for Link-3 or higher "Build Rider" monsters
+function s.filter(c,e,tp)
+	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK) and c:IsLinkAbove(3) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_LINK,tp,false,false)
+end
+
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsMainPhase() and Duel.GetLocationCountFromEx(tp)>0
+	return Duel.GetLocationCountFromEx(tp)>0
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,0xf15) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
+		and Duel.IsExistingMatchingCard(Card.IsCanBeLinkMaterial,tp,LOCATION_MZONE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTRIBUTE)
 	local att=Duel.AnnounceAttribute(tp,1,ATTRIBUTE_FIRE+ATTRIBUTE_WATER+ATTRIBUTE_WIND+ATTRIBUTE_EARTH+ATTRIBUTE_LIGHT+ATTRIBUTE_DARK)
 	e:SetLabel(att)
@@ -39,20 +46,19 @@ end
 
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local att=e:GetLabel()
-	local g=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_MZONE,0,1,99,nil,0xf15)
-	if g:GetCount()>0 then
+	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_EXTRA,0,nil,e,tp)
+	if #g>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local mg=c:Select(tp,1,99,nil)
-		if Duel.LinkSummon(tp,mg,nil,3,99,nil) then
-			local tc=Duel.GetOperatedGroup():GetFirst()
-			if tc and tc:IsFaceup() and tc:IsSetCard(0xf15) then
-				local e1=Effect.CreateEffect(e:GetHandler())
+		local sg=g:Select(tp,1,1,nil)
+		local tc=sg:GetFirst()
+		if tc then
+			Duel.LinkSummon(tp,tc,nil)
+			local e1=Effect.CreateEffect(e:GetHandler())
 				e1:SetType(EFFECT_TYPE_SINGLE)
 				e1:SetCode(EFFECT_ADD_ATTRIBUTE)
 				e1:SetValue(att)
 				e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 				tc:RegisterEffect(e1)
-			end
 		end
 	end
 end
