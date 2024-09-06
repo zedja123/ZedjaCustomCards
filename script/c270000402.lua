@@ -23,9 +23,9 @@ function s.initial_effect(c)
 	e4:SetCode(EVENT_LEAVE_FIELD)
 	e4:SetRange(LOCATION_GRAVE)
 	e4:SetCountLimit(1,{id,2})
-	e4:SetCondition(s.spcon2)
-	e4:SetTarget(s.sptg2)
-	e4:SetOperation(s.spop2)
+	e4:SetCondition(s.spcon)
+	e4:SetTarget(s.sptg)
+	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
 end
 
