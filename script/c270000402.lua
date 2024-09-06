@@ -18,12 +18,14 @@ function s.initial_effect(c)
 	-- Special Summon from GY
 	local e4=Effect.CreateEffect(c)
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
 	e4:SetCode(EVENT_LEAVE_FIELD)
-	e4:SetCondition(s.spcon)
-	e4:SetTarget(s.sptg)
-	e4:SetOperation(s.spop)
+	e4:SetRange(LOCATION_GRAVE)
 	e4:SetCountLimit(1,{id,2})
+	e4:SetCondition(s.spcon2)
+	e4:SetTarget(s.sptg2)
+	e4:SetOperation(s.spop2)
 	c:RegisterEffect(e4)
 end
 
