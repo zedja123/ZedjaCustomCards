@@ -28,12 +28,9 @@ function s.initial_effect(c)
 end
 
 -- Special Summon from hand if only control "Build Rider" monsters
-function s.cfilter(c)
-	return c:IsFacedown() or not c:IsCode(0xf15)
-end
-
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
+function s.spcon(e, tp, eg, ep, ev, re, r, rp)
+	local g = Duel.GetFieldGroup(tp, LOCATION_MZONE, 0)
+	return #g > 0 and g:FilterCount(Card.IsSetCard, nil, 0xf15) == #g
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)

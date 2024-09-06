@@ -49,10 +49,6 @@ function s.spcon(e, tp, eg, ep, ev, re, r, rp)
 	return #g > 0 and g:FilterCount(Card.IsSetCard, nil, 0xf15) == #g
 end
 
-function s.spfilter(c)
-	return c:IsFaceup() and not c:IsSetCard(0xf10)
-end
-
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
