@@ -6,7 +6,14 @@ function s.initial_effect(c)
 	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),3,99)
 	c:SetSPSummonOnce(id)
 
-
+	-- Also FIRE Attribute
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e1:SetRange(LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED)
+	e1:SetCode(EFFECT_ADD_ATTRIBUTE)
+	e1:SetValue(ATTRIBUTE_FIRE)
+	c:RegisterEffect(e1)
 
 	-- Cannot be targeted by card effects
 	local e2=Effect.CreateEffect(c)
