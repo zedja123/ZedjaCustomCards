@@ -8,7 +8,6 @@ function s.initial_effect(c)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCountLimit(1,{id,1})
-	e1:SetCondition(s.condition)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
@@ -27,18 +26,12 @@ function s.initial_effect(c)
 end
 
 
--- Filter for Link-3 or higher "Build Rider" monsters
 function s.filter(c,e,tp)
-	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK) and c:IsLinkAbove(3) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_LINK,tp,false,false)
-end
-
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetLocationCountFromEx(tp)>0
+	return c:IsSetCard(0xf15) and c:IsLinkSummonable(nil)
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
-		and Duel.IsExistingMatchingCard(Card.IsCanBeLinkMaterial,tp,LOCATION_MZONE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTRIBUTE)
 	local att=Duel.AnnounceAttribute(tp,1,ATTRIBUTE_FIRE+ATTRIBUTE_WATER+ATTRIBUTE_WIND+ATTRIBUTE_EARTH+ATTRIBUTE_LIGHT+ATTRIBUTE_DARK)
 	e:SetLabel(att)
@@ -46,20 +39,18 @@ end
 
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local att=e:GetLabel()
-	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_EXTRA,0,nil,e,tp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
 	if #g>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg=g:Select(tp,1,1,nil)
-		local tc=sg:GetFirst()
-		if tc then
-			Duel.LinkSummon(tp,tc,nil)
-			local e1=Effect.CreateEffect(e:GetHandler())
-				e1:SetType(EFFECT_TYPE_SINGLE)
-				e1:SetCode(EFFECT_ADD_ATTRIBUTE)
-				e1:SetValue(att)
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-				tc:RegisterEffect(e1)
-		end
+		Duel.LinkSummon(tp,g:GetFirst(),nil)
+		-- Change the summoned monster's attribute
+		local c=g:GetFirst()
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_CHANGE_ATTRIBUTE)
+		e1:SetValue(att)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		c:RegisterEffect(e1)
 	end
 end
 
