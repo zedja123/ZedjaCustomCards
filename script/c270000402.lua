@@ -1,15 +1,6 @@
 -- Build Rider - Kiryu
 local s,id,o=GetID()
 function s.initial_effect(c)
-	-- Treat as 2 materials for Link Summon
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetTargetRange(LOCATION_MZONE,0)
-	e1:SetTarget(s.lmtg)
-	e1:SetValue(s.lvval)
-	c:RegisterEffect(e1)
-	
 	-- Add 1 "Build Driver" Spell/Trap to hand
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
@@ -36,16 +27,6 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 
--- Function to check if this card can be treated as 2 materials
-function s.lmtg(e,c)
-	return c:IsSetCard(0xf15) and Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_MZONE,0)==0
-end
-
--- Function to specify the link material count
-function s.lvval(e,c,sc)
-	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK) and Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_MZONE,0)==0
-end
-
 -- Add 1 "Build Driver" Spell/Trap to hand
 function s.thfilter(c)
 	return c:IsSetCard(0xf15) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
@@ -66,32 +47,23 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 -- Check if a "Build Rider" Link monster leaves the field
+function s.cfilter(c,tp,rp)
+	return c:IsPreviousPosition(POS_FACEUP) and c:IsPreviousControler(tp) and c:GetPreviousTypeOnField()&TYPE_LINK~=0 and c:IsPreviousLocation(LOCATION_MZONE)
+		and c:IsPreviousSetCard(0xf15) and (c:IsReason(REASON_BATTLE) or (c:IsReason(REASON_EFFECT)))
+end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	-- Ensure eg is not nil and contains the relevant cards
-	if eg:IsContains(e:GetHandler()) then
-		local tc=eg:GetFirst()
-		-- Check if the card that left is a "Build Rider" Link monster
-		while tc do
-			if tc:IsControler(tp) and tc:IsSetCard(0xf15) and tc:IsType(TYPE_LINK) and tc:IsReason(REASON_BATTLE+REASON_EFFECT) then
-				return true
-			end
-			tc=eg:GetNext()
-		end
-	end
-	return false
+	return not eg:IsContains(e:GetHandler()) and eg:IsExists(s.cfilter,1,nil,tp,rp)
 end
-
--- Target this card for Special Summon
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetTargetCard(e:GetHandler())
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
-
--- Special Summon the card and banish it if it leaves the field
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 then return end
+	if c:IsRelateToEffect(e) then
+		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 	-- Banish it when it leaves the field
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -100,4 +72,5 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetValue(LOCATION_REMOVED)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 	c:RegisterEffect(e1,true)
+	end
 end

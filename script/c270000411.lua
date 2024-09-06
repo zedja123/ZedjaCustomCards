@@ -34,11 +34,39 @@ function s.initial_effect(c)
 	e3:SetTarget(s.destg)
 	e3:SetOperation(s.desop)
 	c:RegisterEffect(e3)
+
+	-- Custom Link Summon condition
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_FIELD)
+	e4:SetCode(EFFECT_SPSUMMON_PROC)
+	e4:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e4:SetRange(LOCATION_EXTRA)
+	e4:SetCondition(s.linkcon)
+	e4:SetOperation(s.linkop)
+	e4:SetValue(SUMMON_TYPE_LINK)
+	c:RegisterEffect(e4)
+end
+-- Material filter
+function s.matfilter(c,lc,sumtype,tp)
+	return c:IsCode(270000402)
+end
+-- Link Summon using Kiryu
+-- Custom Link Summon condition
+function s.linkcon(e,c,og)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	local zone=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	return zone>0 and Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) 
+		and Duel.GetMatchingGroupCount(aux.TRUE,tp,LOCATION_MZONE,0,nil)==1
 end
 
-function s.check_single_monster(c)
-	return Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0)==1 and Duel.GetFirstMatchingCard(aux.FilterFaceupFunction(Card.IsCode,270000402),c:GetControler(),LOCATION_MZONE,0,nil)
+-- Custom Link Summon operation
+function s.linkop(e,tp,eg,ep,ev,re,r,rp,c,og)
+	local tp=c:GetControler()
+	local g=Duel.SelectMatchingCard(tp,s.matfilter,tp,LOCATION_MZONE,0,1,1,nil)
+	Duel.SendtoGrave(g,REASON_MATERIAL+REASON_LINK)
 end
+
 
 -- Check if the effect can be activated
 function s.retcon(e,tp,eg,ep,ev,re,r,rp)
