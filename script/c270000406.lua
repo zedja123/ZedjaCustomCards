@@ -1,12 +1,11 @@
 --Build Driver - Love and Peace
 local s,id,o=GetID()
 function s.initial_effect(c)
-	-- Activate
+	-- Activate: Target 1 "Build Rider" Link monster you control
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DESTROY+CATEGORY_RECOVER)
-	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetCategory(CATEGORY_TARGET)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetRange(LOCATION_SZONE)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCountLimit(1,{id,1})
 	e1:SetTarget(s.target)
