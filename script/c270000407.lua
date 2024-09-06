@@ -26,8 +26,8 @@ function s.initial_effect(c)
 end
 
 
-function s.filter(c)
-	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK) and c:GetLink()>=3
+function s.filter(c,e,tp)
+	return c:IsSetCard(0xf15) and c:IsLinkAbove(3) and c:IsLinkSummonable(nil)
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -35,23 +35,21 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTRIBUTE)
 	local att=Duel.AnnounceAttribute(tp,1,ATTRIBUTE_FIRE+ATTRIBUTE_WATER+ATTRIBUTE_WIND+ATTRIBUTE_EARTH+ATTRIBUTE_LIGHT+ATTRIBUTE_DARK)
 	e:SetLabel(att)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local att=e:GetLabel()
-	if Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_LINK)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_EXTRA,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
 	local tc=g:GetFirst()
-	if tc then
-		Duel.LinkSummon(tp,tc,nil)
-		-- Change the summoned monster's attribute
+	if tc and Duel.LinkSummon(tp,tc,nil) then
+		-- Change attribute of the summoned monster
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_ADD_ATTRIBUTE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetCode(EFFECT_CHANGE_ATTRIBUTE)
 		e1:SetValue(att)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
 	end
 end
