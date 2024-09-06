@@ -44,12 +44,16 @@ function s.initial_effect(c)
 end
 
 -- Special Summon from hand condition
-function s.cfilter(c)
-	return c:IsFacedown() or not c:IsCode(0xf15)
+function s.spcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)>0
+		and not Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
+function s.spfilter(c)
+	return c:IsFaceup() and not c:IsSetCard(0xf15)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
