@@ -1,6 +1,7 @@
 --Build Rider - Hawk Gatling
 local s,id,o=GetID()
 function s.initial_effect(c)
+	c:SetUniqueOnField(1,0,id)
 	-- Link Summon procedure
 	c:EnableReviveLimit()
 	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),1,2)
