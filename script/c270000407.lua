@@ -42,7 +42,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_MZONE,0,1,99,nil,0xf15)
 	if g:GetCount()>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local mg=g:Select(tp,1,99,nil)
+		local mg=c:Select(tp,1,99,nil)
 		if Duel.LinkSummon(tp,mg,nil,3,99,nil) then
 			local tc=Duel.GetOperatedGroup():GetFirst()
 			if tc and tc:IsFaceup() and tc:IsSetCard(0xf15) then
