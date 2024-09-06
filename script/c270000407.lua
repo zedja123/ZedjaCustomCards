@@ -26,8 +26,8 @@ function s.initial_effect(c)
 end
 
 
-function s.filter(c,e,tp)
-	return c:IsSetCard(0xf15) and c:IsLinkSummonable(nil)
+function s.filter(c)
+	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK) and c:GetLink()>=3
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -37,20 +37,22 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(att)
 end
 
-function s.activate(e,tp,eg,ep,ev,re,r,rp)
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local att=e:GetLabel()
+	if Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_LINK)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
-	if #g>0 then
-		Duel.LinkSummon(tp,g:GetFirst(),nil)
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_EXTRA,0,1,1,nil)
+	local tc=g:GetFirst()
+	if tc then
+		Duel.LinkSummon(tp,tc,nil)
 		-- Change the summoned monster's attribute
-		local c=g:GetFirst()
-		local e1=Effect.CreateEffect(c)
+		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_ADD_ATTRIBUTE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetValue(att)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		c:RegisterEffect(e1)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		tc:RegisterEffect(e1)
 	end
 end
 
