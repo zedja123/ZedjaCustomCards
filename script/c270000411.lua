@@ -46,6 +46,9 @@ function s.initial_effect(c)
 	e4:SetValue(SUMMON_TYPE_LINK)
 	c:RegisterEffect(e4)
 end
+
+-- CUSTOM LINK SUMMON INIT 
+
 -- Material filter
 function s.matfilter(c,lc,sumtype,tp)
 	return c:IsCode(270000402)
@@ -66,6 +69,8 @@ function s.linkop(e,tp,eg,ep,ev,re,r,rp,c,og)
 	local g=Duel.SelectMatchingCard(tp,s.matfilter,tp,LOCATION_MZONE,0,1,1,nil)
 	Duel.SendtoGrave(g,REASON_MATERIAL+REASON_LINK)
 end
+
+-- CUSTOM LINK SUMMON END
 
 
 -- Check if the effect can be activated
