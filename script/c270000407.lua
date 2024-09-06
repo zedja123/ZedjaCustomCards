@@ -19,7 +19,7 @@ function s.initial_effect(c)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCountLimit(1,{id,2})
-	e2:SetCondition(s.grave_condition)
+	e2:SetCondition(s.gycondition)
 	e2:SetCost(aux.bfgcost)
 	e2:SetTarget(s.grave_target)
 	e2:SetOperation(s.grave_operation)
@@ -63,8 +63,8 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.grave_condition(e,tp,eg,ep,ev,re,r,rp)
-	return not e:GetHandler():IsReason(REASON_RETURN)
+function s.gycondition(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetTurnCount()~=e:GetHandler():GetTurnID()
 end
 
 function s.grave_target(e,tp,eg,ep,ev,re,r,rp,chk)
