@@ -104,7 +104,7 @@ end
 
 -- Effect 3: Attribute Change when Banished
 
-function s.attlink
+function s.attlink(c)
 	return c:IsSetCard(0xf15) and c:IsType(TYPE_LINK)
 end
 function s.attrtg(e,tp,eg,ep,ev,re,r,rp,chk)
