@@ -27,12 +27,12 @@ function s.initial_effect(c)
 	e2:SetOperation(s.banop)
 	c:RegisterEffect(e2)
 	
-	-- Special Summon from GY if a card is banished
+	-- Special Summon from GY if any card except this one is banished
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_REMOVE)
+	e3SetCode(EVENT_REMOVE)
 	e3:SetRange(LOCATION_GRAVE)
-	e3:SetCountLimit(1,{id,1})
+	e3:SetCountLimit(1,{id,2})
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
@@ -54,9 +54,15 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- Condition: Check if the card is in the GY and another card is banished
+-- Condition: Check if a card is banished and it is not this card
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsLocation(LOCATION_GRAVE)
+	local c=e:GetHandler()
+	return eg:IsExists(s.cfilter,1,c)
+end
+
+-- Filter: Exclude this card from the banished cards
+function s.cfilter(c)
+	return c:IsLocation(LOCATION_REMOVED) and c:IsControler(tp)
 end
 
 -- Targeting the Special Summon
