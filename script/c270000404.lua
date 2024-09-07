@@ -36,22 +36,38 @@ function s.spfilter(c)
 	return c:IsFaceup() and not c:IsSetCard(0xf15)
 end
 
--- Cost function: Banish this card from the Graveyard
+-- Cost function: Target a banished "Build Rider" monster and an opponent's card, then banish this card
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.Remove(e:GetHandler(), POS_FACEUP, REASON_COST)
-end
-
--- Target function: Check for valid targets and set operation info
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
+		-- Check if we can select both a valid banished "Build Rider" monster and an opponent's card in the Graveyard
 		return Duel.IsExistingMatchingCard(s.filter_banished, tp, LOCATION_REMOVED, 0, 1, nil)
 			and Duel.IsExistingMatchingCard(s.filter_grave, tp, 0, LOCATION_GRAVE, 1, nil)
 	end
-	local g1=Duel.GetMatchingGroup(s.filter_banished, tp, LOCATION_REMOVED, 0, nil)
-	local g2=Duel.GetMatchingGroup(s.filter_grave, tp, 0, LOCATION_GRAVE, nil)
-	Duel.SetOperationInfo(0, CATEGORY_REMOVE, nil, 2, tp, LOCATION_GRAVE)
-	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_REMOVED)
+	-- Select the targets for the cost
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TARGET)
+	local g1=Duel.SelectMatchingCard(tp, s.filter_banished, tp, LOCATION_REMOVED, 0, 1, 1, nil)
+	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_TARGET)
+	local g2=Duel.SelectMatchingCard(tp, s.filter_grave, tp, 0, LOCATION_GRAVE, 1, 1, nil)
+	local tc1=g1:GetFirst()
+	local tc2=g2:GetFirst()
+	if tc1 and tc2 then
+		-- Set the targets for the operation
+		e:SetLabelObject(tc1)
+		e:SetLabelObject(tc2)
+		-- Banish this card as cost
+		Duel.Remove(e:GetHandler(), POS_FACEUP, REASON_COST)
+	end
+end
+
+-- Target function: Update the operation info
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetLabelObject() end
+	local tc1=e:GetLabelObject()
+	local tc2=e:GetLabelObject()
+	if tc1 and tc2 then
+		Duel.SetOperationInfo(0, CATEGORY_REMOVE, tc2, 1, 0, 0)
+		Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, tc1, 1, 0, 0)
+	end
 end
 
 -- Filter function for banished "Build Rider" monsters
@@ -64,19 +80,16 @@ function s.filter_grave(c)
 	return c:IsAbleToRemove()
 end
 
--- Operation function: Remove selected cards and special summon the banished monster
+-- Operation function: Remove the opponent's card and special summon the targeted "Build Rider" monster with effects negated
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local tc1=Duel.SelectMatchingCard(tp, s.filter_banished, tp, LOCATION_REMOVED, 0, 1, 1, nil):GetFirst()
-	local tc2=Duel.SelectMatchingCard(tp, s.filter_grave, tp, 0, LOCATION_GRAVE, 1, 1, nil):GetFirst()
+	local tc1=e:GetLabelObject()  -- The banished "Build Rider" monster
+	local tc2=e:GetLabelObject()  -- The opponent's card in the Graveyard
 	if tc1 and tc2 then
-		-- Banish the selected cards
-		Duel.Remove(tc1, POS_FACEUP, REASON_EFFECT)
+		-- Banish the opponent's card
 		Duel.Remove(tc2, POS_FACEUP, REASON_EFFECT)
-		
-		-- Special summon the banished "Build Rider" monster
+		-- Special summon the "Build Rider" monster
 		Duel.SpecialSummon(tc1, 0, tp, tp, false, false, POS_FACEUP)
-		
-		-- Negate the effects of the summoned monster
+		-- Negate its effects
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_DISABLE)
