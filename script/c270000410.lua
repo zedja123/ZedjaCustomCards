@@ -22,22 +22,19 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+	e2:SetCountLimit(1,{id,1})
 	e2:SetTarget(s.bantg)
 	e2:SetOperation(s.banop)
 	c:RegisterEffect(e2)
 	
-	-- Special Summon from GY when a card is banished
+	-- Special Summon from GY if a card is banished
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,1))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e3:SetCode(EVENT_REMOVE)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetRange(LOCATION_GRAVE)
+	e3:SetCountLimit(1,{id,3})
 	e3:SetCondition(s.spcon)
-	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
-	e3:SetCountLimit(1,id)
 	c:RegisterEffect(e3)
 end
 
@@ -56,15 +53,12 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- e3: Special Summon from GY when a card is banished
+-- Condition: Check if the card is in GY and another card is banished
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(Card.IsControler,1,nil,1-tp)
+	return e:GetHandler():IsLocation(LOCATION_GRAVE)
 end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-end
+
+-- Operation: Special Summon this card and banish it when it leaves the field
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
@@ -74,7 +68,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e1:SetReset(RESET_EVENT+RESETS_REDIRECT)
 		e1:SetValue(LOCATION_REMOVED)
 		c:RegisterEffect(e1)
 	end
