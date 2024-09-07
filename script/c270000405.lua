@@ -57,7 +57,7 @@ function s.spfilter3(c,e,tp)
 	return c:IsSetCard(0xf15) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.tdfilter(c)
-	return c:IsSetCard(0xf15) and c:IsAbleToDeck()
+	return c:IsSetCard(0xf15) and c:IsAbleToDeck() and c:IsType(TYPE_MONSTER)
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil)
