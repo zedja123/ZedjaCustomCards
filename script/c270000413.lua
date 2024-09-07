@@ -3,7 +3,7 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Link Summon
 	c:EnableReviveLimit()
-	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),3,99)
+	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),1,99)
 	c:SetSPSummonOnce(id)
 
 	-- Also FIRE Attribute
