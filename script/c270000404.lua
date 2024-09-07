@@ -2,14 +2,14 @@
 local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Special Summon from hand if only control "Build Rider" monsters
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
-	e1:SetCode(EVENT_FREE_CHAIN)
+	local e1 = Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id, 0))
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_SPSUMMON_PROC)
+	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
 	e1:SetRange(LOCATION_HAND)
-	e1:SetCountLimit(1,{id,1})
 	e1:SetCondition(s.spcon)
+	e1:SetCountLimit(1, {id, 1})
 	c:RegisterEffect(e1)
 
 	-- Banish this card from GY and banish opponent's card to Special Summon banished "Build Rider"
