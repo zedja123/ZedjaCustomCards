@@ -33,7 +33,6 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_REMOVE)
 	e3:SetRange(LOCATION_GRAVE)
 	e3:SetCountLimit(1,{id,2})
-	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
@@ -52,17 +51,6 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	if tc:IsRelateToEffect(e) then
 		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
 	end
-end
-
--- Condition: Check if a card is banished and it is not this card
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return eg:IsExists(s.cfilter,1,c)
-end
-
--- Filter: Exclude this card from the banished cards
-function s.cfilter(c)
-	return c:IsLocation(LOCATION_REMOVED) and c:IsControler(tp)
 end
 
 -- Targeting the Special Summon
