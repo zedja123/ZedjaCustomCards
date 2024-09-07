@@ -40,7 +40,7 @@ end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		return Duel.IsExistingMatchingCard(s.filter_banished, tp, LOCATION_REMOVED, 0, 1, nil)
-			and Duel.IsExistingMatchingCard(s.filter_grave, tp, 0, LOCATION_GRAVE, 1, nil)
+			and Duel.IsExistingMatchingCard(s.filter_grave, tp, 0, LOCATION_GRAVE, 1, nil) end
 	local g1=Duel.GetMatchingGroup(s.filter_banished, tp, LOCATION_REMOVED, 0, nil)
 	local g2=Duel.GetMatchingGroup(s.filter_grave, tp, 0, LOCATION_GRAVE, nil)
 end
