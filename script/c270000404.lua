@@ -10,8 +10,6 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCountLimit(1,{id,1})
 	e1:SetCondition(s.spcon)
-	e1:SetTarget(s.sptg)
-	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
 
 	-- Banish this card from GY and banish opponent's card to Special Summon banished "Build Rider"
@@ -27,21 +25,16 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
--- Special Summon from hand if only control "Build Rider" monsters
-function s.spcon(e, tp, eg, ep, ev, re, r, rp)
-	local g = Duel.GetFieldGroup(tp, LOCATION_MZONE, 0)
-	return #g > 0 and g:FilterCount(Card.IsSetCard, nil, 0xf15) == #g
+function s.spcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)>0
+		and not Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-	end
+function s.spfilter(c)
+	return c:IsFaceup() and not c:IsSetCard(0xf15)
 end
 
 -- Banish this card and opponent's card, then Special Summon banished "Build Rider"
