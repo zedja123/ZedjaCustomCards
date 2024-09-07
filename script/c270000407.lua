@@ -48,6 +48,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
 	local tc=g:GetFirst()
 	if tc and Duel.LinkSummon(tp,tc,nil) then
+		Debug.Message(att)
 		-- Apply attribute change to the Link Summoned monster
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
