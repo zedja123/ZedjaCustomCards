@@ -3,7 +3,7 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Link Summon
 	c:EnableReviveLimit()
-	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),1,99)
+	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),1,3)
 
 	-- Also DARK Attribute
 	local e1=Effect.CreateEffect(c)

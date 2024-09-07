@@ -4,7 +4,7 @@ function s.initial_effect(c)
 	c:SetUniqueOnField(1,0,id)
 	-- Link Summon
 	c:EnableReviveLimit()
-	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),2,99)
+	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),1,2)
 
 	-- Also WATER Attribute
 	local e1=Effect.CreateEffect(c)
