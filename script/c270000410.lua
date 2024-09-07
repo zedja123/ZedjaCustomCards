@@ -29,11 +29,12 @@ function s.initial_effect(c)
 	
 	-- Special Summon from GY if a card is banished
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_REMOVE)
 	e3:SetRange(LOCATION_GRAVE)
-	e3:SetCountLimit(1,{id,3})
+	e3:SetCountLimit(1,{id,1})
 	e3:SetCondition(s.spcon)
+	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
 end
@@ -53,9 +54,16 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- Condition: Check if the card is in GY and another card is banished
+-- Condition: Check if the card is in the GY and another card is banished
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsLocation(LOCATION_GRAVE)
+end
+
+-- Targeting the Special Summon
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 
 -- Operation: Special Summon this card and banish it when it leaves the field
