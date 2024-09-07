@@ -30,7 +30,7 @@ function s.initial_effect(c)
 	-- Special Summon from GY if any card except this one is banished
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e3SetCode(EVENT_REMOVE)
+	e3:SetCode(EVENT_REMOVE)
 	e3:SetRange(LOCATION_GRAVE)
 	e3:SetCountLimit(1,{id,2})
 	e3:SetCondition(s.spcon)
