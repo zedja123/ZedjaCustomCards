@@ -30,20 +30,18 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_CHAINING)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCountLimit(1,id)
+	e3:SetCountLimit(1,{id,1})
 	e3:SetCondition(s.negcon)
 	e3:SetTarget(s.negtg)
 	e3:SetOperation(s.negop)
 	c:RegisterEffect(e3)
 
-	-- Gain ATK when a card is banished
+	-- Gain 1000 ATK if a card is banished
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,1))
-	e4:SetCategory(CATEGORY_ATKCHANGE)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e4:SetCode(EVENT_REMOVE)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetCondition(s.atkcon)
+	e4:SetCountLimit(1,{id,2})
 	e4:SetOperation(s.atkop)
 	c:RegisterEffect(e4)
 
@@ -78,15 +76,9 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- ATK gain condition
-function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(Card.IsControler,1,nil,tp)
-end
-
--- ATK gain operation
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsFaceup() and c:IsRelateToEffect(e) then
+	if c:IsRelateToEffect(e) and c:IsFaceup() then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
