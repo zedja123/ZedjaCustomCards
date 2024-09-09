@@ -37,13 +37,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 
 	-- Gain 1000 ATK if a card is banished
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e4:SetCode(EVENT_REMOVE)
-	e4:SetRange(LOCATION_MZONE)
-	e4:SetCountLimit(1,{id,2})
-	e4:SetOperation(s.atkop)
-	c:RegisterEffect(e4)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_REMOVE)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetCondition(s.atkcon)
+	e1:SetOperation(s.atkop)
+	e1:SetCountLimit(1,{id,2}) -- Limit the effect to once per turn
+	c:RegisterEffect(e1)
 
 	--Must be Link Summoned
 	local e5=Effect.CreateEffect(c)
@@ -76,9 +77,21 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
+-- Condition: If any card is banished
+function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(s.cfilter,1,nil)
+end
+
+-- Filter: Check if a card is banished
+function s.cfilter(c)
+	return c:IsLocation(LOCATION_REMOVED)
+end
+
+-- Operation: Gain 1000 ATK for the rest of this turn
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and c:IsFaceup() then
+		-- Gain 1000 ATK for the rest of this turn
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
