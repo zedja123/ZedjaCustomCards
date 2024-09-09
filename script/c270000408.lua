@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	e2:SetTargetRange(LOCATION_MZONE,0)
 	e2:SetCode(EFFECT_UPDATE_ATTACK)
 	e2:SetCondition(s.con)
-	e2:SetValue(200)
+	e2:SetOperation(s.atkop)
 	c:RegisterEffect(e2)
 
 	-- End Phase: Set 1 "Build Driver" card from GY or banished to your field
@@ -52,6 +52,25 @@ function s.con(e)
 	return tp==e:GetHandlerPlayer() and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE
 end
 
+-- Apply the ATK boost to "Build Rider" monsters you control
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(s.atkfilter, tp, LOCATION_MZONE, 0, nil)
+	local tc=g:GetFirst()
+	while tc do
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetValue(500)
+		e1:SetReset(RESET_EVENT + RESETS_STANDARD + RESET_PHASE + PHASE_END) -- Reset at the end of the turn
+		tc:RegisterEffect(e1)
+		tc=g:GetNext()
+	end
+end
+
+-- Filter function for "Build Rider" monsters
+function s.atkfilter(c)
+	return c:IsSetCard(0xf15) and c:IsFaceup()
+end
 -- e3: Set 1 "Build Driver" card from GY or banished to your field during End Phase
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil) end
