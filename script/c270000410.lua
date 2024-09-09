@@ -33,6 +33,7 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_REMOVE)
 	e3:SetRange(LOCATION_GRAVE)
 	e3:SetCondition(s.spcon)
+	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	e3:SetCountLimit(1,{id,2}) -- Limit the effect to once per turn
 	c:RegisterEffect(e3)
@@ -62,7 +63,12 @@ end
 function s.cfilter(c)
 	return c:IsLocation(LOCATION_REMOVED)
 end
-
+-- Target: Special Summon this card
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+end
 -- Operation: Special Summon this card and banish it when it leaves the field
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
