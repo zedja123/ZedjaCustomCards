@@ -56,7 +56,7 @@ end
 
 -- Material filter
 function s.matfilter(c,lc,sumtype,tp)
-	return c:IsCode(270000402) and not c:IsDisabled
+	return c:IsCode(270000402) and not c:IsDisabled()
 end
 -- Link Summon using Kiryu
 -- Custom Link Summon condition
