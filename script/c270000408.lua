@@ -46,8 +46,10 @@ function s.thfilter(c)
 end
 
 -- e2: "Build Rider" monsters gain 500 ATK during Battle Phase
-function s.con(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer() == tp and Duel.GetCurrentPhase() == PHASE_BATTLE
+function s.con(e)
+	local ph=Duel.GetCurrentPhase()
+	local tp=Duel.GetTurnPlayer()
+	return tp==e:GetHandlerPlayer() and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE
 end
 
 -- e3: Set 1 "Build Driver" card from GY or banished to your field during End Phase
