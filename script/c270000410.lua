@@ -34,6 +34,7 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_GRAVE)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCondition(s.spcon)
+	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	e3:SetCountLimit(1,{id,2}) -- Limit the effect to once per turn
 	c:RegisterEffect(e3)
@@ -62,6 +63,15 @@ end
 -- Filter: Check if a card is banished
 function s.cfilter(c)
 	return c:IsLocation(LOCATION_REMOVED)
+end
+-- Target: Make sure the card can be Special Summoned from the Extra Deck
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then 
+		-- Use Duel.GetLocationCountFromEx for Extra Deck monsters
+		return Duel.GetLocationCountFromEx(tp,tp,nil,e:GetHandler())>0
+		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) 
+	end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 -- Operation: Special Summon this card and banish it when it leaves the field
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
