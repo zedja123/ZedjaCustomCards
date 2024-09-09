@@ -37,14 +37,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 
 	-- Gain 1000 ATK if a card is banished
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e1:SetCode(EVENT_REMOVE)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetCondition(s.atkcon)
-	e1:SetOperation(s.atkop)
-	e1:SetCountLimit(1,{id,2}) -- Limit the effect to once per turn
-	c:RegisterEffect(e1)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+	e4:SetCode(EVENT_REMOVE)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetCondition(s.atkcon)
+	e4:SetOperation(s.atkop)
+	e4:SetCountLimit(1,{id,2}) -- Limit the effect to once per turn
+	c:RegisterEffect(e4)
 
 	--Must be Link Summoned
 	local e5=Effect.CreateEffect(c)
