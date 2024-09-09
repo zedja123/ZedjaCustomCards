@@ -26,7 +26,7 @@ function s.initial_effect(c)
 
 	-- Gain ATK and attack all monsters once each during the Battle Phase
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetType(EFFECT_TYPE_QUICK_F)
 	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCondition(s.bpcon)
