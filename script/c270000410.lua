@@ -34,7 +34,6 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_GRAVE)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCondition(s.spcon)
-	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	e3:SetCountLimit(1,{id,2}) -- Limit the effect to once per turn
 	c:RegisterEffect(e3)
@@ -63,12 +62,6 @@ end
 -- Filter: Check if a card is banished
 function s.cfilter(c)
 	return c:IsLocation(LOCATION_REMOVED)
-end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
 -- Operation: Special Summon this card and banish it when it leaves the field
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
