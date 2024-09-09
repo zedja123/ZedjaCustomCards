@@ -10,16 +10,6 @@ function s.initial_effect(c)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 
-	-- ATK boost effect during Battle Phase
-	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_ATKCHANGE)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e2:SetRange(LOCATION_FZONE)
-	e2:SetCode(EVENT_PHASE+PHASE_BATTLE_START)
-	e2:SetCondition(s.atkcon)
-	e2:SetOperation(s.atkop)
-	c:RegisterEffect(e2)
-
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
 	e2:SetCategory(CATEGORY_ATKCHANGE)
