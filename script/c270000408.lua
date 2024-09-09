@@ -18,7 +18,7 @@ function s.initial_effect(c)
 	e2:SetCode(EFFECT_UPDATE_ATTACK)
 	e2:SetCondition(s.con)
 	e2:SetTarget(function(e,c) return c:IsSetCard(0xf15) end)
-	e2:SetOperation(s.atkop)
+	e2:SetValue(500)
 	c:RegisterEffect(e2)
 
 	-- End Phase: Set 1 "Build Driver" card from GY or banished to your field
