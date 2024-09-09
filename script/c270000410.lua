@@ -64,13 +64,6 @@ end
 function s.cfilter(c)
 	return c:IsLocation(LOCATION_REMOVED)
 end
--- Target: Special Summon this card from the GY
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
-end
 -- Operation: Special Summon this card and banish it when it leaves the field
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
