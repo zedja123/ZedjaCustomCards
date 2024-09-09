@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	e2:SetTargetRange(LOCATION_MZONE,0)
 	e2:SetCode(EFFECT_UPDATE_ATTACK)
 	e2:SetCondition(s.con)
-	e2:SetTarget(function(e,c) return c:IsSetCode(0xf15) end)
+	e2:SetTarget(function(e,c) return c:IsSetCard(0xf15) end)
 	e2:SetOperation(s.atkop)
 	c:RegisterEffect(e2)
 
