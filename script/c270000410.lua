@@ -22,23 +22,21 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+	e2:SetCountLimit(1,{id,1})
 	e2:SetTarget(s.bantg)
 	e2:SetOperation(s.banop)
 	c:RegisterEffect(e2)
 	
-	-- Special Summon from GY when a card is banished
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,1))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_REMOVE)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetRange(LOCATION_GRAVE)
-	e3:SetCondition(s.spcon)
-	e3:SetTarget(s.sptg)
-	e3:SetOperation(s.spop)
-	e3:SetCountLimit(1,id)
-	c:RegisterEffect(e3)
+	-- Special Summon from GY if a card is banished
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e4:SetCode(EVENT_REMOVE)
+	e4:SetRange(LOCATION_GRAVE)
+	e4:SetCondition(s.spcon)
+	e4:SetTarget(s.sptg)
+	e4:SetOperation(s.spop)
+	e4:SetCountLimit(1,{id,2}) -- Limiting the Special Summon once per turn
+	c:RegisterEffect(e4)
 end
 
 -- e2: Banish opponent's card on Special Summon
@@ -56,15 +54,25 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- e3: Special Summon from GY when a card is banished
+-- Condition: Check if any card is banished while this card is in the GY
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(Card.IsControler,1,nil,1-tp)
+	local c=e:GetHandler()
+	return eg:IsExists(s.cfilter,1,nil) and c:IsLocation(LOCATION_GRAVE)
 end
+
+-- Filter to check if any card was banished
+function s.cfilter(c)
+	return c:IsLocation(LOCATION_REMOVED)
+end
+
+-- Targeting the Special Summon
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
+
+-- Operation: Special Summon this card and banish it when it leaves the field
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
@@ -74,7 +82,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e1:SetReset(RESET_EVENT+RESETS_REDIRECT)
 		e1:SetValue(LOCATION_REMOVED)
 		c:RegisterEffect(e1)
 	end
