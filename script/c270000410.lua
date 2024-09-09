@@ -35,7 +35,7 @@ function s.initial_effect(c)
 	e4:SetCondition(s.spcon)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
-	e4:SetCountLimit(1,{id,2}) -- Limiting the Special Summon once per turn
+	e4:SetCountLimit(1,{id,2})-- Limiting the Special Summon to once per turn
 	c:RegisterEffect(e4)
 end
 
@@ -54,18 +54,17 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- Condition: Check if any card is banished while this card is in the GY
+-- Condition: If any card is banished while this card is in your GY
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return eg:IsExists(s.cfilter,1,nil) and c:IsLocation(LOCATION_GRAVE)
+	return eg:IsExists(s.cfilter,1,nil) and e:GetHandler():IsLocation(LOCATION_GRAVE)
 end
 
--- Filter to check if any card was banished
+-- Filter: Check if any card was banished
 function s.cfilter(c)
 	return c:IsLocation(LOCATION_REMOVED)
 end
 
--- Targeting the Special Summon
+-- Target: Special Summon this card
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
