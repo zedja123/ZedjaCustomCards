@@ -4,7 +4,7 @@ function s.initial_effect(c)
 	-- Activate: Add 1 "Build Rider" monster from Deck to hand
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND)
-	e1:SetType(EFFECT_TYPE_ACTIVATE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,{id,1})
 	e1:SetOperation(s.activate)
