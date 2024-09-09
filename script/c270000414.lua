@@ -38,7 +38,7 @@ function s.initial_effect(c)
 
 	-- Gain 1000 ATK if a card is banished
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_REMOVE)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCondition(s.atkcon)
