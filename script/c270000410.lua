@@ -32,7 +32,7 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_REMOVE)
 	e3:SetRange(LOCATION_GRAVE)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
@@ -64,14 +64,11 @@ end
 function s.cfilter(c)
 	return c:IsLocation(LOCATION_REMOVED)
 end
--- Target: Make sure the card can be Special Summoned from the Extra Deck
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then 
-		-- Use Duel.GetLocationCountFromEx for Extra Deck monsters
-		return Duel.GetLocationCountFromEx(tp,tp,nil,e:GetHandler())>0
-		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) 
-	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
 -- Operation: Special Summon this card and banish it when it leaves the field
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
