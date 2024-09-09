@@ -50,7 +50,7 @@ end
 function s.con(e)
 	local ph=Duel.GetCurrentPhase()
 	local tp=Duel.GetTurnPlayer()
-	return tp==e:GetHandlerPlayer() and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE
+	return tp==e:GetHandlerPlayer() and ph>=PHASE_BATTLE_START and ph<=PHASE_END
 end
 
 -- Apply the ATK boost to "Build Rider" monsters you control
