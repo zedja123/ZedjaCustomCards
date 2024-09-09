@@ -13,11 +13,11 @@ function s.initial_effect(c)
 	--Atk up
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetRange(LOCATION_FZONE)
+	e2:SetRange(LOCATION_SZONE)
 	e2:SetTargetRange(LOCATION_MZONE,0)
 	e2:SetCode(EFFECT_UPDATE_ATTACK)
-	e2:SetCondition(s.atkcon)
-	e2:SetOperation(s.atkop)
+	e2:SetCondition(s.con)
+	e2:SetValue(200)
 	c:RegisterEffect(e2)
 
 	-- End Phase: Set 1 "Build Driver" card from GY or banished to your field
@@ -46,29 +46,10 @@ function s.thfilter(c)
 end
 
 -- e2: "Build Rider" monsters gain 500 ATK during Battle Phase
-function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
+function s.con(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer() == tp and Duel.GetCurrentPhase() == PHASE_BATTLE
 end
 
--- Apply the ATK boost to "Build Rider" monsters you control
-function s.atkop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.atkfilter, tp, LOCATION_MZONE, 0, nil)
-	local tc=g:GetFirst()
-	while tc do
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetValue(500)
-		e1:SetReset(RESET_EVENT + RESETS_STANDARD + RESET_PHASE + PHASE_END) -- Reset at the end of the turn
-		tc:RegisterEffect(e1)
-		tc=g:GetNext()
-	end
-end
-
--- Filter function for "Build Rider" monsters
-function s.atkfilter(c)
-	return c:IsSetCard(0xf15) and c:IsFaceup()
-end
 -- e3: Set 1 "Build Driver" card from GY or banished to your field during End Phase
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil) end
