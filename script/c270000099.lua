@@ -23,6 +23,18 @@ function s.initial_effect(c)
 	e2:SetRange(LOCATION_MZONE+LOCATION_GRAVE)
 	e2:SetValue(CARD_ALBAZ)
 	c:RegisterEffect(e2)
+
+	-- Tribute this card to Special Summon 1 Fusion Monster that mentions "Fallen of Albaz" as material
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCountLimit(1,id)
+	e3:SetCost(s.spcost)
+	e3:SetTarget(s.sptg)
+	e3:SetOperation(s.spop2)
+	c:RegisterEffect(e3)
 end
 
 -- Fusion Materials: Code 68468459 or 1 Fusion Monster + 1+ monsters on the field
@@ -48,5 +60,35 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	local g=Duel.SelectMatchingCard(tp,Card.IsType,tp,LOCATION_MZONE,0,1,1,nil,TYPE_FUSION)
 	if #g>0 then
 		Duel.SendtoGrave(g,REASON_COST)
+	end
+end
+
+-- Cost: Tribute this card
+function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsReleasable() end
+	Duel.Release(e:GetHandler(),REASON_COST)
+end
+
+-- Target: Special Summon 1 Fusion Monster that mentions "Fallen of Albaz" as material from the Extra Deck
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then
+		return Duel.GetLocationCountFromEx(tp)>0
+			and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
+	end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+
+function s.spfilter(c,e,tp)
+	return (c:IsCode(CARD_ALBAZ) or c:ListsCode(CARD_ALBAZ)) and not c:IsCode(id)
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_FUSION)
+end
+
+-- Operation: Special Summon the selected Fusion Monster
+function s.spop2(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCountFromEx(tp)<=0 then return end
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
+	if #g>0 then
+		Duel.SpecialSummon(g,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
+		g:GetFirst():CompleteProcedure() -- Treat as a Fusion Summon
 	end
 end
