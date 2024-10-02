@@ -35,6 +35,19 @@ function s.initial_effect(c)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop2)
 	c:RegisterEffect(e3)
+
+	-- End Phase effect: send 1 Fusion Monster from Extra Deck to GY, add or Special Summon 68468459 or a monster that mentions it
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,0))
+	e4:SetCategory(CATEGORY_TOGRAVE+CATEGORY_SPECIAL_SUMMON+CATEGORY_SEARCH)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e4:SetCode(EVENT_PHASE+PHASE_END)
+	e4:SetRange(LOCATION_GRAVE)
+	e4:SetCondition(s.spcon2)
+	e4:SetTarget(s.sptg2)
+	e4:SetOperation(s.spop3)
+	e4:SetCountLimit(1,id)
+	c:RegisterEffect(e4)
 end
 
 -- Fusion Materials: Code 68468459 or 1 Fusion Monster + 1+ monsters on the field
@@ -95,12 +108,12 @@ end
 -------
 
 -- Condition: If this card was sent to the GY this turn
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+function s.spcon2(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD+LOCATION_HAND) and e:GetHandler():IsReason(REASON_EFFECT+REASON_BATTLE)
 end
 
 -- Target: Send 1 Fusion Monster from Extra Deck to GY and add or Special Summon 1 specific monster
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_EXTRA,0,1,nil)
 			and (Duel.IsExistingMatchingCard(s.addfilter,tp,LOCATION_DECK,0,1,nil)
@@ -122,7 +135,7 @@ function s.addfilter(c)
 end
 
 -- Operation: Send Fusion Monster from Extra Deck to GY, then add or Special Summon the specified monster
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.spop3(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local tg=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_EXTRA,0,1,1,nil)
 	if #tg>0 and Duel.SendtoGrave(tg,REASON_EFFECT)>0 then
