@@ -3,7 +3,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	-- Fusion Material: 1 Code: 68468459 OR 1 Fusion Monster + 1+ monsters on the field
 	c:EnableReviveLimit()
-	Fusion.AddProcMixRep(c,true,true,s.ffilter1,1,1,s.ffilter2,1,99,true) -- allow monsters from either field
+	Fusion.AddProcMixRep(c,true,true,s.ffilter1,1,1,s.ffilter2,1,99) -- allow monsters from either field
 	
 	-- Special Summon by tributing 1 Fusion Monster you control
 	local e1=Effect.CreateEffect(c)
