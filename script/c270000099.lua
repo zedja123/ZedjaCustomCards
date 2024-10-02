@@ -129,6 +129,7 @@ function s.tgfilter(c,e,tp)
 	return  c:ListsCode(CARD_ALBAZ)) and not c:IsCode(id)
 		and c:IsAbleToGraveAsCost(e,0,tp,false,false) and c:IsType(TYPE_FUSION)
 end
+end
 
 function s.thfilter(c,e,tp,ft)
 	return c:IsMonster() and (c:ListsCode(CARD_ALBAZ) or c:IsCode(68468459))
