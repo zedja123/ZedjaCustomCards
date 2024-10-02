@@ -136,6 +136,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tg=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_EXTRA,0,1,1,nil) -- Select the matching card
 	if #tg>0 then
 		Duel.SendtoGrave(tg,REASON_EFFECT)
+	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	local tc=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,ft):GetFirst()
