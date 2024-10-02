@@ -121,7 +121,6 @@ function s.scon(c)
 	if chk==0 then
 		return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_EXTRA,0,1,nil)
 	end-- Check for matching cards
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_EXTRA)
 end
 
 -- Filter: Identify Fusion Monsters in Extra Deck that mention "Fallen of Albaz"
