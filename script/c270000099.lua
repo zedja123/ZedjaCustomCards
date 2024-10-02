@@ -3,7 +3,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	-- Fusion Material: 1 Code: 68468459 OR 1 Fusion Monster + 1+ monsters on the field
 	c:EnableReviveLimit()
-	Fusion.AddProcMixRep(c,true,true,s.ffilter1,1,1,s.ffilter2,1,99,true) 
+	Fusion.AddProcMix(c,true,true,s.ffilter1,s.ffilter2)
 	
 	-- Special Summon by tributing 1 Fusion Monster you control
 	local e1=Effect.CreateEffect(c)
@@ -30,9 +30,8 @@ function s.ffilter1(c)
 	return c:IsCode(68468459) or c:IsType(TYPE_FUSION)
 end
 
--- Allow monsters from either player's field
-function s.ffilter2(c,fc,sumtype,tp)
-	return c:IsOnField() and c:IsControler(tp) or c:IsControler(1-tp) -- allow from either player's field
+function s.ffilter2(c)
+	return c:IsOnField()
 end
 
 -- Special Summon condition: Tribute 1 Fusion Monster you control
