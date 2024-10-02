@@ -1,4 +1,5 @@
 --Albaz, the Fallen
+--Scripted by Zedja
 local s,id=GetID()
 function s.initial_effect(c)
 	-- Fusion Material: 1 Code: 68468459 OR 1 Fusion Monster + 1+ monsters on the field
