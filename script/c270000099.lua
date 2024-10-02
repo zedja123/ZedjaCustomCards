@@ -125,10 +125,8 @@ function s.scon(c)
 end
 
 -- Filter: Identify Fusion Monsters in Extra Deck that mention "Fallen of Albaz"
-function s.tgfilter(c,e,tp)
-	return  c:ListsCode(CARD_ALBAZ)) and not c:IsCode(id)
-		and c:IsAbleToGraveAsCost(e,0,tp,false,false) and c:IsType(TYPE_FUSION)
-end
+function s.tgfilter(c)
+	return c:IsType(TYPE_FUSION) and c:ListsCode(CARD_ALBAZ) and c:IsAbleToGrave() -- Ensure it can be sent to GY
 end
 
 function s.thfilter(c,e,tp,ft)
