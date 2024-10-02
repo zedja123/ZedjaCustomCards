@@ -117,7 +117,7 @@ function s.regop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.thfilter(c,e,tp,ft)
-	return c:IsMonster() and (c:ListsCode(CARD_ALBAZ) or c:IsCode(CARD_ALBAZ))
+	return c:IsMonster() and (c:ListsCode(CARD_ALBAZ) or c:IsCode(68468459))
 		and (c:IsAbleToHand() or (c:IsCanBeSpecialSummoned(e,0,tp,false,false) and ft>0))
 end
 	--Activation legality
