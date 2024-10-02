@@ -3,7 +3,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	-- Fusion Material: 1 Code: 68468459 OR 1 Fusion Monster + 1+ monsters on the field
 	c:EnableReviveLimit()
-	Fusion.AddProcFunFunRep(c,s.matfilter1,Card.IsOnField,1,99,true)
+	Fusion.AddProcMixRep(c,true,true,s.ffilter,1,99,s.matfilter1)
 	
 	-- Special Summon by tributing 1 Fusion Monster you control
 	local e1=Effect.CreateEffect(c)
@@ -50,7 +50,7 @@ function s.matfilter1(c,fc,sumtype,tp)
 	return c:IsCode(68468459) or c:IsType(TYPE_FUSION,fc,sumtype,tp)
 end
 
-function s.ffilter2(c)
+function s.ffilter(c)
 	return c:IsOnField()
 end
 
