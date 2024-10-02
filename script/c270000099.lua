@@ -23,7 +23,7 @@ function s.ffilter1(c)
 end
 
 function s.ffilter2(c)
-	return c:IsOnField()
+	return c:IsLocation(LOCATION_MZONE)
 end
 
 -- Special Summon condition: Tribute 1 Fusion Monster you control
