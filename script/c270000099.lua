@@ -125,7 +125,6 @@ function s.scon(c)
 	local tg=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_EXTRA,0,1,1,nil) -- Select the matching card
 	if #tg>0 then
 		Duel.SendtoGrave(tg,REASON_EFFECT) -- Send it to the GY
-	end
 end
 
 -- Filter: Identify Fusion Monsters in Extra Deck that mention "Fallen of Albaz"
