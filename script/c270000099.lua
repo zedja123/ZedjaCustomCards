@@ -12,7 +12,6 @@ function s.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
 	e1:SetRange(LOCATION_EXTRA)
 	e1:SetCondition(s.spcon)
-	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	e1:SetValue(SUMMON_TYPE_FUSION)
 	c:RegisterEffect(e1)
@@ -35,19 +34,11 @@ function s.spcon(e,c)
 		Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_MZONE,0,1,nil,TYPE_FUSION)
 end
 
--- Targeting function (no special targeting required)
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,c)
-	local g=Duel.SelectMatchingCard(tp,Card.IsType,tp,LOCATION_MZONE,0,1,1,nil,TYPE_FUSION)
-	if g:GetCount()>0 then
-		g:AddCard(c)
-		Duel.SetTargetCard(g)
-		return true
-	end
-	return false
-end
-
 -- Operation: Tribute 1 Fusion Monster and Special Summon this card
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	Duel.SendtoGrave(g,REASON_COST)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,Card.IsType,tp,LOCATION_MZONE,0,1,1,nil,TYPE_FUSION)
+	if #g>0 then
+		Duel.SendtoGrave(g,REASON_COST)
+	end
 end
