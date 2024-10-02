@@ -110,10 +110,26 @@ function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetCode(EVENT_PHASE+PHASE_END)
 	e1:SetRange(LOCATION_GRAVE)
 	e1:SetCountLimit(1,id)
+	e1:SetCondition(s.scon)
 	e1:SetTarget(s.thtg)
 	e1:SetOperation(s.thop)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 	c:RegisterEffect(e1)
+end
+
+function s.scon(c)
+	if chk==0 then
+		return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_EXTRA,0,1,nil) -- Check for matching cards
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_EXTRA)
+	local tg=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_EXTRA,0,1,1,nil) -- Select the matching card
+	if #tg>0 then
+		Duel.SendtoGrave(tg,REASON_EFFECT) -- Send it to the GY
+	end
+end
+
+-- Filter: Identify Fusion Monsters in Extra Deck that mention "Fallen of Albaz"
+function s.tgfilter(c)
+	return c:IsType(TYPE_FUSION) and c:ListsCode(CARD_ALBAZ)) and c:IsAbleToGrave() -- Ensure it can be sent to GY
 end
 
 function s.thfilter(c,e,tp,ft)
