@@ -92,3 +92,49 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 		g:GetFirst():CompleteProcedure() -- Treat as a Fusion Summon
 	end
 end
+-------
+
+-- Condition: If this card was sent to the GY this turn
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD+LOCATION_HAND) and e:GetHandler():IsReason(REASON_EFFECT+REASON_BATTLE)
+end
+
+-- Target: Send 1 Fusion Monster from Extra Deck to GY and add or Special Summon 1 specific monster
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then
+		return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_EXTRA,0,1,nil)
+			and (Duel.IsExistingMatchingCard(s.addfilter,tp,LOCATION_DECK,0,1,nil)
+			or Duel.GetLocationCount(tp,LOCATION_MZONE)>0)
+	end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_EXTRA)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+end
+
+-- Filter: Fusion Monsters in the Extra Deck that mention "Fallen of Albaz" as material
+function s.tgfilter(c)
+	return c:IsType(TYPE_FUSION) and c:ListsCode(CARD_ALBAZ) and c:IsAbleToGrave()
+end
+
+-- Filter: Monsters in the Deck that either have code 68468459 or mention 68468459 in their text
+function s.addfilter(c)
+	return c:IsCode(68468459) or c:ListsCode(CARD_ALBAZ) and (c:IsAbleToHand() or c:IsCanBeSpecialSummoned(nil,0,tp,false,false))
+end
+
+-- Operation: Send Fusion Monster from Extra Deck to GY, then add or Special Summon the specified monster
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	local tg=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_EXTRA,0,1,1,nil)
+	if #tg>0 and Duel.SendtoGrave(tg,REASON_EFFECT)>0 then
+		local g=Duel.SelectMatchingCard(tp,s.addfilter,tp,LOCATION_DECK,0,1,1,nil)
+		if #g>0 then
+			local opt=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2)) -- Option to add or Special Summon
+			if opt==0 then
+				Duel.SendtoHand(g,nil,REASON_EFFECT)
+				Duel.ConfirmCards(1-tp,g)
+			else
+				Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+			end
+		end
+	end
+end
