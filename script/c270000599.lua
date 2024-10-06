@@ -1,6 +1,4 @@
---Milacresy Teste
--- Effect: If this card is Normal Summoned: You can add 1 "Pot of Greed" from your Deck to your hand, 
--- and if you do, banish this monster until the end of this chain.
+-- Effect: If this card is Normal Summoned: You can add 1 "Pot of Greed", and if you do, banish this monster until the end of this chain.
 local s,id=GetID()
 function s.initial_effect(c)
 	-- Add "Pot of Greed" to hand and banish this card until the end of the chain
@@ -9,6 +7,7 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND+CATEGORY_REMOVE) -- Categories for searching, adding to hand, and banishing
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O) -- Trigger effect
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS) -- Activates when the monster is Normal Summoned
+	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY) -- Proper flag to make it activate in chain
 	e1:SetCountLimit(1,id) -- Once per turn
 	e1:SetTarget(s.target) -- Target function
 	e1:SetOperation(s.operation) -- Operation function
