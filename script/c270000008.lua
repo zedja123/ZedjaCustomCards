@@ -55,7 +55,7 @@ end
 function s.gyop(e, tp, eg, ep, ev, re, r, rp)
 	if Duel.GetLocationCount(tp, LOCATION_MZONE) <= 0 then return end
 	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_SPSUMMON)
-	local g = Duel.SelectMatchingCard(tp, s.spfilter, tp, LOCATION_GRAVE, 0, 1, 1, nil, e, tp)
+	local g = Duel.SelectMatchingCard(tp, s.spfilter2, tp, LOCATION_GRAVE, 0, 1, 1, nil, e, tp)
 	if g:GetCount() > 0 and Duel.SpecialSummon(g, 0, tp, tp, false, false, POS_FACEUP) ~= 0 then
 		Duel.BreakEffect()
 		Duel.DiscardHand(tp, Card.IsDiscardable, 1, 1, REASON_EFFECT + REASON_DISCARD)
