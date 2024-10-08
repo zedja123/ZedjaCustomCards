@@ -37,7 +37,7 @@ function s.spcon(e,c)
 end
 
 function s.spfilter(c)
-	return c:IsFaceup() and not c:IsSetCard(0xf10)
+	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0xf10)
 end
 
 function s.gytg(e, tp, eg, ep, ev, re, r, rp, chk)
