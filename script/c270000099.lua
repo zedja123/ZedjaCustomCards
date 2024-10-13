@@ -81,16 +81,15 @@ end
 -- Target: Special Summon 1 Fusion Monster that mentions "Fallen of Albaz" as material from the Extra Deck
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
-		return Duel.GetLocationCountFromEx(tp)>=0 -- Check for available location
+		return Duel.GetLocationCountFromEx(tp)>=0
 			and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
 function s.spfilter(c,e,tp)
-	return (c:IsCode(CARD_ALBAZ) or c:ListsCode(CARD_ALBAZ)) -- Check for "Fallen of Albaz"
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) -- Check if it can be special summoned
-		and c:IsType(TYPE_FUSION) -- Ensure it is a Fusion monster
+	return (c:IsCode(CARD_ALBAZ) or c:ListsCode(CARD_ALBAZ)) and not c:IsCode(id)
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_FUSION)
 end
 
 -- Operation: Special Summon the selected Fusion Monster
@@ -101,20 +100,18 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 		g:GetFirst():CompleteProcedure() -- Treat as a Fusion Summon
 	end
 end
-
 -------
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,2))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_PHASE+PHASE_END)
 	e1:SetRange(LOCATION_GRAVE)
 	e1:SetCountLimit(1,id)
 	e1:SetTarget(s.thtg)
 	e1:SetOperation(s.thop)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+	e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END)
 	c:RegisterEffect(e1)
 end
 
