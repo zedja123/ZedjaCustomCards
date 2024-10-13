@@ -96,7 +96,7 @@ end
 -- Operation: Special Summon the selected Fusion Monster
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 Debug.Message(Duel.GetLocationCountFromEx(tp))
-	if Duel.GetLocationCountFromEx(tp)<=0 then return end -- Ensure there is an available location
+	if Duel.GetLocationCount(tp)<=0 then return end -- Ensure there is an available location
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
 	if #g>0 then
 		Duel.SpecialSummon(g,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
