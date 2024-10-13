@@ -81,26 +81,28 @@ end
 -- Target: Special Summon 1 Fusion Monster that mentions "Fallen of Albaz" as material from the Extra Deck
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
-		return Duel.GetLocationCountFromEx(tp)>=0
+		return Duel.GetLocationCountFromEx(tp)>0 -- Check for available location
 			and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
 function s.spfilter(c,e,tp)
-	return (c:IsCode(CARD_ALBAZ) or c:ListsCode(CARD_ALBAZ)) and not c:IsCode(id)
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_FUSION)
+	return (c:IsCode(CARD_ALBAZ) or c:ListsCode(CARD_ALBAZ)) -- Check for "Fallen of Albaz"
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) -- Check if it can be special summoned
+		and c:IsType(TYPE_FUSION) -- Ensure it is a Fusion monster
 end
 
 -- Operation: Special Summon the selected Fusion Monster
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCountFromEx(tp)<=0 then return end
+	if Duel.GetLocationCountFromEx(tp)<=0 then return end -- Ensure there is an available location
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
 	if #g>0 then
 		Duel.SpecialSummon(g,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
 		g:GetFirst():CompleteProcedure() -- Treat as a Fusion Summon
 	end
 end
+
 -------
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
