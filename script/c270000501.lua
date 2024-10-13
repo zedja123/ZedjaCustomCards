@@ -1,4 +1,5 @@
 --Milacresy Captainillunism - Serenayi
+local s,id=GetID()
 function c270000501.initial_effect(c)
 	local e1 = Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id, 0))
