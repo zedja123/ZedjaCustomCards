@@ -63,7 +63,7 @@ end
 
 -- Target 1 "Milacresy" card in GY or banished; add it to your hand
 function s.thfilter(c)
-	return c:IsSetCard(0xf16) and (c:IsLocation(LOCATION_GRAVE) or c:Islocation(LOCATION_REMOVED)) and c:IsAbleToHand()
+	return c:IsSetCard(0xf16) and (c:IsLocation(LOCATION_GRAVE) or c:IsLocation(LOCATION_REMOVED)) and c:IsAbleToHand()
 end
 
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
