@@ -12,7 +12,7 @@ function c270000501.initial_effect(c)
 	-- ATK/DEF boost during the Battle Phase
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetCode(EVENT_BATTLE_START)
+	e2:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCondition(s.atkcon)
 	e2:SetOperation(s.atkop)
