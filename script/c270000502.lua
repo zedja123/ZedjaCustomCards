@@ -30,8 +30,7 @@ end
 -- Operation: Special Summon this card from GY
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	Debug.Message(c:IsRelateToEffect(e))
-	if c:IsLocation(LOCATION_GRAVE) and c:IsRelateToEffect(e) then
+	if c:IsLocation(LOCATION_GRAVE) then
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
