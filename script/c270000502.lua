@@ -6,21 +6,22 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TOGRAVE)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_HAND)
-	e1:SetCountLimit(1,id)
+	e1:SetCountLimit(1, {id, 1})
 	e1:SetCost(s.spcost)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
 
-	-- Banish 3 cards from Deck and Special Summon Milacresy monster from GY or Banished
+	-- Banish 3 cards and Special Summon a "Milacresy" monster
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_REMOVE+CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SUMMON_SUCCESS)
-	e2:SetCountLimit(1,{id,1})
-	e2:SetTarget(s.sptg2)
-	e2:SetOperation(s.spop2)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCountLimit(1, {id, 2})
+	e2:SetTarget(s.bantg)
+	e2:SetOperation(s.banop)
 	c:RegisterEffect(e2)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
@@ -49,26 +50,27 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
--- Target for banishing 3 cards and special summon Milacresy monster from banished or GY
-function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil)
-		and Duel.IsPlayerCanRemove(tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
+-- Target for banishing 3 cards from the Deck
+function s.bantg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>=3 end
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,3,tp,LOCATION_DECK)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE+LOCATION_REMOVED)
 end
 
+-- Operation: Banish the top 3 cards and Special Summon a "Milacresy" monster
+function s.banop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<3 then return end
+	local g=Duel.GetDecktopGroup(tp,3)
+	Duel.DisableShuffleCheck()
+	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+
+	-- Special Summon a "Milacresy" monster
+	local mc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_REMOVED,0,1,1,nil)
+	if #mc>0 then
+		Duel.SpecialSummon(mc,0,tp,tp,false,false,POS_FACEUP)
+	end
+end
 -- Filter for selecting a "Milacresy" monster from the GY or banished
 function s.spfilter(c)
-	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned()
-end
-
--- Banish 3 and Special Summon
-function s.spop2(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.Remove(Duel.GetDecktopGroup(tp,3),POS_FACEUP,REASON_EFFECT)>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil)
-		if #g>0 then
-			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
-		end
-	end
+	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned() and not c:IsCode(id)
 end
