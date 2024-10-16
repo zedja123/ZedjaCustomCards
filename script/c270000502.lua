@@ -72,5 +72,5 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 end
 -- Filter for "Milacresy" monster Special Summon
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned(c,0,tp,false,false) and not c:IsCode(id)
+	return c:IsSetCard(0xf16) and not c:IsCode(id)
 end
