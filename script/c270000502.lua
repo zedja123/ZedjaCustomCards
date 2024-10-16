@@ -70,7 +70,7 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(mc,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
--- Filter for selecting a "Milacresy" monster from the GY or banished
-function s.spfilter(c)
-	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned() and not c:IsCode(id)
+-- Filter for "Milacresy" monster Special Summon
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(id)
 end
