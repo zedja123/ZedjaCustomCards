@@ -1,12 +1,12 @@
 --Milacresy Extrallunism - Bibi-bee
 local s,id=GetID()
 function s.initial_effect(c)
-	-- Special Summon from GY or banished if sent by a "Milacresy" card effect
+	-- Special Summon this card if sent to the GY or banished by "Milacresy" card effect
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TODECK)
 	e1:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_SINGLE)
-	e1:SetCode(EVENT_TO_GRAVE+EVENT_REMOVE)
+	e1:SetCode(EVENT_TO_GRAVE)
 	e1:SetCondition(s.spcon)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
@@ -27,18 +27,18 @@ end
 
 -- Condition: Check if sent to GY by a "Milacresy" card effect
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return re and re:IsActiveType(TYPE_MONSTER+TYPE_SPELL+TYPE_TRAP) and re:IsSetCard(0xf16)
+	return re and re:IsSetCard(0xf16) and (e:GetHandler():IsPreviousLocation(LOCATION_HAND) or e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)) or e:GetHandler():IsPreviousLocation(LOCATION_DECK))
 end
 
--- Target: Select 3 "Milacresy" cards from the banished or GY
+-- Target: Shuffle 3 "Milacresy" cards from banished or GY
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(Card.IsSetCard), tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil, 0xf16) end
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsSetCard, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil, 0xf16) end
 	Duel.SetOperationInfo(0, CATEGORY_TODECK, nil, 0, tp, 3)
 end
 
 -- Operation: Shuffle and Special Summon this card
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(aux.NecroValleyFilter(Card.IsSetCard), tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, nil, 0xf16)
+	local g=Duel.GetMatchingGroup(Card.IsSetCard, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, nil, 0xf16)
 	if #g>0 and Duel.SendtoDeck(g,nil,2,REASON_EFFECT)~=0 then
 		Duel.BreakEffect()
 		Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP)
