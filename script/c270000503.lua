@@ -27,7 +27,7 @@ end
 
 -- Condition: Check if sent to GY by a "Milacresy" card effect
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return re and re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and re:IsSetCard(0xf16)
+	return re and re:IsActiveType(TYPE_MONSTER+TYPE_SPELL+TYPE_TRAP) and re:IsSetCard(0xf16)
 end
 
 -- Target: Select 3 "Milacresy" cards from the banished or GY
