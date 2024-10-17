@@ -33,7 +33,7 @@ function s.shfilter(c)
 end
 
 -- Cost: Shuffle 3 "Milacresy" cards from your GY or banished
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.cost(c,e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.shfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,3,c) end
 	local g=Duel.SelectMatchingCard(tp,s.shfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,3,3,c)
 	Duel.HintSelection(g)
