@@ -14,7 +14,7 @@ function s.initial_effect(c)
 
 	local e2=e1:Clone()
 	e2:SetCode(EVENT_REMOVE)
-	c:Register(e2)
+	c:RegisterEffect(e2)
 
 	-- Add a "Milacresy" Spell/Trap when Special Summoned
 	local e3=Effect.CreateEffect(c)
