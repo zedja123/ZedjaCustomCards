@@ -31,19 +31,22 @@ function s.shfilter(c)
 	return c:IsSetCard(0xf16)
 end
 
--- Target: Shuffle 3 "Milacresy" cards from banished or GY
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.shfilter, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil) end
-	Duel.SetOperationInfo(0, CATEGORY_TODECK, nil, 0, tp, 3)
+-- Cost: Shuffle 3 "Milacresy" cards from your GY or banished
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(Card.IsSetCard), tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil, 0xf16) end
+	local g=Duel.SelectMatchingCard(tp, aux.NecroValleyFilter(Card.IsSetCard), tp, LOCATION_GRAVE+LOCATION_REMOVED, 3, 3, nil, 0xf16)
+	Duel.SendtoDeck(g, nil, 2, REASON_COST)
 end
 
--- Operation: Shuffle and Special Summon this card
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.shfilter, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, nil)
-	if #g>0 and Duel.SendtoDeck(g,nil,2,REASON_EFFECT)~=0 then
-		Duel.BreakEffect()
-		Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP)
-	end
+-- Target: This card from GY or banished
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
+end
+
+-- Operation: Special Summon this card
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	Duel.SpecialSummon(e:GetHandler(), 0, tp, tp, false, false, POS_FACEUP)
 end
 
 function s.addfilter(c)
