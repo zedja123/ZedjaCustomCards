@@ -30,6 +30,7 @@ end
 
 -- Target: Shuffle 3 "Milacresy" cards from banished or GY
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	Debug.Message(Entrou TG)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.shfilter, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil) end
 	Duel.SetOperationInfo(0, CATEGORY_TODECK, nil, 0, tp, 3)
 end
