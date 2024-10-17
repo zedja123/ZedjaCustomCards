@@ -31,9 +31,7 @@ end
 
 -- Cost: Send this card and 1 other card from hand to GY
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,e:GetHandler()) end
-	Duel.SendtoGrave(e:GetHandler(),REASON_COST)
-	Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,e:GetHandler()) and Duel.IsMainPhase() end
 end
 
 -- Target: Special Summon this card from GY
@@ -45,6 +43,8 @@ end
 
 -- Operation: Special Summon this card from GY
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.SendtoGrave(e:GetHandler(),REASON_COST)
+	Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)
 	local c=e:GetHandler()
 	if c:IsLocation(LOCATION_GRAVE) then
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
