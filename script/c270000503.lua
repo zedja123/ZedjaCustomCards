@@ -23,15 +23,20 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
+
+function s.shfilter(c)
+	return c:IsSetCard(0xf16)
+end
+
 -- Target: Shuffle 3 "Milacresy" cards from banished or GY
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsSetCard, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil, 0xf16) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.shfilter, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil) end
 	Duel.SetOperationInfo(0, CATEGORY_TODECK, nil, 0, tp, 3)
 end
 
 -- Operation: Shuffle and Special Summon this card
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(Card.IsSetCard, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, nil, 0xf16)
+	local g=Duel.GetMatchingGroup(s.shfilter, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, nil)
 	if #g>0 and Duel.SendtoDeck(g,nil,2,REASON_EFFECT)~=0 then
 		Duel.BreakEffect()
 		Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP)
