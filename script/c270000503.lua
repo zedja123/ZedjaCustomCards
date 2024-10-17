@@ -7,7 +7,7 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TODECK)
 	e1:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_SINGLE)
 	e1:SetCode(EVENT_TO_GRAVE)
-	e1:SetCondition(s.spcon)
+	e1:SetCondition(function(e,tp,eg,ep,ev,re) return e:GetHandler():IsReason(REASON_EFFECT) and re and re:GetHandler():IsSetCard(0xf16) end)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	e1:SetCountLimit(1,id)
@@ -23,11 +23,6 @@ function s.initial_effect(c)
 	e2:SetTarget(s.addtg)
 	e2:SetOperation(s.addop)
 	c:RegisterEffect(e2)
-end
-
--- Condition: Check if sent to GY by a "Milacresy" card effect
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return re and re:IsSetCard(0xf16) and (e:GetHandler():IsPreviousLocation(LOCATION_HAND) or e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD) or e:GetHandler():IsPreviousLocation(LOCATION_DECK))
 end
 
 -- Target: Shuffle 3 "Milacresy" cards from banished or GY
