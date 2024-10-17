@@ -34,9 +34,10 @@ end
 
 -- Cost: Shuffle 3 "Milacresy" cards from your GY or banished
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.shfilter, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil,nil) end
-	local g=Duel.SelectMatchingCard(tp, s.shfilter, tp, LOCATION_GRAVE+LOCATION_REMOVED, 3, 3, nil, nil)
-	Duel.SendtoDeck(g, nil, 2, REASON_COST)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,3,nil) end
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,3,3,nil)
+	Duel.HintSelection(g)
+	Duel.SendtoDeck(g,nil,3,REASON_COST)
 end
 
 -- Target: This card from GY or banished
