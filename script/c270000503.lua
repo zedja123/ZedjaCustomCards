@@ -27,7 +27,7 @@ end
 
 -- Condition: Check if sent to GY by a "Milacresy" card effect
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return re and re:IsSetCard(0xf16) and (e:GetHandler():IsPreviousLocation(LOCATION_HAND) or e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)) or e:GetHandler():IsPreviousLocation(LOCATION_DECK))
+	return re and re:IsSetCard(0xf16) and (e:GetHandler():IsPreviousLocation(LOCATION_HAND) or e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD) or e:GetHandler():IsPreviousLocation(LOCATION_DECK))
 end
 
 -- Target: Shuffle 3 "Milacresy" cards from banished or GY
