@@ -6,7 +6,7 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TODECK)
 	e1:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_SINGLE)
 	e1:SetCode(EVENT_TO_GRAVE+EVENT_REMOVE)
-	e1:SetCondition(function(e,tp,eg,ep,ev,re) return Debug.Message(e:GetHandler():IsReason(REASON_EFFECT)) and e:GetHandler():IsReason(REASON_EFFECT) end)
+	e1:SetCondition(s.con)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	e1:SetCountLimit(1, {id, 1})
@@ -23,6 +23,9 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
+function s.con(e,tp,eg,ep,ev,re)
+	return e:GetHandler():IsReason(REASON_EFFECT) and re and re:GetHandler():IsSetCard(0xf16) end
+end
 
 function s.shfilter(c)
 	return c:IsSetCard(0xf16)
@@ -30,7 +33,6 @@ end
 
 -- Target: Shuffle 3 "Milacresy" cards from banished or GY
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	Debug.Message(Entrou TG)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.shfilter, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil) end
 	Duel.SetOperationInfo(0, CATEGORY_TODECK, nil, 0, tp, 3)
 end
