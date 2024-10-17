@@ -33,7 +33,7 @@ end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,e:GetHandler()) end
 	Duel.SendtoGrave(e:GetHandler(),REASON_COST)
-	Duel.DiscardHand(tp,nil,1,1,REASON_COST+REASON_DISCARD)
+	Duel.DiscardHand(tp,nil,1,1,REASON_DISCARD)
 end
 
 -- Target: Special Summon this card from GY
