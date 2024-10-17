@@ -45,16 +45,19 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
+function s.addfilter(c)
+	return c:IsSetCard(0xf16) and (c:IsType(TYPE_SPELL) or c:IsType(TYPE_TRAP))
+end
 -- Target: Add a "Milacresy" Spell/Trap from Deck to hand
 function s.addtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_DECK,0,1,nil,0xf16) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.addfilter,tp,LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0, CATEGORY_TOHAND, nil, 0, tp, 1)
 end
 
 -- Operation: Add the selected Spell/Trap to hand
 function s.addop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_DECK,0,1,1,nil,0xf16)
+	local g=Duel.SelectMatchingCard(tp,s.addfilter,tp,LOCATION_DECK,0,1,1,nil)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
