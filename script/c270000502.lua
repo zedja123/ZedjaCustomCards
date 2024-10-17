@@ -1,3 +1,4 @@
+--Milacresy Destrollunism - Parsephin
 local s,id=GetID()
 function s.initial_effect(c)
 	-- Special Summon from GY by sending this card and 1 other card from hand to the GY
