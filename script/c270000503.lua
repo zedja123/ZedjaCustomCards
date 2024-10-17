@@ -33,8 +33,8 @@ end
 
 -- Cost: Shuffle 3 "Milacresy" cards from your GY or banished
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(Card.IsSetCard), tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil, 0xf16) end
-	local g=Duel.SelectMatchingCard(tp, aux.NecroValleyFilter(Card.IsSetCard), tp, LOCATION_GRAVE+LOCATION_REMOVED, 3, 3, nil, 0xf16)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsSetCard, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, 3, nil, 0xf16) end
+	local g=Duel.SelectMatchingCard(tp, Card.IsSetCard, tp, LOCATION_GRAVE+LOCATION_REMOVED, 3, 3, nil, 0xf16)
 	Duel.SendtoDeck(g, nil, 2, REASON_COST)
 end
 
@@ -48,7 +48,6 @@ end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummon(e:GetHandler(), 0, tp, tp, false, false, POS_FACEUP)
 end
-
 function s.addfilter(c)
 	return c:IsSetCard(0xf16) and (c:IsType(TYPE_SPELL) or c:IsType(TYPE_TRAP))
 end
