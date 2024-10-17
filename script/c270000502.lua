@@ -43,7 +43,7 @@ end
 
 -- Operation: Special Summon this card from GY
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.SendtoGrave(e:GetHandler(),REASON_COST)
+	Duel.SendtoGrave(e:GetHandler(),REASON_EFFECT+REASON_DISCARD)
 	Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)
 	local c=e:GetHandler()
 	if c:IsLocation(LOCATION_GRAVE) then
