@@ -40,7 +40,10 @@ end
 -- Operation: Shuffle and Special Summon this card
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.shfilter, tp, LOCATION_GRAVE+LOCATION_REMOVED, 0, nil)
-	if #g=3 and Duel.SendtoDeck(g,nil,2,REASON_EFFECT)~=0 then
+	if #g<3 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+		local sg=g:Select(tp,3,3,nil)
+		Duel.SendtoDeck(sg,nil,0,REASON_EFFECT)~=0 then
 		Duel.BreakEffect()
 		Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP)
 	end
