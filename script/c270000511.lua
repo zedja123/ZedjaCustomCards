@@ -53,7 +53,7 @@ function s.synchrooplink2(e,tp,eg,ep,ev,re,r,rp,c,og)
 	local g=Duel.SelectMatchingCard(tp,s.matfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
 	local g2=Duel.SelectMatchingCard(tp,s.matfilter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
 	Group.Merge(g,g2)
-	Duel.SendtoGrave(g,REASON_MATERIAL+REASON_LINK)
+	Duel.SendtoGrave(g,REASON_MATERIAL+REASON_SYNCHRO)
 end
 
 
