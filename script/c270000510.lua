@@ -7,7 +7,7 @@ function s.initial_effect(c)
 
 	-- Effect: Banish 3 cards and destroy
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0)) -- Set description for the effect
+ -- Set description for the effect
 	e1:SetCategory(CATEGORY_REMOVE+CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
@@ -17,8 +17,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 
 	-- Quick Effect: Negate effect
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1)) -- Set description for the quick effect
+	local e2=Effect.CreateEffect(c) -- Set description for the quick effect
 	e2:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_CHAINING)
@@ -40,16 +39,24 @@ end
 
 function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if Duel.IsExistingMatchingCard(nil,tp,LOCATION_DECK,0,3,nil) then
-		local g=Duel.GetDecktopGroup(tp,3)
+	-- Check if there are at least 3 cards in your Deck
+	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>=3 then
+		local g=Duel.GetDecktopGroup(tp,3) -- Get the top 3 cards of your Deck
 		Duel.DisableShuffleCheck()
-		Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
-		local ct=g:FilterCount(Card.IsSetCard,nil,0xf16) -- Count "Milacresy" cards
+		Duel.Remove(g,POS_FACEUP,REASON_EFFECT) -- Banish them face-up
+		
+		-- Count how many of the banished cards are "Milacresy" cards
+		local ct=g:FilterCount(Card.IsSetCard,nil,0xf16)
 		if ct>0 then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-			local dg=Duel.SelectMatchingCard(tp,Card.IsDestructible,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,ct,nil)
-			if #dg>0 then
-				Duel.Destroy(dg,REASON_EFFECT)
+			-- Optional destruction effect
+			if Duel.IsExistingMatchingCard(Card.IsDestructible,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) 
+				and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+				-- Select cards to destroy up to the number of "Milacresy" cards banished
+				local dg=Duel.SelectMatchingCard(tp,Card.IsDestructible,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,ct,nil)
+				if #dg>0 then
+					Duel.Destroy(dg,REASON_EFFECT)
+				end
 			end
 		end
 	end
