@@ -67,7 +67,7 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetDecktopGroup(tp,5)
 	Duel.DisableShuffleCheck()
-	Duel.Remove(g,REASON_EFFECT)
+	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
 	local ct=g:FilterCount(Card.IsSetCard,nil,0xf16) -- Count "Milacresy" cards
 	if ct>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
