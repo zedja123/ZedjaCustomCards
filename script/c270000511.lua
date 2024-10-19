@@ -21,7 +21,6 @@ function s.initial_effect(c)
 	e2:SetDescription(aux.Stringid(id,1)) -- Description for the second effect
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_TO_GRAVE)
 	e2:SetRange(LOCATION_GRAVE)
 	e1:SetCountLimit(1,{id,2})
 	e2:SetCondition(s.spcon)
