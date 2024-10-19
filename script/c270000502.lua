@@ -101,7 +101,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	-- Prevent "Milacresy" monsters from being Tributed until the end of this Chain
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)-- Field effect
-	e1:SetCode(EFFECT_UNRELEASABLE_SUM+EFFECT_UNRELEASABLE_NOSUM)
+	e1:SetCode(EFFECT_UNRELEASABLE_SUM+EFFECT_UNRELEASABLE_NONSUM)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET) -- Apply to player
 	e1:SetTargetRange(1,0) -- Target the player controlling "Milacresy" monsters
 	e1:SetTarget(function(e,c) return c:IsSetCard(0xf16) and c:IsType(TYPE_MONSTER) end) -- Target "Milacresy" monsters
