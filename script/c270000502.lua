@@ -64,16 +64,16 @@ end
 
 -- Target for banishing 3 cards from the Deck
 function s.bantg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>=3 end
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,3,tp,LOCATION_DECK)
+	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>=4 end
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,4,tp,LOCATION_DECK)
 end
 
 -- Operation: Banish the top 3 cards and Special Summon a "Milacresy" monster
 function s.banop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<3 then return end
-	local g=Duel.GetDecktopGroup(tp,3)
+	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<4 then return end
+	local g=Duel.GetDecktopGroup(tp,4)
 	Duel.DisableShuffleCheck()
-	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)==3 then
+	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)==4 then
 		if Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_REMOVED+LOCATION_GRAVE,0,1,nil,e,tp)
 			and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
