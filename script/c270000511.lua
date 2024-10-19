@@ -3,9 +3,16 @@ local s,id=GetID()
 function s.initial_effect(c)
 	-- Synchro Summon
 	Synchro.AddProcedure(c,s.tunerfilter,1,1,s.nontunerfilter,1,1) -- "Milacresy" Tuner and non-Tuner
-	Synchro.AddProcedure(c,s.tunerlink2,1,1,s.nontunerfilter,1,1)
-	Synchro.AddProcedure(c,s.tunerlink3,1,1,s.nontunerfilter,1,1)
 	c:EnableReviveLimit()
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_FIELD)
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+	e0:SetCode(EFFECT_SPSUMMON_PROC)
+	e0:SetRange(LOCATION_EXTRA)
+	e0:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e0:SetTarget()
+	e0:SetValue(SUMMON_TYPE_SYNCHRO)
+	c:RegisterEffect(e0)
 	-- Effect: Banish 5 cards and Special Summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0)) -- Description for effect
@@ -32,6 +39,24 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
+
+function s.matfilter(c,lc,sumtype,tp)
+	return c:IsLink(2)
+end
+
+function s.matfilter2(c,lc,sumtype,tp)
+	return not c:IsType(TYPE_TUNER)
+end
+
+function s.synchrooplink2(e,tp,eg,ep,ev,re,r,rp,c,og)
+	local tp=c:GetControler()
+	local g=Duel.SelectMatchingCard(tp,s.matfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+	local g2=Duel.SelectMatchingCard(tp,s.matfilter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+	Group.Merge(g,g2)
+	Duel.SendtoGrave(g,REASON_MATERIAL+REASON_LINK)
+end
+
+
 function s.sylt(e,c) 
 	return c:IsLinkMonster() 
 end
@@ -46,14 +71,6 @@ end
 
 function s.tunerfilter(c)
 	return c:IsSetCard(0xf16) and c:IsType(TYPE_TUNER) -- "Milacresy" Tuner filter
-end
-
-function s.tunerlink2(c)
-	return c:IsSetCard(0xf16) and c:IsLink(2) -- "Milacresy" Tuner filter
-end
-
-function s.tunerlink2(c)
-	return c:IsSetCard(0xf16) and c:IsLink(3) -- "Milacresy" Tuner filter
 end
 
 function s.nontunerfilter(c)
