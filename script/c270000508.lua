@@ -27,7 +27,7 @@ function s.filter(c)
 end
 
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return (re:IsActiveType(TYPE_SPELL+TYPE_TRAP) or re:IsMonster()) and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,nil) -- Checks if you control a Milacresy monster
+	return (re:IsActiveType(TYPE_MONSTER+TYPE_SPELL+TYPE_TRAP) or re:IsMonster()) and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,nil) -- Checks if you control a Milacresy monster
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
