@@ -13,7 +13,6 @@ function s.initial_effect(c)
 	
 	-- Set from banished
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_REMOVE)
 	e2:SetRange(LOCATION_REMOVED)
@@ -53,5 +52,6 @@ end
 
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+		if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 	Duel.SSet(tp,c)
 end
