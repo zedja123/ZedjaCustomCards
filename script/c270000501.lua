@@ -79,5 +79,18 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+		-- Apply protection effect after the negation and destruction resolves
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+		e1:SetTargetRange(LOCATION_MZONE,0)
+		e1:SetTarget(s.prottg)
+		e1:SetValue(1)
+		e1:SetReset(RESET_CHAIN)
+		Duel.RegisterEffect(e1,tp)
 	end
+end
+
+function s.prottg(e,c)
+	return c:IsSetCard(0xf16) and c:IsType(TYPE_MONSTER)
 end

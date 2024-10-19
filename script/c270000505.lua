@@ -29,6 +29,18 @@ function s.initial_effect(c)
 	local e4=e3:Clone()
 	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e4)
+
+	-- Banish opponent's monster
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,0))
+	e5:SetCategory(CATEGORY_REMOVE)
+	e5:SetType(EFFECT_TYPE_QUICK_O)
+	e5:SetCode(EVENT_FREE_CHAIN)
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetCountLimit(1,{id,3})
+	e5:SetTarget(s.banishtg)
+	e5:SetOperation(s.banishop)
+	c:RegisterEffect(e5)
 end
 
 -- Special Summon Target
@@ -67,4 +79,31 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.ConfirmCards(1-tp,g)
 		end
 	end
+end
+
+function s.banishtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil) -- Targets 1 face-up monster
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
+end
+
+function s.banishop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	if g and g:GetCount()>0 then
+		local tc=g:GetFirst()
+		if tc:IsRelateToEffect(e) then
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_REMOVE)
+			e1:SetTargetRange(0,LOCATION_MZONE)
+			e1:SetOperation(s.ban)
+			e1:SetReset(RESET_CHAIN)
+			Duel.RegisterEffect(e1,tp)
+		end
+	end
+end
+
+function s.ban(c,tc)
+	return Duel.Remove(tc,POS_FACEUP,REASON_EFFECT) -- Banish the target
 end
