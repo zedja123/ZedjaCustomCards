@@ -10,8 +10,8 @@ function s.initial_effect(c)
 	e0:SetCode(EFFECT_SYNCHRO_LEVEL)
 	e0:SetRange(LOCATION_EXTRA)
 	e0:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
-	e0:SetTarget(function(e,c) return c:IsLinkMonster() end)
-	e0:SetValue(function(e,_,rc) return rc==e:GetHandler() and c:IsLink(2) end)
+	e0:SetTarget(s.sylt)
+	e0:SetValue(s.sylv)
 	c:RegisterEffect(e0)
 	-- Effect: Banish 5 cards and Special Summon
 	local e1=Effect.CreateEffect(c)
@@ -39,6 +39,15 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
+Debug.Message(s.sylt)
+Debug.Message(s.sylv)
+function s.sylt(e,c) 
+	return c:IsLinkMonster() 
+end
+
+function s.sylv(e,_,rc) 
+	return rc==e:GetHandler() and c:IsLink() 
+end
 function s.con(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
 end
