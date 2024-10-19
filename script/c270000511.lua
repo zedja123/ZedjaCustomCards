@@ -53,7 +53,7 @@ function s.syncconlink2(c)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	local zone=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	return zone>0 and Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.matfilter2,tp,LOCATION_MZONE,0,1,nil) end
+	return zone>0 and Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.matfilter2,tp,LOCATION_MZONE,0,1,nil)
 end
 
 function s.synchrooplink2(e,tp,eg,ep,ev,re,r,rp,c,og)
