@@ -84,7 +84,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.spfilter(c)
-	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) -- Filter for "Milacresy" cards to special summon
+	return c:IsSetCard(0xf16) -- Filter for "Milacresy" cards to special summon
 end
 
 function s.shfilter(c)
