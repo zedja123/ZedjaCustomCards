@@ -10,7 +10,7 @@ function s.initial_effect(c)
 	e0:SetCode(EFFECT_SPSUMMON_PROC)
 	e0:SetRange(LOCATION_EXTRA)
 	e0:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
-	e0:SetTarget()
+	e0:SetTarget(s.synchrooplink2)
 	e0:SetValue(SUMMON_TYPE_SYNCHRO)
 	c:RegisterEffect(e0)
 	-- Effect: Banish 5 cards and Special Summon
