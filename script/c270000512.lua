@@ -4,7 +4,13 @@ function s.initial_effect(c)
 	-- Synchro summon procedure
 	Synchro.AddProcedure(c,s.tunerfilter,1,1,s.nontunerfilter,1,99,Card.IsLinkMonster) -- "Milacresy" Tuner and non-Tuner
 	c:EnableReviveLimit()
-	
+		--Special Summon condition
+	local e0=Effect.CreateEffect(c)
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_SPSUMMON_CONDITION)
+	e0:SetValue(aux.synlimit)
+	c:RegisterEffect(e0)
 	-- Look at the top 3 cards of your opponent's Deck and rearrange
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -71,6 +77,7 @@ function s.rearrangeop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.MoveSequence(tg:GetFirst(),0)
 		Duel.MoveSequence(tg:GetNext(),1)
 		Duel.MoveSequence(tg:GetNext(),2)
+		Duel.DisableShuffleCheck()
 	end
 end
 
