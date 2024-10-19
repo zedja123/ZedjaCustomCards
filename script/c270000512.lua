@@ -67,7 +67,6 @@ function s.rearrangeop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetDecktopGroup(1-tp,3)
 	if #g>0 then
 		Duel.ConfirmDecktop(1-tp,3)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ORDER)
 		local tg=g:Select(tp,3,3,nil)
 		Duel.MoveSequence(tg:GetFirst(),0)
 		Duel.MoveSequence(tg:GetNext(),1)
