@@ -83,8 +83,8 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsLocation(LOCATION_GRAVE) and Duel.GetMatchingGroupCount(Card.IsSetCard,tp,LOCATION_MZONE,0,nil,0xf16)==Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0) -- Check if all controlled monsters are "Milacresy"
 end
 
-function s.spfilter(c)
-	return c:IsSetCard(0xf16) -- Filter for "Milacresy" cards to special summon
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)  -- Filter for "Milacresy" cards to special summon
 end
 
 function s.shfilter(c)
