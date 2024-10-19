@@ -49,7 +49,7 @@ function s.matfilter2(c,lc,sumtype,tp)
 	return not c:IsType(TYPE_TUNER)
 end
 
-function syncconlink2(c)
+function s.syncconlink2(c)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.matfilter2,tp,LOCATION_MZONE,0,1,nil) and Card.GetLevel(s.matfilter2) + 2 == 5 end
 end
 
