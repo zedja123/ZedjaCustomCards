@@ -49,7 +49,7 @@ function s.matfilter2(c)
 	return c:IsSetCard(0xf16) and not c:IsType(TYPE_TUNER) 
 end
 
-function s.syncconlink2(c,e)
+function s.syncconlink2(c,e,tp)
 	if c==nil then return true end
 	local zone=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	return zone>0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.matfilter2,tp,LOCATION_MZONE,0,1,nil)
