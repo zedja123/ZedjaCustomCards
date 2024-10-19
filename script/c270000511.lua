@@ -41,11 +41,11 @@ function s.initial_effect(c)
 end
 
 
-function s.matfilter(c,lc,sumtype,tp)
+function s.matfilter(c)
 	return c:IsLink(2)
 end
 
-function s.matfilter2(c,lc,sumtype,tp)
+function s.matfilter2(c)
 	return not c:IsType(TYPE_TUNER)
 end
 
