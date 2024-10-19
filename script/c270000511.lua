@@ -46,11 +46,10 @@ function s.matfilter(c)
 end
 
 function s.matfilter2(c)
-	return not c:IsType(TYPE_TUNER)
+	return c:IsSetCard(0xf16) and not c:IsType(TYPE_TUNER)
 end
 
 function s.syncconlink2(c)
-	Debug.Message(s.matfilter)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.matfilter2,tp,LOCATION_MZONE,0,1,nil) end
 end
 
