@@ -49,7 +49,7 @@ function s.matfilter2(c,lc,sumtype,tp)
 end
 
 function s.synchrooplink2(e,tp,eg,ep,ev,re,r,rp,c,og)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.matfilter2,tp,LOCATION_MZONE,0,1,nil) and Card.GetLevel(s.matfilter2) + 2 == 5
+	if chk==0 then return Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.matfilter2,tp,LOCATION_MZONE,0,1,nil) and Card.GetLevel(s.matfilter2) + 2 == 5 end
 	local g=Duel.SelectMatchingCard(tp,s.matfilter,tp,LOCATION_MZONE,0,1,1,nil)
 	local g2=Duel.SelectMatchingCard(tp,s.matfilter2,tp,LOCATION_MZONE,0,1,1,nil)
 	Group.Merge(g,g2)
