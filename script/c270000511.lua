@@ -50,7 +50,7 @@ function s.matfilter2(c,lc,sumtype,tp)
 end
 
 function s.syncconlink2(c)
-	Debug.Message(Card.GetLevel(s.matfilter2))
+	Debug.Message(s.matfilter2)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.matfilter2,tp,LOCATION_MZONE,0,1,nil) and Card.GetLevel(s.matfilter2) + 2 == 5 end
 end
 
