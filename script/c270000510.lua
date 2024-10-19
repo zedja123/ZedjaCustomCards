@@ -86,7 +86,7 @@ end
 
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.banishfilter,tp,LOCATION_REMOVED,0,4,4,nil)
-	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) and Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_COST)then
+	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) and Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_COST) then
 		Duel.Destroy(eg,REASON_EFFECT)
 	end
 end
