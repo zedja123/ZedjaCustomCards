@@ -86,7 +86,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetTargetRange(LOCATION_MZONE,0)
 		e1:SetTarget(s.prottg)
 		e1:SetValue(1)
-		e1:SetReset(RESET_CHAIN)
+		e1:SetReset(RESET_PHASE+PHASE_END+RESET_CHAIN)
 		Duel.RegisterEffect(e1,tp)
 	end
 end

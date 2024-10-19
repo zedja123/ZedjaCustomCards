@@ -68,5 +68,19 @@ function s.addop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
+
+		-- Apply protection effect after the negation and destruction resolves
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+		e1:SetTargetRange(LOCATION_MZONE,0)
+		e1:SetTarget(s.prottg)
+		e1:SetValue(1)
+		e1:SetReset(RESET_PHASE+PHASE_END+RESET_CHAIN)
+		Duel.RegisterEffect(e1,tp)
 	end
+end
+
+function s.prottg(e,c)
+	return c:IsSetCard(0xf16) and c:IsType(TYPE_MONSTER)
 end

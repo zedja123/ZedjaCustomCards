@@ -27,6 +27,17 @@ function s.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
+
+	-- Prevent "Milacresy" monsters from being Tributed
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,0)) -- Effect description
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EVENT_CHAINING) -- Trigger when a chain is created
+	e4:SetRange(LOCATION_GRAVE) -- This effect can be used from the GY
+	e4:SetCondition(s.condition) -- Condition to activate the effect
+	e4:SetCost(s.cost) -- Cost to activate the effect
+	e4:SetOperation(s.operation) -- Operation to perform when effect is activated
+	c:RegisterEffect(e4)
 end
 
 -- Cost: Send this card and 1 other card from hand to GY
@@ -76,4 +87,24 @@ end
 -- Filter for "Milacresy" monster Special Summon
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0xf16) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+	-- Check if the opponent activated a card effect
+	return ep~=tp and re:IsActivated() -- Opponent activated a card effect
+end
+
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
+	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST) -- Banish the card as cost
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	-- Prevent "Milacresy" monsters from being Tributed until the end of this Chain
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)-- Field effect
+	e1:SetCode(EFFECT_UNRELEASABLE_SUM+EFFECT_UNRELEASABLE_NOSUM)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET) -- Apply to player
+	e1:SetTargetRange(1,0) -- Target the player controlling "Milacresy" monsters
+	e1:SetTarget(function(e,c) return c:IsSetCard(0xf16) and c:IsType(TYPE_MONSTER) end) -- Target "Milacresy" monsters
+	e1:SetReset(RESET_CHAIN) -- Reset at the end of the chain -- Prevent Tributing
+	Duel.RegisterEffect(e1,tp) -- Register the effect
 end
