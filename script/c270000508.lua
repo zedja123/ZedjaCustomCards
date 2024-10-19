@@ -1,14 +1,16 @@
 -- Milacresy Darkllunism Defense
 local s,id=GetID()
 function s.initial_effect(c)
-	-- Negate and destroy
+	--Negate the activation of a Spell/Trap Card, or monster effect, and destroy that card
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_CHAINING)
 	e1:SetCountLimit(1,{id,1})
-	e1:SetCondition(s.condition)
-	e1:SetTarget(s.target)
-	e1:SetOperation(s.operation)
+	e1:SetCondition(s.negcon)
+	e1:SetTarget(s.negtg)
+	e1:SetOperation(s.negop)
 	c:RegisterEffect(e1)
 
 	-- Set from banished
@@ -22,23 +24,25 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
-function s.filter(c)
-	return c:IsSetCard(0xf16) and c:IsFaceup()
+function s.negconfilter(c)
+	return c:IsFaceup() and c:IsSetCard(0xf16)
 end
 
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return (re:IsActiveType(TYPE_MONSTER+TYPE_SPELL+TYPE_TRAP) or re:IsMonster()) and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,nil) -- Checks if you control a Milacresy monster
+function s.negcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsExistingMatchingCard(s.negconfilter,tp,LOCATION_MZONE,0,1,nil)
+		and Duel.IsChainNegatable(ev) and (re:IsMonsterEffect() or re:IsHasType(EFFECT_TYPE_ACTIVATE))
 end
-
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
+	local rc=re:GetHandler()
+	if rc:IsDestructable() and rc:IsRelateToEffect(re) then
+		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
+	end
 end
-
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	Duel.NegateActivation(ev)
-	if re:GetHandler():IsRelateToEffect(re) then
-		Duel.Destroy(re:GetHandler(),REASON_EFFECT)
+function s.negop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
+		Duel.Destroy(eg,REASON_EFFECT)
 	end
 end
 

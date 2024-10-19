@@ -11,15 +11,14 @@ function s.initial_effect(c)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 	
-	-- Set this card if it is banished
+	-- Set from banished
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_REMOVE)
 	e2:SetRange(LOCATION_REMOVED)
-	e2:SetCondition(s.setcon)
-	e2:SetTarget(s.settg)
+	e2:SetCountLimit(1,{id,2})
 	e2:SetOperation(s.setop)
-	e2:SetCountLimit(1,id)
 	c:RegisterEffect(e2)
 end
 
@@ -52,17 +51,7 @@ function s.tgfilter(c)
 	return c:IsSetCard(0xf16) and c:IsAbleToGrave()
 end
 
--- Condition for setting the card when banished
-function s.setcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsReason(REASON_REMOVE)
-end
-
--- Target for setting the card
-function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 end
-end
-
--- Operation to set the card
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.SSet(tp,e:GetHandler())
+	local c=e:GetHandler()
+	Duel.SSet(tp,c)
 end
