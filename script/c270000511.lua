@@ -11,7 +11,7 @@ function s.initial_effect(c)
 	e0:SetRange(LOCATION_EXTRA)
 	e0:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
 	e0:SetTarget(function(e,c) return c:IsLinkMonster() end)
-	e0:SetValue(function(e,_,rc) return rc==e:GetHandler() and c:IsLink() end)
+	e0:SetValue(function(e,_,rc) return rc==e:GetHandler() and c:IsLink(2) end)
 	c:RegisterEffect(e0)
 	-- Effect: Banish 5 cards and Special Summon
 	local e1=Effect.CreateEffect(c)
