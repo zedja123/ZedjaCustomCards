@@ -20,6 +20,14 @@ function s.initial_effect(c)
 	e2:SetCountLimit(1,{id,2})
 	e2:SetOperation(s.setop)
 	c:RegisterEffect(e2)
+
+	-- Cannot activate the turn it was set
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetCode(EFFECT_CANNOT_TRIGGER)
+	e3:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+	e3:SetCondition(s.actcon)
+	c:RegisterEffect(e3)
 end
 
 function s.negconfilter(c)
@@ -47,4 +55,8 @@ end
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	Duel.SSet(tp,c)
+end
+
+function s.actcon(e)
+	return e:GetHandler():IsStatus(STATUS_SET_TURN)
 end
