@@ -83,12 +83,12 @@ end
 
 function s.banishtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil) -- Targets 1 face-up monster
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE) -- Targets 1 face-up monster
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 end
 
 function s.banishop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil)
 	if g and g:GetCount()>0 then
 		local tc=g:GetFirst()
 		if tc:IsRelateToEffect(e) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY) then
