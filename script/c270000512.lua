@@ -39,13 +39,13 @@ Card.IsCanBeSynchroMaterial=(function()
 	local oldfunc=Card.IsCanBeSynchroMaterial
 	return function(mc,sc)
 		local res=oldfunc(mc,sc)
-		return mc:IsLinkMonster() and mc:IsSetCard(0xf16) and sc:IsCode(270000512) or res
+		return mc:IsLinkMonster() and sc:IsCode(270000512) or res
 	end
 end)()
 Card.GetSynchroLevel=(function()
 	local oldfunc=Card.GetSynchroLevel
 	return function(mc,sc)
-		if mc:IsLinkMonster() and mc:IsSetCard(0xf16) and sc:IsCode(270000512) then
+		if mc:IsLinkMonster() and sc:IsCode(270000512) then
 			return mc:GetLink()
 		end
 		return oldfunc(mc,sc)
@@ -98,8 +98,8 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetCode(EFFECT_DISABLE)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e1)
-		if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)~=0 then
-			-- If you need additional effects upon destruction, you can add them here
+		if tc:IsRelateToEffect(e)
+			Duel.Destroy(tc,REASON_EFFECT)
 		end
 	end
 end
