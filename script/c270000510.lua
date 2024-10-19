@@ -85,8 +85,18 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.SelectMatchingCard(tp,s.banishfilter,tp,LOCATION_REMOVED,0,4,4,nil)
+	local g=Duel.SelectMatchingCard(tp,s.banishfilter,tp,LOCATION_REMOVED,0,2,2,nil)
 	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) and Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_COST) then
 		Duel.Destroy(eg,REASON_EFFECT)
+   local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD) -- Field effect
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET) -- Apply to player
+	e1:SetCode(EFFECT_CANNOT_TO_HAND)
+	e1:SetTargetRange(1,0) -- Target the player controlling "Milacresy" monsters
+	e1:SetTarget(function(e,c) return c:IsSetCard(0xf16) and c:IsType(TYPE_MONSTER) end) -- Target "Milacresy" monsters
+	e1:SetReset(RESET_CHAIN) -- Reset at the end of the ChainAttack
+ -- Prevent returning to hand
+	Duel.RegisterEffect(e1,tp) -- Register the effect
 	end
 end
+
