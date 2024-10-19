@@ -39,14 +39,13 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
-Debug.Message(s.sylt)
-Debug.Message(s.sylv)
 function s.sylt(e,c) 
 	return c:IsLinkMonster() 
 end
 
-function s.sylv(e,_,rc) 
-	return rc==e:GetHandler() and c:IsLink() 
+function s.sylv(e,_,rc)
+	local linkrate = Card.GetLink()
+	return rc==e:GetHandler() and c:IsLink(linkrate) 
 end
 function s.con(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
