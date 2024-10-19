@@ -52,7 +52,7 @@ Card.GetSynchroLevel=(function()
 	end
 end)()
 
-function s.linkmonster(c)
+function s.linkmonster(c,tp)
 	return c:IsControler(tp) and c:IsLinkMonster()
 end
 function s.tunerfilter(c)
