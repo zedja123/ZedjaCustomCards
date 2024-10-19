@@ -101,7 +101,6 @@ function s.banishop(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetOperation(s.retop)
 			Duel.RegisterEffect(e1,tp)
 		end
-	end
 end
 
 -- Return the card to the field at the end of the chain
