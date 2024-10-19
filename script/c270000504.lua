@@ -39,8 +39,8 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.matlimit_operation(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.IsExistingMatchingCard(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) then return end
-	local tc = Duel.SelectTarget(tp,Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+	if Duel.IsExistingMatchingCard(Card.IsOnField,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) then return end
+	local tc = Duel.SelectTarget(tp,Card.IsOnField,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
 	if tc and tc:IsRelateToEffect(e) then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
