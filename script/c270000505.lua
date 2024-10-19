@@ -93,13 +93,13 @@ function s.banishop(e,tp,eg,ep,ev,re,r,rp)
 	if g and g:GetCount()>0 then
 		local tc=g:GetFirst()
 		if tc:IsRelateToEffect(e) then
-			Duel.Remove(c,POS_FACEUP,REASON_EFFECT) -- Banish the target
+			Duel.Remove(tc,POS_FACEUP,REASON_EFFECT) -- Banish the target
 			-- Return this card to the field at the end of the chain
 			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 			e1:SetCode(EVENT_CHAIN_END)
 			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			e1:SetLabelObject(c)
+			e1:SetLabelObject(tc)
 			e1:SetOperation(s.retop)
 			Duel.RegisterEffect(e1,tp)
 		end
