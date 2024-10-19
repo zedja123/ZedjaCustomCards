@@ -104,6 +104,6 @@ function s.banishop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.ban(c,tc)
-	return Duel.Remove(tc,POS_FACEUP,REASON_EFFECT) -- Banish the target
+function s.ban(c)
+	return Duel.Remove(c,POS_FACEUP,REASON_EFFECT) -- Banish the target
 end
