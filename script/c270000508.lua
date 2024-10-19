@@ -3,7 +3,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	-- Negate and destroy
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_TRAP+EFFECT_TYPE_CONTINUOUS)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_CHAINING)
 	e1:SetCountLimit(1,{id,1})
 	e1:SetCondition(s.condition)

@@ -1,7 +1,8 @@
 -- Milacresy Sacrificorius
+local s,id=GetID()
 function s.initial_effect(c)
 	-- Link Summon
-	aux.AddLinkProcedure(c,s.matfilter,2,2)
+	Link.AddProcedure(c,s.matfilter,2,2)
 	c:EnableReviveLimit()
 
 	-- Effect: Send 1 "Milacresy" card and add a banished or GY card

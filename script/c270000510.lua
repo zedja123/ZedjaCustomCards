@@ -2,7 +2,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	-- Link Summon
-	aux.AddLinkProcedure(c,s.matfilter,2,99) -- Link 2 or more with "Milacresy" monsters
+	Link.AddProcedure(c,s.matfilter,2,99) -- Link 2 or more with "Milacresy" monsters
 	c:EnableReviveLimit()
 
 	-- Effect: Banish 3 cards and destroy
