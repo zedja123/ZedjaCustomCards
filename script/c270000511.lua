@@ -32,7 +32,7 @@ end
 
 function s.synchrocheck(g, c)
 	local g = Duel.GetFieldGroup(c:GetControler(), LOCATION_MZONE, 0)
-	local Filter(link,Card.IsLink, nil)
+	local link = Group.Filter(g,Card.IsLink, nil)
 	if #link > 0 then
 		for lc in aux.Next(link) do
 			if g:IsExists(s.matfilter, 1, nil, lc:GetLink()) then
