@@ -23,7 +23,7 @@ e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
 e3:SetRange(LOCATION_MZONE)
 e3:SetCondition(s.cond)
 e3:SetCountLimit(1,{id,2})
-e3:SetTarget(s.matlimit_target)
+e3:SetTarget(s.target)
 e3:SetOperation(s.matlimit_operation)
 c:RegisterEffect(e3)
 end
