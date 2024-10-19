@@ -10,7 +10,8 @@ function s.initial_effect(c)
 	e0:SetCode(EFFECT_SPSUMMON_PROC)
 	e0:SetRange(LOCATION_EXTRA)
 	e0:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
-	e0:SetTarget(s.synchrooplink2)
+	e0:SetCondition(s.syncconlink2)
+	e0:SetOperation(s.synchrooplink2)
 	e0:SetValue(SUMMON_TYPE_SYNCHRO)
 	c:RegisterEffect(e0)
 	-- Effect: Banish 5 cards and Special Summon
@@ -48,8 +49,11 @@ function s.matfilter2(c,lc,sumtype,tp)
 	return not c:IsType(TYPE_TUNER)
 end
 
-function s.synchrooplink2(e,tp,eg,ep,ev,re,r,rp,c,og)
+function syncconlink2(c)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.matfilter2,tp,LOCATION_MZONE,0,1,nil) and Card.GetLevel(s.matfilter2) + 2 == 5 end
+end
+
+function s.synchrooplink2(e,tp,eg,ep,ev,re,r,rp,c,og)
 	local g=Duel.SelectMatchingCard(tp,s.matfilter,tp,LOCATION_MZONE,0,1,1,nil)
 	local g2=Duel.SelectMatchingCard(tp,s.matfilter2,tp,LOCATION_MZONE,0,1,1,nil)
 	Group.Merge(g,g2)
