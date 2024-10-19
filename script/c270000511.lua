@@ -43,7 +43,7 @@ function s.sylt(e,c)
 	return c:IsLinkMonster() 
 end
 
-function s.sylv(e,_,rc)
+function s.sylv(c,e,_,rc)
 	local linkrate = Card.GetLink()
 	return rc==e:GetHandler() and c:IsLink(linkrate) 
 end
