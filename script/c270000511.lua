@@ -46,8 +46,8 @@ function s.matfilter(c)
 end
 
 function s.matfilter2(c)
-	return c:IsSetCard(0xf16) and not c:IsType(TYPE_TUNER)
 	Debug.Message(s.matfilter2:GetSynchroLevel) 
+	return c:IsSetCard(0xf16) and not c:IsType(TYPE_TUNER)
 end
 
 function s.syncconlink2(c,e)
