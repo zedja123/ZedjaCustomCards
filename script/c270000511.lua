@@ -31,7 +31,8 @@ function s.initial_effect(c)
 end
 
 function s.synchrocheck(g, c)
-	local link = Duel.GetFieldGroup(c:GetControler(), LOCATION_MZONE, 0):Filter(Card.IsLink, nil)
+	local g = Duel.GetFieldGroup(c:GetControler(), LOCATION_MZONE, 0)
+	local Group.Filter(link,Card.IsLink, nil)
 	if #link > 0 then
 		for lc in aux.Next(link) do
 			if g:IsExists(s.matfilter, 1, nil, lc:GetLink()) then
