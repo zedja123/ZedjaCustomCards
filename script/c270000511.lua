@@ -47,6 +47,10 @@ Card.GetSynchroLevel=(function()
 	end
 end)()
 
+function s.con(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
+end
+
 function s.tunerfilter(c)
 	return c:IsSetCard(0xf16) and c:IsType(TYPE_TUNER) -- "Milacresy" Tuner filter
 end
