@@ -2,7 +2,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	-- Synchro Summon
-	Synchro.AddProcedure(c,s.tunerfilter,1,1,s.nontunerfilter,1,1) -- "Milacresy" Tuner and non-Tuner
+	Synchro.AddProcedure(c,s.tunerfilter,1,1,s.nontunerfilter,1,1,Card.IsLinkMonster) -- "Milacresy" Tuner and non-Tuner
 	c:EnableReviveLimit()
 	-- Effect: Banish 5 cards and Special Summon
 	local e1=Effect.CreateEffect(c)
@@ -49,7 +49,7 @@ end)()
 
 
 function s.tunerfilter(c)
-	return c:IsSetCard(0xf16) and (c:IsType(TYPE_TUNER) or c:IsType(TYPE_LINK)) -- "Milacresy" Tuner filter
+	return c:IsSetCard(0xf16) and c:IsType(TYPE_TUNER) -- "Milacresy" Tuner filter
 end
 
 function s.nontunerfilter(c)
