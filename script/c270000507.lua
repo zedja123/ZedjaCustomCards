@@ -16,7 +16,6 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_REMOVE)
 	e2:SetRange(LOCATION_REMOVED)
-	e2:SetCondition(s.negconfilter)
 	e2:SetCountLimit(1,{id,2})
 	e2:SetOperation(s.setop)
 	c:RegisterEffect(e2)
@@ -56,7 +55,7 @@ end
 
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-		if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+		if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and c:IsFaceup() and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.SSet(tp,c)
 	end
 end
