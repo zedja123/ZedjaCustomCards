@@ -30,7 +30,7 @@ function s.initial_effect(c)
 end
 
 function s.shfilter(c)
-	return c:IsSetCard(0xf16) and c:IsAbleToDeckOrExtraAsCost()
+	return c:IsSetCard(0xf16) and c:IsAbleToDeckOrExtraAsCost() and c:IsFaceup()
 end
 
 -- Cost: Shuffle 3 "Milacresy" cards from your GY or banished
