@@ -13,7 +13,7 @@ function s.initial_effect(c)
 	
 	-- Set from banished
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_REMOVE)
 	e2:SetRange(LOCATION_REMOVED)
 	e2:SetCountLimit(1,{id,2})
