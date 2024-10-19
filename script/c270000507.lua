@@ -53,5 +53,6 @@ end
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 		if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-	Duel.SSet(tp,c)
+		Duel.SSet(tp,c)
+	end
 end
