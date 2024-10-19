@@ -89,9 +89,9 @@ end
 
 function s.banishop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil)
-	if g and g:GetCount()>0 then
 		local tc=g:GetFirst()
-		if tc:IsRelateToEffect(e) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY) then
+		if tc:IsRelateToEffect(e) then
+			Duel.Remove(tc,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY) 
 			 -- Banish the target
 			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
