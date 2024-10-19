@@ -2,7 +2,7 @@
 local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Synchro summon procedure
-	Synchro.AddProcedure(c,s.tunerfilter,1,1,s.nontunerfilter,1,99,Card.IsLinkMonster) -- "Milacresy" Tuner and non-Tuner
+	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,1,s.nontunerfilter,1,99,s.reqmat) -- "Milacresy" Tuner and non-Tuner-- "Milacresy" Tuner and non-Tuner
 	c:EnableReviveLimit()
 		--Special Summon condition
 	local e0=Effect.CreateEffect(c)
@@ -53,12 +53,11 @@ Card.GetSynchroLevel=(function()
 end)()
 
 
-function s.tunerfilter(c)
-	return c:IsSetCard(0xf16) and c:IsType(TYPE_TUNER) -- "Milacresy" Tuner filter
+function s.reqmat(c,scard,sumtype,tp)
+	return c:IsLinkMonster() and c:IsControler(tp)
 end
-
-function s.nontunerfilter(c)
-	return c:IsSetCard(0xf16) and not c:IsType(TYPE_TUNER) -- "Milacresy" non-Tuner filter
+function s.nontunerfilter(c,scard,sumtype,tp)
+	return c:IsSetCard(0xf16) and c:IsNotTuner(scard,tp) and not c:IsLinkMonster()
 end
 -- Synchro Summon condition
 function s.syncon(e,tp,eg,ep,ev,re,r,rp)
