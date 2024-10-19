@@ -16,11 +16,15 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_REMOVE)
 	e2:SetRange(LOCATION_REMOVED)
+	e2:SetCondition(s.fu)
 	e2:SetCountLimit(1,{id,2})
 	e2:SetOperation(s.setop)
 	c:RegisterEffect(e2)
 end
 
+function s.fu(c)
+	return c:IsFaceup()
+end
 -- Target to send 1 "Milacresy" monster to GY or Special Summon it
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
