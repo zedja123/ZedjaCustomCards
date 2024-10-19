@@ -7,7 +7,7 @@ function s.initial_effect(c)
 
 	-- Effect: Send 1 "Milacresy" card and add a banished or GY card
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_SENDTOGRAVE+CATEGORY_TOHAND)
+	e1:SetCategory(CATEGORY_TOGRAVE+CATEGORY_TOHAND)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetCountLimit(1,{id,1})
