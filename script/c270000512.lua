@@ -39,13 +39,13 @@ Card.IsCanBeSynchroMaterial=(function()
 	local oldfunc=Card.IsCanBeSynchroMaterial
 	return function(mc,sc)
 		local res=oldfunc(mc,sc)
-		return mc:IsLinkMonster() and mc:IsControler(tp) and sc:IsCode(270000512) or res
+		return mc:IsLinkMonster() and mc:IsSetCard(0xf16) and sc:IsCode(270000512) or res
 	end
 end)()
 Card.GetSynchroLevel=(function()
 	local oldfunc=Card.GetSynchroLevel
 	return function(mc,sc)
-		if mc:IsLinkMonster() and sc:IsCode(270000512) then
+		if mc:IsLinkMonster() and mc:IsSetCard(0xf16) and sc:IsCode(270000512) then
 			return mc:GetLink()
 		end
 		return oldfunc(mc,sc)
