@@ -56,25 +56,30 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp~=tp and Duel.IsChainNegatable(ev) -- Check if it's your opponent's chain
+	return rp~=tp and Duel.IsChainNegatable(ev)
 end
 
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.banishfilter,tp,LOCATION_REMOVED,0,4,nil) end
+	-- Select and shuffle 4 "Milacresy" cards from your banished zone into the deck
 end
 
 function s.banishfilter(c)
-	return c:IsSetCard(0xf16) -- Filter for "Milacresy" cards in the banished zone
+	return c:IsSetCard(0xf16) and c:IsAbleToDeck()
 end
 
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_NEGATE,re,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
+	local rc=re:GetHandler()
+	if rc:IsDestructable() and rc:IsRelateToEffect(re) then
+		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
+	end
 end
 
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.ShuffleIntoDeck(4,nil,tp) then
-		Duel.NegateEffect(ev)
-		Duel.Destroy(re:GetHandler(),REASON_EFFECT)
+	local g=Duel.SelectMatchingCard(tp,s.banishfilter,tp,LOCATION_REMOVED,0,4,4,nil)
+	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) and Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_COST)then
+		Duel.Destroy(eg,REASON_EFFECT)
 	end
 end
