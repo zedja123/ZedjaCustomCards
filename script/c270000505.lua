@@ -89,11 +89,17 @@ function s.banishtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.banishop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
 	if g and g:GetCount()>0 then
 		local tc=g:GetFirst()
 		if tc:IsRelateToEffect(e) then
 			Duel.Remove(tc,POS_FACEUP,REASON_EFFECT) -- Banish the target
+		local e1 = Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e1:SetCode(EVENT_CHAIN_END)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		e1:SetLabelObject(tc)
+		e1:SetOperation(s.retop)
+		Duel.RegisterEffect(e1,tp)
 		end
 	end
 end
