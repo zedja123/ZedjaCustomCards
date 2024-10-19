@@ -45,18 +45,22 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if tc:IsAttribute(ATTRIBUTE_EARTH) then
 		-- EARTH: Destroy 1 face-up card your opponent controls
-		local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,0,LOCATION_ONFIELD,0,1,nil)
-		if #g>0 then
-			Duel.HintSelection(g)
-			Duel.Destroy(g,REASON_EFFECT)
+		if Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_ONFIELD,1,nil) then
+			local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,0,LOCATION_ONFIELD,1,1,nil)
+			if #g>0 then
+				Duel.HintSelection(g)
+				Duel.Destroy(g,REASON_EFFECT)
+			end
 		end
 	end
 	if tc:IsAttribute(ATTRIBUTE_WIND) then
 		-- WIND: Destroy 1 face-down card your opponent controls
-		local g=Duel.SelectMatchingCard(tp,Card.IsFacedown,tp,0,LOCATION_ONFIELD,0,1,nil)
-		if #g>0 then
-			Duel.HintSelection(g)
-			Duel.Destroy(g,REASON_EFFECT)
+		if Duel.IsExistingMatchingCard(Card.IsFacedown,tp,0,LOCATION_ONFIELD,1,nil) then
+			local g=Duel.SelectMatchingCard(tp,Card.IsFacedown,tp,0,LOCATION_ONFIELD,0,1,nil)
+			if #g>0 then
+				Duel.HintSelection(g)
+				Duel.Destroy(g,REASON_EFFECT)
+			end
 		end
 	end
 	if tc:IsAttribute(ATTRIBUTE_LIGHT) then
