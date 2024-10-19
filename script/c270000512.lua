@@ -53,7 +53,7 @@ Card.GetSynchroLevel=(function()
 end)()
 
 function s.linkmonster(c)
-	return c:IsControler() and c:IsLinkMonster()
+	return c:IsControler(tp) and c:IsLinkMonster()
 end
 function s.tunerfilter(c)
 	return c:IsSetCard(0xf16) and c:IsType(TYPE_TUNER) -- "Milacresy" Tuner filter
