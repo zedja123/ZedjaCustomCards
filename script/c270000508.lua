@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_REMOVE)
 	e2:SetRange(LOCATION_REMOVED)
-	e2:SetCountLimit(1,{id,2})]
+	e2:SetCountLimit(1,{id,2})
 	e2:SetCondition(s.fu)
 	e2:SetOperation(s.setop)
 	c:RegisterEffect(e2)
