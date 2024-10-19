@@ -49,7 +49,7 @@ end)()
 
 
 function s.tunerfilter(c)
-	return c:IsSetCard(0xf16) and (c:IsType(TYPE_TUNER) or c:IsLinkMonster()) -- "Milacresy" Tuner filter
+	return c:IsSetCard(0xf16) and (c:IsType(TYPE_TUNER) or c:IsType(TYPE_LINK)) -- "Milacresy" Tuner filter
 end
 
 function s.nontunerfilter(c)
