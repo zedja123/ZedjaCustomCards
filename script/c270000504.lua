@@ -24,7 +24,7 @@ c:RegisterEffect(e2)
 	e3:SetCountLimit(1,{id,2}) -- Once per turn
 	e3:SetCondition(s.condition)
 	e3:SetTarget(s.target)
-	e3:SetOperation(s.operation)
+	e3:SetOperation(s.matoperation)
 	c:RegisterEffect(e3)
 end
 
