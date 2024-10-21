@@ -49,25 +49,12 @@ function s.matoperation(e,tp,eg,ep,ev,re,r,rp)
 		-- Prevent the target from being used as material until the end of the Chain
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CANNOT_BE_FUSION_MATERIAL)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		e1:SetCode(EFFECT_CANNOT_BE_MATERIAL)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetReset(RESET_CHAIN) -- Resets at the end of the Chain
 		e1:SetValue(1)
 		tc:RegisterEffect(e1)
-
-		local e2=e1:Clone()
-		e2:SetCode(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL)
-		tc:RegisterEffect(e2)
-
-		local e3=e1:Clone()
-		e3:SetCode(EFFECT_CANNOT_BE_XYZ_MATERIAL)
-		tc:RegisterEffect(e3)
-
-		local e4=e1:Clone()
-		e4:SetCode(EFFECT_CANNOT_BE_LINK_MATERIAL)
-		tc:RegisterEffect(e4)
 	end
-end
 
 -- Banish top 3 cards and Special Summon
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -91,5 +78,6 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		if #sg>0 then
 			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 		end
+	end
 	end
 end
