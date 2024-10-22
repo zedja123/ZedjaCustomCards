@@ -15,47 +15,46 @@ c:RegisterEffect(e1)
 local e2=e1:Clone()
 e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 c:RegisterEffect(e2)
-local e3=Effect.CreateEffect(c)
-e3:SetCategory(CATEGORY_DISABLE)
-e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_QUICK_O)
-e3:SetCode(EVENT_FREE_CHAIN)
-e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
-e3:SetRange(LOCATION_MZONE)
-e3:SetCondition(s.cond)
-e3:SetCountLimit(1,{id,2})
-e3:SetTarget(s.target)
-e3:SetOperation(s.matlimit_operation)
-c:RegisterEffect(e3)
+	-- Quick effect during the Main Phase to restrict a monster's use as material
+	local e3=Effect.CreateEffect(c)
+	e3:SetCategory(CATEGORY_DISABLE)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetRange(LOCATION_MZONE) -- Can be activated from the Monster Zone
+	e3:SetCountLimit(1,{id,2}) -- Once per turn
+	e3:SetCondition(s.condition)
+	e3:SetTarget(s.target)
+	e3:SetOperation(s.matoperation)
+	c:RegisterEffect(e3)
 end
 
-function s.cond(c)
-	return Duel.IsMainPhase()
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsMainPhase() -- Can only be activated during the Main Phase
 end
 
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsOnField,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local g=Duel.SelectTarget(tp,Card.IsOnField,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+function s.filter(c)
+	return c:IsFaceup() -- Check for any face-up monster on the field
 end
 
-function s.matlimit_operation(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.IsExistingMatchingCard(Card.IsOnField,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) then return end
-	local tc = Duel.SelectTarget(tp,Card.IsOnField,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-	if tc and tc:IsRelateToEffect(e) then
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsOnField() and s.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+end
+
+function s.matoperation(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() then
+		-- Prevent the target from being used as material until the end of the Chain
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CANNOT_BE_MATERIAL)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-		e1:SetValue(s.matlimit)
-		e1:SetReset(RESET_CHAIN)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetReset(RESET_CHAIN) -- Resets at the end of the Chain
+		e1:SetValue(1)
 		tc:RegisterEffect(e1)
 	end
-end
-
-function s.matlimit(e,c)
-	if not c then return false end
-	return c:IsType(TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK)
-end
 
 -- Banish top 3 cards and Special Summon
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -79,5 +78,6 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		if #sg>0 then
 			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 		end
+	end
 	end
 end
