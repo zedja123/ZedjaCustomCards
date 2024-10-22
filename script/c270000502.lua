@@ -103,7 +103,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetType(EFFECT_TYPE_FIELD)-- Field effect
 	e1:SetCode(EFFECT_CANNOT_RELEASE)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET) -- Apply to player
-	e1:SetTargetRange(1,0) -- Target the player controlling "Milacresy" monsters
+	e1:SetTargetRange(0,1) -- Target the player controlling "Milacresy" monsters
 	e1:SetTarget(function(e,c) return c:IsSetCard(0xf16) and c:IsType(TYPE_MONSTER) end) -- Target "Milacresy" monsters
 	e1:SetReset(RESET_CHAIN) -- Reset at the end of the chain -- Prevent Tributing
 	Duel.RegisterEffect(e1,tp) -- Register the effect
