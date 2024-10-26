@@ -38,7 +38,7 @@ function s.initial_effect(c)
 
 	-- Gain 1000 ATK if a card is banished
 	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e4:SetCode(EVENT_REMOVE)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCondition(s.atkcon)
@@ -79,7 +79,12 @@ end
 
 -- Condition: If any card is banished
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return #eg>0
+	return eg:IsExists(s.cfilter,1,nil)
+end
+
+-- Filter: Check if a card is banished
+function s.cfilter(c)
+	return c:IsLocation(LOCATION_REMOVED)
 end
 
 -- Operation: Gain 1000 ATK for the rest of this turn
