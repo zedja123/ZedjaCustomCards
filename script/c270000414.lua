@@ -41,6 +41,7 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e4:SetCode(EVENT_REMOVE)
 	e4:SetRange(LOCATION_MZONE)
+	e4:SetCondition(s.atkcon)
 	e4:SetOperation(s.atkop)
 	e4:SetCountLimit(1,{id,2}) -- Limit the effect to once per turn
 	c:RegisterEffect(e4)
@@ -75,6 +76,17 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Remove(eg,POS_FACEUP,REASON_EFFECT)
 	end
 end
+
+-- Condition: If any card is banished
+function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(s.cfilter,1,nil)
+end
+
+-- Filter: Check if a card is banished
+function s.cfilter(c)
+	return not c:IsPreviousLocation(LOCATION_REMOVED)
+end
+
 -- Operation: Gain 1000 ATK for the rest of this turn
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
