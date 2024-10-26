@@ -27,7 +27,7 @@ end
 
 
 function s.filter(c,e,tp)
-	return c:IsSetCard(0xf15) and c:IsLinkAbove(3) and c:IsLinkSummonable(nil)
+	return c:IsSetCard(0xf15) and c:IsLinkAbove(3) and c:IsLinkSummonable(nil) and Duel.GetLocationCountFromEx(tp,tp,c)>0
 end
 
 function s.filter2(c,e,tp)
