@@ -91,6 +91,9 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+
+		-- Mark this card for self-banish
+		c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 	-- Banish it when it leaves the field
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -129,5 +132,6 @@ end
 -- Condition for Effect 3: Attribute Change when Banished by an external effect
 function s.bancon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return not re or re:GetOwner()~=c
+	-- Trigger only if the card is banished and does not have the self-banish flag
+	return c:IsReason(REASON_EFFECT) and c:GetFlagEffect(id)==0
 end
