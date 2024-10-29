@@ -98,6 +98,7 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
 	e1:SetValue(LOCATION_REMOVED)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+	e1:SetLabel(id)
 	c:RegisterEffect(e1)
 	end
 end
@@ -127,6 +128,6 @@ function s.attrop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.bancon(e,tp,eg,ep,ev,re,r,rp)
-	-- Check that the card is banished by an effect and not its own effect
-	return re and re:GetHandler()~=e:GetHandler()
+	-- Check that the card is banished by an effect and not its own banish effect
+	return re and re:GetHandler()~=e:GetHandler() and e:GetHandler():GetReasonEffect():GetLabel()~=id
 end
