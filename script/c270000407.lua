@@ -72,7 +72,7 @@ end
 
 function s.grave_operation(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and tc:IsAbleToHand() and (not tc:IsAbleToGrave() or Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))==0 then
+	if tc and tc:IsRelateToEffect(e) and tc:IsAbleToHand() and (not tc:IsAbleToGrave() or Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))==0) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 		else
 		Duel.SendtoGrave(tc,REASON_EFFECT)
