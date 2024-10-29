@@ -52,27 +52,32 @@ end
 function s.gycon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnCount()~=e:GetHandler():GetTurnID()
 end
-function s.spfilter3(c,e,tp)
-	return c:IsSetCard(0xf15) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function s.extrafilter(c,e,tp)
+	return c:IsSetCard(0xf15) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_LINK)
 end
 function s.tdfilter(c)
 	return c:IsSetCard(0xf15) and c:IsAbleToDeck() and c:IsType(TYPE_MONSTER) and c:IsFaceup()
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil)
-		and Duel.IsExistingMatchingCard(s.spfilter3,tp,LOCATION_EXTRA,0,1,nil,e,tp) and Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_LINK)>0 end
+	if chk==0 then
+		return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil)
+			and Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_LINK)>0
+			and Duel.IsExistingMatchingCard(s.extrafilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
+	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_GRAVE+LOCATION_REMOVED)
+	local g=Duel.SelectTarget(tp,s.spfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)~=0 then
+	if tc and tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0 then
+		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg=Duel.SelectMatchingCard(tp,s.spfilter3,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
-		if #sg>0 then
-			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
+		local spg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.extrafilter),tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
+		if #spg>0 then
+			Duel.SpecialSummon(spg,SUMMON_TYPE_LINK,tp,tp,false,false,POS_FACEUP)
+			spg:GetFirst():CompleteProcedure()
 		end
 	end
 end
