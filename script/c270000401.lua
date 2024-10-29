@@ -92,8 +92,6 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	if c:IsRelateToEffect(e) then
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 
-		-- Set a flag to indicate self-banishment
-		c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 	-- Banish it when it leaves the field
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -101,8 +99,8 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
 	e1:SetValue(LOCATION_REMOVED)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-	e1:SetLabel(id)
 	c:RegisterEffect(e1)
+	c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 	end
 end
 
