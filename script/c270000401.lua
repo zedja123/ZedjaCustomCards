@@ -91,9 +91,6 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-
-	-- Set a flag to indicate self-banishment
-	c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 	-- Banish it when it leaves the field
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -131,6 +128,6 @@ end
 
 -- Condition for Effect 3: Attribute Change when Banished by an external effect
 function s.bancon(e,tp,eg,ep,ev,re,r,rp)
-	-- Check if the flag is not set, ensuring it wasn’t self-banished
-	return not e:GetHandler():GetFlagEffect(id)
+	local c=e:GetHandler()
+	return re and re:GetOwner()~=c
 end
