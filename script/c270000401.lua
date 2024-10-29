@@ -33,7 +33,6 @@ function s.initial_effect(c)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_REMOVE)
 	e3:SetCountLimit(1,{id,3})
-	e3:SetCondition(s.bancon)
 	e3:SetTarget(s.attrtg)
 	e3:SetOperation(s.attrop)
 	c:RegisterEffect(e3)
@@ -100,7 +99,6 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetValue(LOCATION_REMOVED)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 	c:RegisterEffect(e1)
-	c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 	end
 end
 
@@ -126,10 +124,4 @@ function s.attrop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
 	end
-end
-
--- Condition for Effect 3: Attribute Change when Banished by an external effect
-function s.bancon(e,tp,eg,ep,ev,re,r,rp)
-	-- Check if the flag is not set, ensuring it wasn’t self-banished
-	return not e:GetHandler():GetFlagEffect(id)
 end
