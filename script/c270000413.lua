@@ -26,8 +26,7 @@ function s.initial_effect(c)
 
 	-- Gain ATK and attack all monsters once each during the Battle Phase
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_QUICK_O)
-	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCondition(s.bpcon)
 	e3:SetTarget(s.bptg)
@@ -91,9 +90,14 @@ function s.bpoperation(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_ATTACK_ALL)
 		e2:SetValue(1) -- Allows it to attack all opponent's monsters
+		e2:SetCondition(s.attack_limit_condition)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		c:RegisterEffect(e2)
 	end
+end
+
+function s.attack_limit_condition(e)
+	return Duel.GetAttacker()==e:GetHandler()
 end
 
 -- Condition for preventing opponent's activation during Battle Phase
