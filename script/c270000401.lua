@@ -33,6 +33,7 @@ function s.initial_effect(c)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_REMOVE)
 	e3:SetCountLimit(1,{id,3})
+	e3:SetCondition(s.bancon)
 	e3:SetTarget(s.attrtg)
 	e3:SetOperation(s.attrop)
 	c:RegisterEffect(e3)
@@ -124,4 +125,9 @@ function s.attrop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
 	end
+end
+
+function s.bancon(e,tp,eg,ep,ev,re,r,rp)
+	-- Check that the card is banished by an effect and not its own effect
+	return re and re:GetHandler()~=e:GetHandler()
 end
