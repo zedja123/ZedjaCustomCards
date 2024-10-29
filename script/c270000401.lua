@@ -129,5 +129,5 @@ end
 -- Condition for Effect 3: Attribute Change when Banished by an external effect
 function s.bancon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return re and re:GetOwner()~=c
+	return not re or re:GetOwner()~=c
 end
