@@ -50,7 +50,7 @@ end
 
 -- e2: Shuffle banished/GY monster into Deck, Special Summon from Extra Deck
 function s.gycon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnCount()~=e:GetHandler():GetTurnID()
+	return Duel.GetTurnCount()~=e:GetHandler():GetTurnID() and Duel.IsMainPhase()
 end
 function s.extrafilter(c,e,tp)
 	return c:IsSetCard(0xf15) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_LINK)

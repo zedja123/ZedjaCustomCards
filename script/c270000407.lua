@@ -13,8 +13,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	-- Banish to add "Build Rider" monster
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCountLimit(1,{id,2})
@@ -60,7 +59,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.gycondition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnCount()~=e:GetHandler():GetTurnID()
+	return Duel.GetTurnCount()~=e:GetHandler():GetTurnID() and Duel.IsMainPhase()
 end
 
 function s.grave_target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -72,7 +71,9 @@ end
 
 function s.grave_operation(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
+	if tc and tc:IsRelateToEffect(e) and tc:IsAbleToHand() and (not tc:IsAbleToGrave() or Duel.SelectYesNo(tp,aux.Stringid(id,1))) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+		else
+		Duel.SendtoGrave(tc,REASON_EFFECT)
 	end
 end
