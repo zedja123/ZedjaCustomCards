@@ -42,8 +42,8 @@ end
 -- Effect 1: Special Summon from Deck
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsDiscardable() and Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,e:GetHandler()) end
-	Duel.SendtoGrave(e:GetHandler(),REASON_COST+REASON_DISCARD)
-	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
+	Duel.SendtoGrave(e:GetHandler(),REASON_COST)
+	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_COST)
 end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0xf15) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
