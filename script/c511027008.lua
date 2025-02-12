@@ -38,15 +38,6 @@ Card.IsCanBeSynchroMaterial=(function()
 		return mc:IsLinkMonster() and sc:IsCode(511027008) or res
 	end
 end)()
-Card.GetSynchroLevel=(function()
-	local oldfunc=Card.GetSynchroLevel
-	return function(mc,sc)
-		if mc:IsLinkMonster() and sc:IsCode(511027008) then
-			return mc:GetLink()
-		end
-		return oldfunc(mc,sc)
-	end
-end)()
 function s.reqmat(c,scard,sumtype,tp)
 	return c:IsLink(1)
 end
