@@ -20,7 +20,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1, {id, 1})
-	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
+	e2:Condition(s.sccond)
 	e2:SetCost(s.sccost)
 	e2:SetTarget(s.sctg)
 	e2:SetOperation(s.scop)
@@ -57,6 +57,11 @@ end
 
 function s.splimit(e,c)
 	return c:IsType(TYPE_LINK) and c:IsLinkAbove(3)
+end
+
+function s.sccond(tp)
+	local phase=Duel.GetCurrentPhase()
+	return (phase==PHASE_MAIN1 or phase==PHASE_MAIN2 or phase==PHASE_BATTLE) and Duel.GetTurnPlayer()~=tp
 end
 
 function s.sccost(e,tp,eg,ep,ev,re,r,rp,chk)
