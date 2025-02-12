@@ -36,7 +36,7 @@ function s.fstg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.fsfilter(c,tp)
-	return c:IsSetCard(0x700) and c:IsType(TYPE_FIELD) and c:GetActivateEffect():IsActivatable(tp,true,true)
+	return c:IsSetCard(0x700) and c:IsType(TYPE_FIELD)
 end
 
 function s.fsop(e,tp,eg,ep,ev,re,r,rp)
