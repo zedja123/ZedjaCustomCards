@@ -3,7 +3,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	-- Synchro Summon procedure
 	c:EnableReviveLimit()
-	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsType,TYPE_TUNER),1,1,Synchro.NonTuner(nil),1,1,s.reqmat)
+	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsType,TYPE_TUNER),1,1,Synchro.NonTuner(Card.HasLevel),1,1,s.reqmat)
 
 	-- (1) Search 2 "Yummy" monsters, then discard 1 card
 	local e1=Effect.CreateEffect(c)
@@ -36,6 +36,15 @@ Card.IsCanBeSynchroMaterial=(function()
 	return function(mc,sc)
 		local res=oldfunc(mc,sc)
 		return mc:IsLinkMonster() and sc:IsCode(511027008) or res
+	end
+end)()
+Card.GetSynchroLevel=(function()
+	local oldfunc=Card.GetSynchroLevel
+	return function(mc,sc)
+		if mc:IsLinkMonster() and sc:IsCode(511027008) then
+			return mc:GetLink()
+		end
+		return oldfunc(mc,sc)
 	end
 end)()
 function s.reqmat(c,scard,sumtype,tp)
