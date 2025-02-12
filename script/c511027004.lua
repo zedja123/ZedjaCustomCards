@@ -1,6 +1,9 @@
 --Yummy★Snatchy
 local s,id=GetID()
 function s.initial_effect(c)
+	-- Link Summon procedure
+	c:EnableReviveLimit()
+	Link.AddProcedure(c,aux.FilterBoolFunctionEx(s.matfilter),1,1)
 	-- Place "Yummy" Field Spell
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
@@ -22,6 +25,10 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sctg)
 	e2:SetOperation(s.scop)
 	c:RegisterEffect(e2)
+end
+
+function s.matfilter(c,scard,sumtype,tp)
+	return c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsRace(RACE_BEAST) and c:IsLevelBelow(4)
 end
 
 function s.fstg(e,tp,eg,ep,ev,re,r,rp,chk)
