@@ -3,7 +3,7 @@ local s,id=GetID()
 function s.initial_effect(c)
 	-- Synchro Summon procedure
 	c:EnableReviveLimit()
-	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsType,TYPE_TUNER),1,1,aux.NonTuner(nil),1,1,s.reqmat)
+	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsType,TYPE_TUNER),1,1,Synchro.NonTuner(nil),1,1,s.reqmat)
 
 	-- (1) Special Summon 2 "Yummy" monsters from GY (Effects Negated)
 	local e1=Effect.CreateEffect(c)
