@@ -49,7 +49,7 @@ function s.xyzfilter(c,mg,tp)
 end
 
 -- Target: only pick 1 monster, always
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 	if chk==0 then
 		for tc in mg:Iter() do
@@ -67,18 +67,10 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	local first=mg:Select(tp,1,1,nil):GetFirst()
+	Duel.SetTargetCard(first)
 	e:SetLabelObject(first)
-
-	local g1=Group.FromCards(first)
-	if s.validGroup(g1,tp) then
-		-- Solo: must register the target here so chain opens
-		Duel.SetTargetCard(first)
-	end
-
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
-
-
 
 -- Activate: determine whether to resolve or request a second pick
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
@@ -87,7 +79,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 
 	local g1=Group.FromCards(first)
 	if s.validGroup(g1,tp) then
-		-- Solo: already targeted, just resolve
+		-- Valid solo: proceed
 		s.xyzSummon(tp, g1)
 		return
 	end
@@ -110,12 +102,8 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if not second then return end
 
 	local finalGroup=Group.FromCards(first,second)
-	-- Only now we declare both as targets
-	Duel.SetTargetCard(finalGroup)
-
 	s.xyzSummon(tp, finalGroup)
 end
-
 
 -- Xyz Summon helper
 function s.xyzSummon(tp,matGroup)
