@@ -93,7 +93,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 			local banish=Duel.SelectMatchingCard(tp,s.spellbanishfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
 			if Duel.Remove(banish,POS_FACEUP,REASON_COST)~=0 then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-				local tg=Duel.SelectMatchingCard(tp,s.deckspellfilter,tp,LOCATION_DECK,0,1,1,nil)
+				local tg=Duel.SelectMatchingCard(tp,s.attachfilter,tp,LOCATION_DECK,0,1,1,nil)
 				if #tg>0 and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_MZONE,0,1,nil,tp) then
 					Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 					local xyz=Duel.SelectMatchingCard(tp,s.xyzfilter,tp,LOCATION_MZONE,0,1,1,nil,tp):GetFirst()
