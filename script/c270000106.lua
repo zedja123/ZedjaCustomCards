@@ -51,41 +51,46 @@ function s.validGroup(g,tp)
 	return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
 end
 
+-- Check if any 1- or 2-card combination can be used for Xyz Summon
 function s.hasValidCombo(mg,tp)
-	local tg=mg:GetFirst()
-	while tg do
-		local tg2=mg:GetNext()
-		while tg2 do
-			local g=Group.FromCards(tg,tg2)
-			if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp) then
-				return true
-			end
-			tg2=mg:GetNext()
-		end
-		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,Group.FromCards(tg),tp) then
+	local g=mg:GetFirst()
+	while g do
+		local single=Group.FromCards(g)
+		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,single,tp) then
 			return true
 		end
-		tg=mg:GetNext()
+		local g2=mg:GetFirst()
+		while g2 do
+			if g2~=g then
+				local pair=Group.FromCards(g,g2)
+				if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,pair,tp) then
+					return true
+				end
+			end
+			g2=mg:GetNext()
+		end
+		g=mg:GetNext()
 	end
 	return false
 end
 
+-- Prompt player to select a valid group of 1 or 2 cards that works for Xyz
 function s.selectValidCombo(mg,tp)
 	local tg=mg:GetFirst()
 	while tg do
-		-- Try selecting 2-card combos
-		local tg2=mg:GetNext()
-		while tg2 do
-			local g=Group.FromCards(tg,tg2)
-			if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp) then
-				return g
-			end
-			tg2=mg:GetNext()
-		end
-		-- Try selecting 1-card combo
 		local g=Group.FromCards(tg)
 		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp) then
 			return g
+		end
+		local tg2=mg:GetFirst()
+		while tg2 do
+			if tg2~=tg then
+				local g2=Group.FromCards(tg,tg2)
+				if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g2,tp) then
+					return g2
+				end
+			end
+			tg2=mg:GetNext()
 		end
 		tg=mg:GetNext()
 	end
