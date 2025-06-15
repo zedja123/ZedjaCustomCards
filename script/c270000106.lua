@@ -52,13 +52,12 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 
 	if chk==0 then
-		-- Check for at least one valid 1-monster or 2-monster group
-		for tc in mg:Iter() do
-			local solo=Group.FromCards(tc)
+		for tc1 in mg:Iter() do
+			local solo=Group.FromCards(tc1)
 			if s.validGroup(solo,tp) then return true end
-			for other in mg:Iter() do
-				if other~=tc then
-					local pair=Group.FromCards(tc,other)
+			for tc2 in mg:Iter() do
+				if tc1~=tc2 then
+					local pair=Group.FromCards(tc1,tc2)
 					if s.validGroup(pair,tp) then return true end
 				end
 			end
@@ -66,40 +65,43 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		return false
 	end
 
-	-- Pool of all monsters that can be part of any valid 1- or 2-monster group
+	-- Step 1: Build set of all monsters involved in at least one valid combo
 	local validPool=Group.CreateGroup()
+
+	-- Check all solos
 	for tc in mg:Iter() do
-		local solo=Group.FromCards(tc)
-		if s.validGroup(solo,tp) then
+		if s.validGroup(Group.FromCards(tc),tp) then
 			validPool:AddCard(tc)
-		else
-			for other in mg:Iter() do
-				if other~=tc then
-					local pair=Group.FromCards(tc,other)
-					if s.validGroup(pair,tp) then
-						validPool:AddCard(tc)
-						validPool:AddCard(other)
-					end
+		end
+	end
+
+	-- Check all pairs
+	for tc1 in mg:Iter() do
+		for tc2 in mg:Iter() do
+			if tc1~=tc2 then
+				local pair=Group.FromCards(tc1,tc2)
+				if s.validGroup(pair,tp) then
+					validPool:AddCard(tc1)
+					validPool:AddCard(tc2)
 				end
 			end
 		end
 	end
 
-	-- Step 1: Select first target (must be in a valid group)
+	if #validPool==0 then return false end
+
+	-- Step 2: Select first target from validPool
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local first=validPool:Select(tp,1,1,nil):GetFirst()
 	if not first then return end
 
-	local g1=Group.FromCards(first)
-
-	-- Step 2: Try to resolve as solo
-	if s.validGroup(g1,tp) then
-		-- Immediate resolution with solo
+	-- Step 3: Try solo
+	if s.validGroup(Group.FromCards(first),tp) then
 		Duel.SetTargetCard(first)
 		return
 	end
 
-	-- Step 3: Force second pick from valid pairs involving first
+	-- Step 4: Force valid second from valid pairs
 	local secondPool=Group.CreateGroup()
 	for tc in validPool:Iter() do
 		if tc~=first then
@@ -110,12 +112,13 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		end
 	end
 
-	if #secondPool==0 then return end -- shouldn't happen if chk==0 logic was correct
+	if #secondPool==0 then return end
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local second=secondPool:Select(tp,1,1,nil):GetFirst()
 	Duel.SetTargetCard(Group.FromCards(first,second))
 end
+
 
 
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
