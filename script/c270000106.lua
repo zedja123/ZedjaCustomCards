@@ -38,10 +38,10 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 	if chk==0 then
-		return mg:GetCount()>=1 and mg:CheckSubGroup(s.validGroup,1,2,tp)
+		return s.hasValidCombo(mg,tp)
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local sg=mg:SelectSubGroup(tp,s.validGroup,true,1,2,tp)
+	local sg=s.selectValidCombo(mg,tp)
 	if not sg then return end
 	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
@@ -49,6 +49,47 @@ end
 
 function s.validGroup(g,tp)
 	return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
+end
+
+function s.hasValidCombo(mg,tp)
+	local tg=mg:GetFirst()
+	while tg do
+		local tg2=mg:GetNext()
+		while tg2 do
+			local g=Group.FromCards(tg,tg2)
+			if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp) then
+				return true
+			end
+			tg2=mg:GetNext()
+		end
+		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,Group.FromCards(tg),tp) then
+			return true
+		end
+		tg=mg:GetNext()
+	end
+	return false
+end
+
+function s.selectValidCombo(mg,tp)
+	local tg=mg:GetFirst()
+	while tg do
+		-- Try selecting 2-card combos
+		local tg2=mg:GetNext()
+		while tg2 do
+			local g=Group.FromCards(tg,tg2)
+			if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp) then
+				return g
+			end
+			tg2=mg:GetNext()
+		end
+		-- Try selecting 1-card combo
+		local g=Group.FromCards(tg)
+		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp) then
+			return g
+		end
+		tg=mg:GetNext()
+	end
+	return nil
 end
 
 function s.tfilter(c,e)
