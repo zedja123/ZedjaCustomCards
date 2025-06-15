@@ -94,21 +94,18 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		sc:RegisterEffect(e1)
--- Proceed only if a valid card exists in banished zone to send
-		if Duel.IsExistingMatchingCard(s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil) then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-			local bg=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
-			local bcard=bg:GetFirst()
+		-- Ask first: do you want to banish and send to GY?
+		if Duel.IsExistingMatchingCard(s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil)
+		and Duel.IsExistingMatchingCard(s.sendfilter,tp,LOCATION_REMOVED,0,1,nil,sc) -- 'sc' is the Set card
+		and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+		local bg=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
+		local bcard=bg:GetFirst()
 			if bcard and Duel.Remove(bcard,POS_FACEUP,REASON_EFFECT)~=0 then
-			-- Check for valid banished Wiccanthrope Spell (excluding this one)
-				if Duel.IsExistingMatchingCard(s.sendfilter,tp,LOCATION_REMOVED,0,1,nil,bcard) then
-					if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-						Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-						local tg=Duel.SelectMatchingCard(tp,s.sendfilter,tp,LOCATION_REMOVED,0,1,1,nil,bcard)
-							if #tg>0 then
-								Duel.SendtoGrave(tg,REASON_EFFECT)
-						end
-					end
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+			local tg=Duel.SelectMatchingCard(tp,s.sendfilter,tp,LOCATION_REMOVED,0,1,1,nil,bcard)
+				if #tg>0 then
+				Duel.SendtoGrave(tg,REASON_EFFECT)
 				end
 			end
 		end
