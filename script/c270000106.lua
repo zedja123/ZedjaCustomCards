@@ -34,17 +34,54 @@ function s.xyzfilter(c,mg,tp)
 	return c:IsSetCard(0xf11) and c:IsXyzSummonable(nil,mg,1,2) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
 end
 
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return false end
-	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-	if chk==0 then 
-		local selGroup = s.getSelectableGroup(mg, tp)
-		return #selGroup > 0
+------------------------------------------------------------------------
+-- “Target up to two monsters you control …”
+------------------------------------------------------------------------
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+	if chk==0 then
+		-- is there ANY 1‑ or 2‑card subgroup that works?
+		return mg:CheckSubGroup(s.validGroup,1,2,tp)
 	end
-	local selGroup = s.getSelectableGroup(mg, tp)
+
+	--------------------------------------------------------------------
+	-- STEP 1: player chooses the 1st monster
+	--------------------------------------------------------------------
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local sg = selGroup:Select(tp,1,2,nil)
-	Duel.SetTargetCard(sg)
+	local first=mg:FilterSelect(tp,aux.TRUE,1,1,nil):GetFirst()
+	local g=Group.FromCards(first)
+
+	--------------------------------------------------------------------
+	-- If a single‑card group is already valid, ask the player if
+	-- they want to finish with just that 1 card.
+	--------------------------------------------------------------------
+	local needSecond=true
+	if s.validGroup(g,tp) then
+		if Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+			needSecond=false	  -- player chose to stop at 1
+		end
+	end
+
+	--------------------------------------------------------------------
+	-- STEP 2 (optional): pick the 2nd monster that, together with
+	-- the first, forms a valid 2‑card group.
+	--------------------------------------------------------------------
+	if needSecond then
+		-- build a pool of cards that *together with first* make a valid group
+		local sg=mg:Filter(function(c,p,fc)
+			local tmp=Group.FromCards(fc,c)
+			return s.validGroup(tmp,p)
+		end,nil,tp,first)
+
+		-- if no such partner exists the player must proceed with only 1
+		if #sg>0 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+			local second=sg:Select(tp,1,1,nil):GetFirst()
+			g:AddCard(second)
+		end
+	end
+
+	Duel.SetTargetCard(g)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
@@ -131,23 +168,20 @@ function s.getValidGroups(mg,tp)
 	return res
 end
 
-function s.validGroup(g, tp)
-	local count = #g
-
-	-- 1 card: must be a Wiccanthrope Rank 4 or lower Xyz
-	if count == 1 then
-		local c = g:GetFirst()
-		return c:IsType(TYPE_XYZ) and c:IsSetCard(0xf11) and c:GetRank() <= 4
-			and Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g, tp)
-
-	-- 2 cards: neither can be an Xyz
-	elseif count == 2 then
-		for tc in aux.Next(g) do
-			if tc:IsType(TYPE_XYZ) then return false end
-		end
-		return Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g, tp)
+-- Returns TRUE if g (size 1‑2) can be used to Xyz‑Summon a Wiccanthrope monster
+function s.validGroup(g,tp)
+	local n=#g
+	if n==1 then
+		local c=g:GetFirst()
+		-- single target = only a Rank 4‑or‑lower Wiccanthrope Xyz (for Stormgnarl)
+		return c:IsType(TYPE_XYZ) and c:IsSetCard(0xf11) and c:GetRank()<=4
+			and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
+	elseif n==2 then
+		-- you cannot mix any Xyz with another monster
+		for tc in aux.Next(g) do if tc:IsType(TYPE_XYZ) then return false end end
+		-- duo must be able to summon a Wiccanthrope Xyz
+		return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
 	end
-
 	return false
 end
 
