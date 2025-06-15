@@ -56,149 +56,39 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		return false
 	end
 
-	-- Build selectable list (either valid alone or with at least one valid pair)
-	local selectable = Group.CreateGroup()
-	for tc in mg:Iter() do
-		local g1 = Group.FromCards(tc)
-		if s.validGroup(g1,tp) then
-			selectable:AddCard(tc)
-		else
-			for other in mg:Iter() do
-				if tc ~= other then
-					local g2 = Group.FromCards(tc, other)
-					if s.validGroup(g2,tp) then
-						selectable:AddCard(tc)
-						break
-					end
-				end
-			end
-		end
-	end
-
-	if #selectable == 0 then return false end -- fail-safe
-
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local firstGroup = selectable:Select(tp,1,1,nil)
-	if not firstGroup or #firstGroup == 0 then return end
-
-	local first = firstGroup:GetFirst()
+	local first = mg:Select(tp,1,1,nil):GetFirst()
 	local g1 = Group.FromCards(first)
 
 	if s.validGroup(g1,tp) then
-		-- Valid solo — resolve
+		-- Valid solo
 		Duel.SetTargetCard(g1)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 		return
 	end
 
-	-- Not valid solo — must pick a valid partner
+	-- Not valid alone — build list of second choices
 	local validSeconds = Group.CreateGroup()
 	for tc in mg:Iter() do
 		if tc ~= first then
-			local pair = Group.FromCards(first, tc)
-			if s.validGroup(pair, tp) then
+			local g2 = Group.FromCards(first, tc)
+			if s.validGroup(g2,tp) then
 				validSeconds:AddCard(tc)
 			end
 		end
 	end
 
-	if #validSeconds == 0 then return end -- no valid 2nd, shouldn't happen
+	if #validSeconds == 0 then return end
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local secondGroup = validSeconds:Select(tp,1,1,nil)
-	if not secondGroup or #secondGroup == 0 then return end
+	local second = validSeconds:Select(tp,1,1,nil):GetFirst()
+	if not second then return end
 
-	local finalGroup = Group.FromCards(first)
-	finalGroup:Merge(secondGroup)
-
+	local finalGroup = Group.FromCards(first, second)
 	Duel.SetTargetCard(finalGroup)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
-
-
-function s.getSelectableGroup(mg, tp)
-	local res = Group.CreateGroup()
-	local seen = {}
-
-	local mgList = {}
-	local tc = mg:GetFirst()
-	while tc do
-		table.insert(mgList, tc)
-		tc = mg:GetNext()
-	end
-
-	for i = 1, #mgList do
-		local c1 = mgList[i]
-		local g1 = Group.FromCards(c1)
-		if s.validGroup(g1, tp) then
-			res:Merge(g1)
-		end
-
-		for j = i + 1, #mgList do
-			local c2 = mgList[j]
-			local g2 = Group.FromCards(c1, c2)
-			if s.validGroup(g2, tp) then
-				res:Merge(g2)
-			end
-		end
-	end
-
-	return res
-end
-
-
-function s.hasValidSubgroup(mg, tp)
-	local mgList = {}
-	local tc = mg:GetFirst()
-	while tc do
-		table.insert(mgList, tc)
-		tc = mg:GetNext()
-	end
-
-	for i = 1, #mgList do
-		local c1 = mgList[i]
-		local g1 = Group.FromCards(c1)
-		if s.validGroup(g1, tp) then return true end
-
-		for j = i + 1, #mgList do
-			local c2 = mgList[j]
-			local g2 = Group.FromCards(c1, c2)
-			if s.validGroup(g2, tp) then return true end
-		end
-	end
-	return false
-end
-
-function s.getValidGroups(mg,tp)
-	local res = Group.CreateGroup()
-	local tab = {}
-	local mgList = {}
-	local tc = mg:GetFirst()
-	while tc do
-		table.insert(mgList, tc)
-		tc = mg:GetNext()
-	end
-
-	for i = 1, #mgList do
-		local c1 = mgList[i]
-		local g1 = Group.FromCards(c1)
-		if Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g1, tp) then
-			g1:KeepAlive()
-			res:Merge(g1)
-		end
-		for j = i + 1, #mgList do
-			local c2 = mgList[j]
-			local g2 = Group.FromCards(c1, c2)
-			if Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g2, tp) then
-				g2:KeepAlive()
-				res:Merge(g2)
-			end
-		end
-	end
-
-	return res
-end
 
 -- Returns TRUE if g (size 1‑2) can be used to Xyz‑Summon a Wiccanthrope monster
 function s.validGroup(g,tp)
@@ -213,28 +103,6 @@ function s.validGroup(g,tp)
 		for tc in aux.Next(g) do if tc:IsType(TYPE_XYZ) then return false end end
 		-- duo must be able to summon a Wiccanthrope Xyz
 		return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
-	end
-	return false
-end
-
-function s.hasValidTarget(mg, tp)
-	local tcList = {}
-	local tc = mg:GetFirst()
-	while tc do
-		table.insert(tcList, tc)
-		tc = mg:GetNext()
-	end
-	-- check single-card (rank 4 Wiccanthrope Xyz)
-	for i = 1, #tcList do
-		local g1 = Group.FromCards(tcList[i])
-		if s.validGroup(g1, tp) then return true end
-	end
-	-- check 2-card pairs (must be valid for Wiccanthrope Xyz)
-	for i = 1, #tcList do
-		for j = i+1, #tcList do
-			local g2 = Group.FromCards(tcList[i], tcList[j])
-			if s.validGroup(g2, tp) then return true end
-		end
 	end
 	return false
 end
