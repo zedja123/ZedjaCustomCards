@@ -41,10 +41,9 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		return mg:GetCount()>=1 and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,mg,tp)
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local sg=mg:SelectSubGroup(tp,function(g,e,tp)
-		return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
-	end,true,1,2,e,tp)
-	if not sg then return end
+	local sg=mg:Select(tp,1,2,nil)
+	if not sg or #sg==0 then return end
+	if not Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,sg,tp) then return end
 	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
@@ -57,9 +56,12 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(s.tfilter,nil,e)
 	if #g==0 then return end
 	local xyzg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,g,tp)
-	if #xyzg>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local xyz=xyzg:Select(tp,1,1,nil):GetFirst()
+	if #xyzg==0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local sel=xyzg:Select(tp,1,1,nil)
+	if #sel==0 then return end
+	local xyz=sel:GetFirst()
+	if xyz then
 		Duel.XyzSummon(tp,xyz,nil,g)
 	end
 end
