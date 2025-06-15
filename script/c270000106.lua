@@ -46,7 +46,8 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 			end
 		end
 		-- Check for valid pairs
-		local list = mg:GetCards()
+		local list = {}
+		for tc in mg:Iter() do table.insert(list, tc) end
 		for i = 1, #list do
 			for j = i+1, #list do
 				local g = Group.FromCards(list[i], list[j])
