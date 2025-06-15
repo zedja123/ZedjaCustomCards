@@ -38,33 +38,41 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 	if chk==0 then
-		for _,c1 in aux.Next(mg) do
-			local g1=Group.FromCards(c1)
+		local found = false
+		local tg=mg:GetFirst()
+		while tg do
+			local g1=Group.FromCards(tg)
 			if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g1,tp) then
-				return true
+				found = true break
 			end
-			for _,c2 in aux.Next(mg) do
-				if c1~=c2 then
-					local g2=Group.FromCards(c1,c2)
+			local tg2=mg:GetNext()
+			while tg2 do
+				if tg2~=tg then
+					local g2=Group.FromCards(tg,tg2)
 					if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g2,tp) then
-						return true
+						found = true break
 					end
 				end
+				tg2=mg:GetNext()
 			end
+			if found then break end
+			tg=mg:GetNext()
 		end
-		return false
+		return found
 	end
 
-	-- Select 1 or 2 valid monsters manually
+	-- Prompt selection of valid 1–2 monster group
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	local sg=mg:Select(tp,1,2,nil)
-	while sg:GetCount() > 0 and not Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,sg,tp) do
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-		sg=mg:Select(tp,1,2,nil)
+	while sg and (#sg > 0) and not Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,sg,tp) do
+		Duel.Hint(HINTMSG_XMATERIAL,tp,aux.Stringid(40640057,0)) -- "Select valid material(s)"
+		sg = mg:Select(tp,1,2,nil)
 	end
+
 	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
+
 
 function s.validGroup(g,tp)
 	return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
