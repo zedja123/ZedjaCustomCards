@@ -41,9 +41,18 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		return s.hasValidCombo(mg,tp)
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local sg=s.selectValidCombo(mg,tp)
-	if not sg then return end
-	Duel.SetTargetCard(sg)
+	local selGroup = s.selectValidCombo(mg,tp)
+	if not selGroup then return end
+	local ct = #selGroup
+	local g = Duel.SelectMatchingCard(tp,function(c)
+		local gcheck = Group.FromCards(c)
+		if ct==2 then
+			return selGroup:IsContains(c)
+		else
+			return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,gcheck,tp)
+		end
+	end,tp,LOCATION_MZONE,0,ct,ct,nil)
+	Duel.SetTargetCard(g)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
@@ -76,25 +85,27 @@ end
 
 -- Prompt player to select a valid group of 1 or 2 cards that works for Xyz
 function s.selectValidCombo(mg,tp)
-	local tg=mg:GetFirst()
-	while tg do
-		local g=Group.FromCards(tg)
-		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp) then
-			return g
+	local valid = Group.CreateGroup()
+	local g=mg:GetFirst()
+	while g do
+		local single=Group.FromCards(g)
+		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,single,tp) then
+			valid:AddCard(g)
 		end
-		local tg2=mg:GetFirst()
-		while tg2 do
-			if tg2~=tg then
-				local g2=Group.FromCards(tg,tg2)
-				if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g2,tp) then
-					return g2
+		local g2=mg:GetFirst()
+		while g2 do
+			if g2~=g then
+				local pair=Group.FromCards(g,g2)
+				if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,pair,tp) then
+					valid:AddCard(g)
+					valid:AddCard(g2)
 				end
 			end
-			tg2=mg:GetNext()
+			g2=mg:GetNext()
 		end
-		tg=mg:GetNext()
+		g=mg:GetNext()
 	end
-	return nil
+	return valid
 end
 
 function s.tfilter(c,e)
