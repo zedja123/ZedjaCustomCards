@@ -2,16 +2,16 @@
 local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Xyz Summon from Deck
-local e1=Effect.CreateEffect(c)
-e1:SetDescription(aux.Stringid(id,0))
-e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
-e1:SetType(EFFECT_TYPE_ACTIVATE)
-e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-e1:SetCode(EVENT_FREE_CHAIN)
-e1:SetCountLimit(1,{id,1})
-e1:SetTarget(s.first_target)
-e1:SetOperation(s.activate)
-c:RegisterEffect(e1)
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetCountLimit(1,{id,1})
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
+	c:RegisterEffect(e1)
 	-- Add "Wiccanthrope" Spell when banished
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
@@ -25,188 +25,17 @@ c:RegisterEffect(e1)
 	c:RegisterEffect(e2)
 end
 
-function s.first_target(e,tp,eg,ep,ev,re,r,rp,chk)
-	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-
-	if chk==0 then
-		for tc in mg:Iter() do
-			local g1=Group.FromCards(tc)
-			if s.validGroup(g1,tp) then return true end
-			for other in mg:Iter() do
-				if other~=tc then
-					local g2=Group.FromCards(tc, other)
-					if s.validGroup(g2,tp) then return true end
-				end
-			end
-		end
-		return false
-	end
-
-	-- Select first candidate
-	local selectable = Group.CreateGroup()
-	for tc in mg:Iter() do
-		local g1=Group.FromCards(tc)
-		if s.validGroup(g1,tp) then
-			selectable:AddCard(tc)
-		else
-			for other in mg:Iter() do
-				if other ~= tc then
-					local g2=Group.FromCards(tc, other)
-					if s.validGroup(g2,tp) then
-						selectable:AddCard(tc)
-						break
-					end
-				end
-			end
-		end
-	end
-
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local first = selectable:Select(tp,1,1,nil):GetFirst()
-	if not first then return end
-
-	local g1 = Group.FromCards(first)
-
-	if s.validGroup(g1,tp) then
-		Duel.SetTargetCard(g1)
-		e:SetLabel(1) -- solo
-	else
-		e:SetLabel(2) -- pair
-		e:SetLabelObject(first)
-	end
-
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-end
-
-function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local mode = e:GetLabel()
-	local first = e:GetLabelObject()
-	local g
-
-	if mode == 1 then
-		g = Duel.GetTargetCards(e)
-	elseif mode == 2 and first then
-		local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-		local validSeconds = Group.CreateGroup()
-		for tc in mg:Iter() do
-			if tc~=first then
-				local g2=Group.FromCards(first,tc)
-				if s.validGroup(g2,tp) then
-					validSeconds:AddCard(tc)
-				end
-			end
-		end
-
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-		local second = validSeconds:Select(tp,1,1,nil):GetFirst()
-		if not second then return end
-
-		g = Group.FromCards(first, second)
-	end
-
-	if not g or #g==0 then return end
-
-	local xyzg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,g,tp)
-	if #xyzg==0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sel=xyzg:Select(tp,1,1,nil)
-	if #sel==0 then return end
-	Duel.XyzSummon(tp,sel:GetFirst(),nil,g)
-end
-
 function s.filter(c,e)
 	return c:IsFaceup() and c:IsCanBeEffectTarget(e)
 end
 
-function s.xyzfilter(c,mg,tp)
-	return c:IsSetCard(0xf11) and c:IsXyzSummonable(nil,mg,1,2) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
-end
-
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return false end
-	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-
-	if chk==0 then
-		for tc in mg:Iter() do
-			local g1 = Group.FromCards(tc)
-			if s.validGroup(g1,tp) then return true end
-			for other in mg:Iter() do
-				if tc ~= other then
-					local g2 = Group.FromCards(tc, other)
-					if s.validGroup(g2,tp) then return true end
-				end
-			end
-		end
-		return false
-	end
-
-	-- Clear state
-	e:SetLabelObject(nil)
-
-	-- Step 1: Player picks one of the valid options (solo or potential pair starter)
-	local firstPickable = Group.CreateGroup()
-	for tc in mg:Iter() do
-		local g1 = Group.FromCards(tc)
-		if s.validGroup(g1,tp) then
-			firstPickable:AddCard(tc)
-		else
-			for other in mg:Iter() do
-				if tc ~= other then
-					local g2 = Group.FromCards(tc, other)
-					if s.validGroup(g2,tp) then
-						firstPickable:AddCard(tc)
-						break
-					end
-				end
-			end
-		end
-	end
-
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local first = firstPickable:Select(tp,1,1,nil):GetFirst()
-	if not first then return end
-
-	local g1 = Group.FromCards(first)
-
-	if s.validGroup(g1,tp) then
-		Duel.SetTargetCard(g1)
-		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-		return
-	end
-
-	-- First pick is not valid solo: find valid second picks
-	local validSeconds = Group.CreateGroup()
-	for tc in mg:Iter() do
-		if tc ~= first then
-			local g2 = Group.FromCards(first, tc)
-			if s.validGroup(g2,tp) then
-				validSeconds:AddCard(tc)
-			end
-		end
-	end
-
-	if #validSeconds == 0 then return end
-
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local second = validSeconds:Select(tp,1,1,nil):GetFirst()
-	if not second then return end
-
-	local finalGroup = Group.FromCards(first, second)
-	Duel.SetTargetCard(finalGroup)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-end
-
-
-
-
--- Returns TRUE if g (size 1‑2) can be used to Xyz‑Summon a Wiccanthrope monster
 function s.validGroup(g,tp)
-	local n = #g
-	if n == 1 then
-		local c = g:GetFirst()
+	local n=#g
+	if n==1 then
+		local c=g:GetFirst()
 		return c:IsType(TYPE_XYZ) and c:IsSetCard(0xf11) and c:GetRank()<=4
 			and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
-	elseif n == 2 then
+	elseif n==2 then
 		for tc in aux.Next(g) do
 			if tc:IsType(TYPE_XYZ) then return false end
 		end
@@ -215,22 +44,78 @@ function s.validGroup(g,tp)
 	return false
 end
 
-
-function s.tfilter(c,e)
-	return c:IsRelateToEffect(e) and c:IsFaceup()
+function s.xyzfilter(c,mg,tp)
+	return c:IsSetCard(0xf11) and c:IsXyzSummonable(nil,mg,1,2) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
 end
 
+-- Target: only pick 1 monster, always
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+	if chk==0 then
+		for tc in mg:Iter() do
+			local g1=Group.FromCards(tc)
+			if s.validGroup(g1,tp) then return true end
+			for other in mg:Iter() do
+				if other~=tc then
+					local g2=Group.FromCards(tc,other)
+					if s.validGroup(g2,tp) then return true end
+				end
+			end
+		end
+		return false
+	end
+
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local first=mg:Select(tp,1,1,nil):GetFirst()
+	Duel.SetTargetCard(first)
+	e:SetLabelObject(first)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+
+-- Activate: determine whether to resolve or request a second pick
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(s.tfilter,nil,e)
-	if #g==0 then return end
-	local xyzg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,g,tp)
+	local first=e:GetLabelObject()
+	if not first or not first:IsRelateToEffect(e) or not first:IsFaceup() then return end
+
+	local g1=Group.FromCards(first)
+	if s.validGroup(g1,tp) then
+		-- Valid solo: proceed
+		s.xyzSummon(tp, g1)
+		return
+	end
+
+	-- Must pick a valid pair
+	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+	local secondPool=Group.CreateGroup()
+	for tc in mg:Iter() do
+		if tc~=first then
+			local pair=Group.FromCards(first,tc)
+			if s.validGroup(pair,tp) then
+				secondPool:AddCard(tc)
+			end
+		end
+	end
+	if #secondPool==0 then return end
+
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local second=secondPool:Select(tp,1,1,nil):GetFirst()
+	if not second then return end
+
+	local finalGroup=Group.FromCards(first,second)
+	s.xyzSummon(tp, finalGroup)
+end
+
+-- Xyz Summon helper
+function s.xyzSummon(tp,matGroup)
+	if not matGroup or #matGroup==0 then return end
+	local xyzg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,matGroup,tp)
 	if #xyzg==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sel=xyzg:Select(tp,1,1,nil)
 	if #sel==0 then return end
 	local xyz=sel:GetFirst()
 	if xyz then
-		Duel.XyzSummon(tp,xyz,nil,g)
+		Duel.XyzSummon(tp,xyz,nil,matGroup)
 	end
 end
 
