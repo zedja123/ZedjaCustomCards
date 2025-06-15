@@ -51,9 +51,7 @@ end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 
-	-- Build a list of valid solos and valid pairs
-	local valid_solos = {}
-	local valid_pairs = {}
+	-- Filter valid cards only
 	local filtered = Group.CreateGroup()
 	for tc in mg:Iter() do
 		if tc:IsFaceup() and tc:IsCanBeEffectTarget(e) then
@@ -69,45 +67,66 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	end
 
 	local count = #tab
+	local soloList = {}
+	local pairMap = {}
+
 	for i = 1, count do
 		local g1 = Group.FromCards(tab[i])
 		if s.validGroup(g1, tp) then
-			table.insert(valid_solos, tab[i])
+			table.insert(soloList, tab[i])
 		end
 		for j = i + 1, count do
 			local g2 = Group.FromCards(tab[i], tab[j])
 			if s.validGroup(g2, tp) then
-				table.insert(valid_pairs, {tab[i], tab[j]})
+				local key = tab[i]:GetFieldID() .. "_" .. tab[j]:GetFieldID()
+				pairMap[key] = Group.FromCards(tab[i], tab[j])
 			end
 		end
 	end
 
 	if chk==0 then
-		return #valid_solos > 0 or #valid_pairs > 0
+		return #soloList > 0 or next(pairMap) ~= nil
 	end
 
-	-- Build a master group of all valid solo and pair members
-	local selectable = Group.CreateGroup()
-	for _,c in ipairs(valid_solos) do
-		selectable:AddCard(c)
-	end
-	for _,pair in ipairs(valid_pairs) do
-		selectable:AddCard(pair[1])
-		selectable:AddCard(pair[2])
+	-- Now allow player to pick a first target (only from valid solo or first of a valid pair)
+	local firstPool = Group.CreateGroup()
+	for _,c in ipairs(soloList) do firstPool:AddCard(c) end
+	for _,g in pairs(pairMap) do
+		for tc in g:Iter() do firstPool:AddCard(tc) end
 	end
 
-	-- Now prompt the player to choose
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local tg=selectable:SelectSubGroup(tp,
-		function(g)
-			return s.validGroup(g,tp)
-		end,
-	false,1,2)
-	if tg then
-		Duel.SetTargetCard(tg)
+	local first = firstPool:Select(tp,1,1,nil):GetFirst()
+	if not first then return end
+
+	local g1 = Group.FromCards(first)
+	if s.validGroup(g1, tp) then
+		Duel.SetTargetCard(g1)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+		return
 	end
+
+	-- Find a valid second card that makes a valid pair
+	local secondPool = Group.CreateGroup()
+	for _,g in pairs(pairMap) do
+		if g:IsContains(first) then
+			for tc in g:Iter() do
+				if tc ~= first then secondPool:AddCard(tc) end
+			end
+		end
+	end
+
+	if #secondPool == 0 then return end
+
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	local second = secondPool:Select(tp,1,1,nil):GetFirst()
+	if not second then return end
+
+	local finalGroup = Group.FromCards(first, second)
+	Duel.SetTargetCard(finalGroup)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
+
 
 
 
