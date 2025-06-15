@@ -107,6 +107,8 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 						local tg=Duel.SelectMatchingCard(tp,s.sendfilter,tp,LOCATION_REMOVED,0,1,1,nil,bcard)
 							if #tg>0 then
 								Duel.SendtoGrave(tg,REASON_EFFECT)
+						end
+					end
 				end
 			end
 		end
