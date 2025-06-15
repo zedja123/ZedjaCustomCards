@@ -34,69 +34,86 @@ function s.xyzfilter(c,mg,tp)
 	return c:IsSetCard(0xf11) and c:IsXyzSummonable(nil,mg,1,2) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
 end
 
-------------------------------------------------------------------------
--- “Target up to two monsters you control …”
-------------------------------------------------------------------------
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-if chk==0 then
-	local tclist = {}
-	local tc = mg:GetFirst()
-	while tc do
-		table.insert(tclist, tc)
-		tc = mg:GetNext()
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return false end
+	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+
+	if chk==0 then
+		-- Check if there's any valid solo or valid pair
+		for tc in mg:Iter() do
+			local g1 = Group.FromCards(tc)
+			if s.validGroup(g1,tp) then
+				return true
+			end
+			for tc2 in mg:Iter() do
+				if tc ~= tc2 then
+					local g2 = Group.FromCards(tc, tc2)
+					if s.validGroup(g2,tp) then
+						return true
+					end
+				end
+			end
+		end
+		return false
 	end
-	for i = 1, #tclist do
-		local g1 = Group.FromCards(tclist[i])
-		if s.validGroup(g1,tp) then return true end
-		for j = i+1, #tclist do
-			local g2 = Group.FromCards(tclist[i], tclist[j])
-			if s.validGroup(g2,tp) then return true end
+
+	-- Build list of valid solo targets or those that have a valid pairing
+	local selectable = Group.CreateGroup()
+	for tc in mg:Iter() do
+		local g1 = Group.FromCards(tc)
+		if s.validGroup(g1,tp) then
+			selectable:AddCard(tc)
+		else
+			-- Check if this monster has at least one valid pairing
+			for other in mg:Iter() do
+				if tc ~= other then
+					local g2 = Group.FromCards(tc, other)
+					if s.validGroup(g2,tp) then
+						selectable:AddCard(tc)
+						break
+					end
+				end
+			end
 		end
 	end
-	return false
-end
 
-	--------------------------------------------------------------------
-	-- STEP 1: player chooses the 1st monster
-	--------------------------------------------------------------------
+	if #selectable == 0 then return end
+
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local first=mg:FilterSelect(tp,aux.TRUE,1,1,nil):GetFirst()
-	local g=Group.FromCards(first)
+	local first = selectable:Select(tp,1,1,nil):GetFirst()
+	local g1 = Group.FromCards(first)
 
-	--------------------------------------------------------------------
-	-- If a single‑card group is already valid, ask the player if
-	-- they want to finish with just that 1 card.
-	--------------------------------------------------------------------
-	local needSecond=true
-	if s.validGroup(g,tp) then
-		if Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
-			needSecond=false	  -- player chose to stop at 1
+	if s.validGroup(g1,tp) then
+		-- Valid alone — resolve with it
+		Duel.SetTargetCard(g1)
+		Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_EXTRA)
+		return
+	end
+
+	-- Not valid alone — require a valid pair
+	local validSeconds = Group.CreateGroup()
+	for tc in mg:Iter() do
+		if tc ~= first then
+			local pair = Group.FromCards(first, tc)
+			if s.validGroup(pair, tp) then
+				validSeconds:AddCard(tc)
+			end
 		end
 	end
 
-	--------------------------------------------------------------------
-	-- STEP 2 (optional): pick the 2nd monster that, together with
-	-- the first, forms a valid 2‑card group.
-	--------------------------------------------------------------------
-	if needSecond then
-		-- build a pool of cards that *together with first* make a valid group
-		local sg=mg:Filter(function(c,p,fc)
-			local tmp=Group.FromCards(fc,c)
-			return s.validGroup(tmp,p)
-		end,nil,tp,first)
+	if #validSeconds == 0 then return end
 
-		-- if no such partner exists the player must proceed with only 1
-		if #sg>0 then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-			local second=sg:Select(tp,1,1,nil):GetFirst()
-			g:AddCard(second)
-		end
-	end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local second = validSeconds:Select(tp,1,1,nil)
+	if not second then return end
 
-	Duel.SetTargetCard(g)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+	local finalGroup = Group.FromCards(first)
+	finalGroup:Merge(second)
+
+	Duel.SetTargetCard(finalGroup)
+	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_EXTRA)
 end
+
 
 function s.getSelectableGroup(mg, tp)
 	local res = Group.CreateGroup()
@@ -198,6 +215,27 @@ function s.validGroup(g,tp)
 	return false
 end
 
+function s.hasValidTarget(mg, tp)
+	local tcList = {}
+	local tc = mg:GetFirst()
+	while tc do
+		table.insert(tcList, tc)
+		tc = mg:GetNext()
+	end
+	-- check single-card (rank 4 Wiccanthrope Xyz)
+	for i = 1, #tcList do
+		local g1 = Group.FromCards(tcList[i])
+		if s.validGroup(g1, tp) then return true end
+	end
+	-- check 2-card pairs (must be valid for Wiccanthrope Xyz)
+	for i = 1, #tcList do
+		for j = i+1, #tcList do
+			local g2 = Group.FromCards(tcList[i], tcList[j])
+			if s.validGroup(g2, tp) then return true end
+		end
+	end
+	return false
+end
 
 function s.tfilter(c,e)
 	return c:IsRelateToEffect(e) and c:IsFaceup()
