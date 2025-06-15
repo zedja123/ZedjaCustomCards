@@ -31,28 +31,18 @@ function s.filter(c,e)
 end
 
 function s.xyzfilter(c,mg,tp)
-	return c:IsXyzSummonable(nil,mg,1,2) and c:IsSetCard(0xf11) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
+	return c:IsSetCard(0xf11) and c:IsXyzSummonable(nil,mg,1,2) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
 end
 
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return false end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 	if chk==0 then
-		return s.hasValidCombo(mg,tp)
+		return mg:CheckSubGroup(s.validGroup,1,2,tp)
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local selGroup = s.selectValidCombo(mg,tp)
-	if not selGroup then return end
-	local ct = #selGroup
-	local g = Duel.SelectMatchingCard(tp,function(c)
-		local gcheck = Group.FromCards(c)
-		if ct==2 then
-			return selGroup:IsContains(c)
-		else
-			return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,gcheck,tp)
-		end
-	end,tp,LOCATION_MZONE,0,ct,ct,nil)
-	Duel.SetTargetCard(g)
+	local sg=mg:SelectSubGroup(tp,s.validGroup,false,1,2,tp)
+	if not sg then return end
+	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
