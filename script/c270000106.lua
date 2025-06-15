@@ -2,17 +2,16 @@
 local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Xyz Summon from Deck
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1,{id,1})
-	e1:SetTarget(s.target)
-	e1:SetOperation(s.activate)
-	c:RegisterEffect(e1)
-
+local e1=Effect.CreateEffect(c)
+e1:SetDescription(aux.Stringid(id,0))
+e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+e1:SetType(EFFECT_TYPE_ACTIVATE)
+e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+e1:SetCode(EVENT_FREE_CHAIN)
+e1:SetCountLimit(1,{id,1})
+e1:SetTarget(s.first_target)
+e1:SetOperation(s.activate)
+c:RegisterEffect(e1)
 	-- Add "Wiccanthrope" Spell when banished
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
@@ -24,6 +23,95 @@ function s.initial_effect(c)
 	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
+end
+
+function s.first_target(e,tp,eg,ep,ev,re,r,rp,chk)
+	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+
+	if chk==0 then
+		for tc in mg:Iter() do
+			local g1=Group.FromCards(tc)
+			if s.validGroup(g1,tp) then return true end
+			for other in mg:Iter() do
+				if other~=tc then
+					local g2=Group.FromCards(tc, other)
+					if s.validGroup(g2,tp) then return true end
+				end
+			end
+		end
+		return false
+	end
+
+	-- Select first candidate
+	local selectable = Group.CreateGroup()
+	for tc in mg:Iter() do
+		local g1=Group.FromCards(tc)
+		if s.validGroup(g1,tp) then
+			selectable:AddCard(tc)
+		else
+			for other in mg:Iter() do
+				if other ~= tc then
+					local g2=Group.FromCards(tc, other)
+					if s.validGroup(g2,tp) then
+						selectable:AddCard(tc)
+						break
+					end
+				end
+			end
+		end
+	end
+
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+	local first = selectable:Select(tp,1,1,nil):GetFirst()
+	if not first then return end
+
+	local g1 = Group.FromCards(first)
+
+	if s.validGroup(g1,tp) then
+		Duel.SetTargetCard(g1)
+		e:SetLabel(1) -- solo
+	else
+		e:SetLabel(2) -- pair
+		e:SetLabelObject(first)
+	end
+
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	local mode = e:GetLabel()
+	local first = e:GetLabelObject()
+	local g
+
+	if mode == 1 then
+		g = Duel.GetTargetCards(e)
+	elseif mode == 2 and first then
+		local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+		local validSeconds = Group.CreateGroup()
+		for tc in mg:Iter() do
+			if tc~=first then
+				local g2=Group.FromCards(first,tc)
+				if s.validGroup(g2,tp) then
+					validSeconds:AddCard(tc)
+				end
+			end
+		end
+
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+		local second = validSeconds:Select(tp,1,1,nil):GetFirst()
+		if not second then return end
+
+		g = Group.FromCards(first, second)
+	end
+
+	if not g or #g==0 then return end
+
+	local xyzg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,0,nil,g,tp)
+	if #xyzg==0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local sel=xyzg:Select(tp,1,1,nil)
+	if #sel==0 then return end
+	Duel.XyzSummon(tp,sel:GetFirst(),nil,g)
 end
 
 function s.filter(c,e)
