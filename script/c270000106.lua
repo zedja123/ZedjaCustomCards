@@ -129,8 +129,19 @@ function s.getValidGroups(mg,tp)
 	return res
 end
 
-function s.validGroup(g,tp)
-	return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
+function s.validGroup(g, tp)
+	-- Filter group with both Levels and Ranks (illegal)
+	local hasLevel = false
+	local hasRank = false
+	for tc in aux.Next(g) do
+		if tc:IsType(TYPE_XYZ) then hasRank = true
+		elseif tc:GetLevel() > 0 then hasLevel = true end
+	end
+	-- Mixed Level and Rank is not valid
+	if hasLevel and hasRank then return false end
+
+	-- Proceed to normal validation
+	return Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g, tp)
 end
 
 function s.tfilter(c,e)
