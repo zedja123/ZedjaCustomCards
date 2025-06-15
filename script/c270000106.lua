@@ -39,36 +39,34 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 
 	if chk==0 then
-		-- ✅ Check if there's any valid solo or valid pair
 		for tc in mg:Iter() do
 			local g1 = Group.FromCards(tc)
-			if s.validGroup(g1,tp) then
-				return true
-			end
+			if s.validGroup(g1,tp) then return true end
 			for other in mg:Iter() do
 				if tc ~= other then
 					local g2 = Group.FromCards(tc, other)
-					if s.validGroup(g2,tp) then
-						return true
-					end
+					if s.validGroup(g2,tp) then return true end
 				end
 			end
 		end
 		return false
 	end
 
-	-- ✅ Build list of "eligible first picks"
-	local selectable = Group.CreateGroup()
+	-- Clear state
+	e:SetLabelObject(nil)
+
+	-- Step 1: Player picks one of the valid options (solo or potential pair starter)
+	local firstPickable = Group.CreateGroup()
 	for tc in mg:Iter() do
 		local g1 = Group.FromCards(tc)
 		if s.validGroup(g1,tp) then
-			selectable:AddCard(tc)
+			firstPickable:AddCard(tc)
 		else
 			for other in mg:Iter() do
 				if tc ~= other then
 					local g2 = Group.FromCards(tc, other)
 					if s.validGroup(g2,tp) then
-						selectable:AddCard(tc)
+						firstPickable:AddCard(tc)
 						break
 					end
 				end
@@ -77,28 +75,29 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	end
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local first = selectable:Select(tp,1,1,nil):GetFirst()
+	local first = firstPickable:Select(tp,1,1,nil):GetFirst()
+	if not first then return end
+
 	local g1 = Group.FromCards(first)
 
-	-- ✅ If solo valid, resolve
 	if s.validGroup(g1,tp) then
 		Duel.SetTargetCard(g1)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 		return
 	end
 
-	-- ✅ Otherwise, filter valid partners for a second pick
+	-- First pick is not valid solo: find valid second picks
 	local validSeconds = Group.CreateGroup()
 	for tc in mg:Iter() do
 		if tc ~= first then
-			local pair = Group.FromCards(first, tc)
-			if s.validGroup(pair,tp) then
+			local g2 = Group.FromCards(first, tc)
+			if s.validGroup(g2,tp) then
 				validSeconds:AddCard(tc)
 			end
 		end
 	end
 
-	if #validSeconds == 0 then return end -- no valid 2nd, shouldn't happen now
+	if #validSeconds == 0 then return end
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	local second = validSeconds:Select(tp,1,1,nil):GetFirst()
@@ -111,22 +110,23 @@ end
 
 
 
+
 -- Returns TRUE if g (size 1‑2) can be used to Xyz‑Summon a Wiccanthrope monster
 function s.validGroup(g,tp)
-	local n=#g
-	if n==1 then
-		local c=g:GetFirst()
-		-- single target = only a Rank 4‑or‑lower Wiccanthrope Xyz (for Stormgnarl)
+	local n = #g
+	if n == 1 then
+		local c = g:GetFirst()
 		return c:IsType(TYPE_XYZ) and c:IsSetCard(0xf11) and c:GetRank()<=4
 			and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
-	elseif n==2 then
-		-- you cannot mix any Xyz with another monster
-		for tc in aux.Next(g) do if tc:IsType(TYPE_XYZ) then return false end end
-		-- duo must be able to summon a Wiccanthrope Xyz
+	elseif n == 2 then
+		for tc in aux.Next(g) do
+			if tc:IsType(TYPE_XYZ) then return false end
+		end
 		return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
 	end
 	return false
 end
+
 
 function s.tfilter(c,e)
 	return c:IsRelateToEffect(e) and c:IsFaceup()
