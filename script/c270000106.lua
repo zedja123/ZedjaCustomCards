@@ -39,10 +39,23 @@ end
 ------------------------------------------------------------------------
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-	if chk==0 then
-		-- is there ANY 1‑ or 2‑card subgroup that works?
-		return mg:CheckSubGroup(s.validGroup,1,2,tp)
+if chk==0 then
+	local tclist = {}
+	local tc = mg:GetFirst()
+	while tc do
+		table.insert(tclist, tc)
+		tc = mg:GetNext()
 	end
+	for i = 1, #tclist do
+		local g1 = Group.FromCards(tclist[i])
+		if s.validGroup(g1,tp) then return true end
+		for j = i+1, #tclist do
+			local g2 = Group.FromCards(tclist[i], tclist[j])
+			if s.validGroup(g2,tp) then return true end
+		end
+	end
+	return false
+end
 
 	--------------------------------------------------------------------
 	-- STEP 1: player chooses the 1st monster
