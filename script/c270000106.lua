@@ -6,7 +6,7 @@ function s.initial_effect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetProperty(0)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,{id,1})
 	e1:SetTarget(s.target)
@@ -48,13 +48,16 @@ function s.xyzfilter(c,mg,tp)
 	return c:IsSetCard(0xf11) and c:IsXyzSummonable(nil,mg,1,2) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
 end
 
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+	if chkc then return mg:IsContains(chkc) end
 	if chk==0 then
-		for tc in mg:Iter() do
+		-- Check if there is at least 1 monster that can be used alone or
+		-- 2 monsters together for a valid "Wiccanthrope" Xyz Summon
+		for tc in aux.Next(mg) do
 			local g1=Group.FromCards(tc)
 			if s.validGroup(g1,tp) then return true end
-			for other in mg:Iter() do
+			for other in aux.Next(mg) do
 				if other~=tc then
 					local g2=Group.FromCards(tc,other)
 					if s.validGroup(g2,tp) then return true end
@@ -63,43 +66,61 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		end
 		return false
 	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	-- First select one monster to target
+	local first=mg:Select(tp,1,1,nil):GetFirst()
+
+	-- Check if first alone is valid group
+	if s.validGroup(Group.FromCards(first),tp) then
+		-- Ask if player wants to select a 2nd target, only if valid 2-group exists
+		local secondPool=Group.CreateGroup()
+		for tc in aux.Next(mg) do
+			if tc~=first then
+				local g2=Group.FromCards(first,tc)
+				if s.validGroup(g2,tp) then
+					secondPool:AddCard(tc)
+				end
+			end
+		end
+
+		if #secondPool>0 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+			if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then -- Custom prompt "Select 2nd target?"
+				local second=secondPool:Select(tp,1,1,nil):GetFirst()
+				Duel.SetTargetCard(Group.FromCards(first,second))
+				return
+			end
+		end
+		-- If no 2nd or declined, target just the first
+		Duel.SetTargetCard(first)
+		return
+	else
+		-- First alone not valid, must select 2nd to form valid group
+		local secondPool=Group.CreateGroup()
+		for tc in aux.Next(mg) do
+			if tc~=first then
+				local g2=Group.FromCards(first,tc)
+				if s.validGroup(g2,tp) then
+					secondPool:AddCard(tc)
+				end
+			end
+		end
+		if #secondPool==0 then return false end -- no valid 2nd target, activation fails
+
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+		local second=secondPool:Select(tp,1,1,nil):GetFirst()
+		Duel.SetTargetCard(Group.FromCards(first,second))
+	end
 end
 
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-	if #mg==0 then return end
+	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	if not tg or #tg==0 then return end
+	local matGroup=tg:Filter(Card.IsRelateToEffect,nil,e)
+	if #matGroup==0 then return end
 
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local first=mg:Select(tp,1,1,nil):GetFirst()
-	if not first or not first:IsFaceup() then return end
-
-	local g1=Group.FromCards(first)
-	if s.validGroup(g1,tp) then
-		Duel.SetTargetCard(first) -- for replay log only
-		s.xyzSummon(tp, g1)
-		return
-	end
-
-	-- Check if any valid 2nd exists
-	local secondPool=Group.CreateGroup()
-	for tc in mg:Iter() do
-		if tc~=first then
-			local g2=Group.FromCards(first,tc)
-			if s.validGroup(g2,tp) then
-				secondPool:AddCard(tc)
-			end
-		end
-	end
-	if #secondPool==0 then return end
-
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local second=secondPool:Select(tp,1,1,nil):GetFirst()
-	if not second or not second:IsFaceup() then return end
-
-	local finalGroup=Group.FromCards(first,second)
-	Duel.SetTargetCard(finalGroup) -- for transparency/log
-	s.xyzSummon(tp, finalGroup)
+	s.xyzSummon(tp,matGroup)
 end
 
 -- Xyz Summon helper
