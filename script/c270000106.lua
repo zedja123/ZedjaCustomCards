@@ -39,7 +39,6 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 
 	if chk==0 then
-		-- Check if there's any valid solo or valid pair
 		for tc in mg:Iter() do
 			local g1 = Group.FromCards(tc)
 			if s.validGroup(g1,tp) then
@@ -57,14 +56,13 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		return false
 	end
 
-	-- Build list of valid solo targets or those that have a valid pairing
+	-- Build selectable list (either valid alone or with at least one valid pair)
 	local selectable = Group.CreateGroup()
 	for tc in mg:Iter() do
 		local g1 = Group.FromCards(tc)
 		if s.validGroup(g1,tp) then
 			selectable:AddCard(tc)
 		else
-			-- Check if this monster has at least one valid pairing
 			for other in mg:Iter() do
 				if tc ~= other then
 					local g2 = Group.FromCards(tc, other)
@@ -77,20 +75,23 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		end
 	end
 
-	if #selectable == 0 then return end
+	if #selectable == 0 then return false end -- fail-safe
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local first = selectable:Select(tp,1,1,nil):GetFirst()
+	local firstGroup = selectable:Select(tp,1,1,nil)
+	if not firstGroup or #firstGroup == 0 then return end
+
+	local first = firstGroup:GetFirst()
 	local g1 = Group.FromCards(first)
 
 	if s.validGroup(g1,tp) then
-		-- Valid alone — resolve with it
+		-- Valid solo — resolve
 		Duel.SetTargetCard(g1)
-		Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_EXTRA)
+		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 		return
 	end
 
-	-- Not valid alone — require a valid pair
+	-- Not valid solo — must pick a valid partner
 	local validSeconds = Group.CreateGroup()
 	for tc in mg:Iter() do
 		if tc ~= first then
@@ -101,18 +102,19 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		end
 	end
 
-	if #validSeconds == 0 then return end
+	if #validSeconds == 0 then return end -- no valid 2nd, shouldn't happen
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local second = validSeconds:Select(tp,1,1,nil)
-	if not second then return end
+	local secondGroup = validSeconds:Select(tp,1,1,nil)
+	if not secondGroup or #secondGroup == 0 then return end
 
 	local finalGroup = Group.FromCards(first)
-	finalGroup:Merge(second)
+	finalGroup:Merge(secondGroup)
 
 	Duel.SetTargetCard(finalGroup)
-	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_EXTRA)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
+
 
 
 function s.getSelectableGroup(mg, tp)
