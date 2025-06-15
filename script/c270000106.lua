@@ -54,19 +54,16 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 if chk==0 then
 	local filtered=Group.CreateGroup()
 	for tc in mg:Iter() do
-		-- Ignore monsters that can't be valid in any combo
 		if tc:IsFaceup() and tc:IsCanBeEffectTarget(e) then
 			filtered:AddCard(tc)
 		end
 	end
-	local tab=filtered:GetCards()
+	local tab=filtered:ToArray()
 	local count=#tab
-	-- Check all possible solos
 	for i=1,count do
 		local g=Group.FromCards(tab[i])
 		if s.validGroup(g,tp) then return true end
 	end
-	-- Check all possible pairs (i<j avoids duplicates)
 	for i=1,count do
 		for j=i+1,count do
 			local g=Group.FromCards(tab[i],tab[j])
@@ -75,6 +72,7 @@ if chk==0 then
 	end
 	return false
 end
+
 
 	-- Step 1: Build set of all monsters involved in at least one valid combo
 	local validPool=Group.CreateGroup()
