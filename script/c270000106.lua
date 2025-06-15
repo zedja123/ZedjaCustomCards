@@ -51,19 +51,30 @@ end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 
-	if chk==0 then
-		for tc1 in mg:Iter() do
-			local solo=Group.FromCards(tc1)
-			if s.validGroup(solo,tp) then return true end
-			for tc2 in mg:Iter() do
-				if tc1~=tc2 then
-					local pair=Group.FromCards(tc1,tc2)
-					if s.validGroup(pair,tp) then return true end
-				end
-			end
+if chk==0 then
+	local filtered=Group.CreateGroup()
+	for tc in mg:Iter() do
+		-- Ignore monsters that can't be valid in any combo
+		if tc:IsFaceup() and tc:IsCanBeEffectTarget(e) then
+			filtered:AddCard(tc)
 		end
-		return false
 	end
+	local tab=filtered:GetCards()
+	local count=#tab
+	-- Check all possible solos
+	for i=1,count do
+		local g=Group.FromCards(tab[i])
+		if s.validGroup(g,tp) then return true end
+	end
+	-- Check all possible pairs (i<j avoids duplicates)
+	for i=1,count do
+		for j=i+1,count do
+			local g=Group.FromCards(tab[i],tab[j])
+			if s.validGroup(g,tp) then return true end
+		end
+	end
+	return false
+end
 
 	-- Step 1: Build set of all monsters involved in at least one valid combo
 	local validPool=Group.CreateGroup()
