@@ -129,19 +129,25 @@ function s.getValidGroups(mg,tp)
 	return res
 end
 
-function s.validGroup(g, tp)
-	-- Filter group with both Levels and Ranks (illegal)
-	local hasLevel = false
-	local hasRank = false
-	for tc in aux.Next(g) do
-		if tc:IsType(TYPE_XYZ) then hasRank = true
-		elseif tc:GetLevel() > 0 then hasLevel = true end
+function s.validGroup(g,tp)
+	local count = #g
+	if count == 1 then
+		local c = g:GetFirst()
+		-- Allow if it's a single Rank 4 or lower Wiccanthrope Xyz monster
+		return c:IsType(TYPE_XYZ) and c:IsSetCard(0xf11) and c:GetRank() <= 4 and
+			   Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
+	elseif count == 2 then
+		local c1, c2 = g:GetFirst(), g:GetNext()
+		-- Both must be monsters with Levels (no Xyz monsters)
+		if c1:IsType(TYPE_XYZ) or c2:IsType(TYPE_XYZ) then return false end
+		-- Both must have Level 4
+		if c1:GetLevel() ~= 4 or c2:GetLevel() ~= 4 then return false end
+		-- At least one must be "Wiccanthrope"
+		if not (c1:IsSetCard(0xf11) or c2:IsSetCard(0xf11)) then return false end
+		-- Proceed only if valid Xyz monster exists
+		return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
 	end
-	-- Mixed Level and Rank is not valid
-	if hasLevel and hasRank then return false end
-
-	-- Proceed to normal validation
-	return Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g, tp)
+	return false
 end
 
 function s.tfilter(c,e)
