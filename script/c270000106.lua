@@ -39,36 +39,33 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 
 	if chk==0 then
-		-- Check for solo-valid
+		-- ✅ Check if there's any valid solo or valid pair
 		for tc in mg:Iter() do
-			if s.validGroup(Group.FromCards(tc), tp) then
+			local g1 = Group.FromCards(tc)
+			if s.validGroup(g1,tp) then
 				return true
 			end
-		end
-		-- Check for valid pairs
-		local list = {}
-		for tc in mg:Iter() do table.insert(list, tc) end
-		for i = 1, #list do
-			for j = i+1, #list do
-				local g = Group.FromCards(list[i], list[j])
-				if s.validGroup(g, tp) then
-					return true
+			for other in mg:Iter() do
+				if tc ~= other then
+					local g2 = Group.FromCards(tc, other)
+					if s.validGroup(g2,tp) then
+						return true
+					end
 				end
 			end
 		end
 		return false
 	end
 
-	-- Prompt first selection (any monster that’s part of a valid solo or valid pair)
+	-- ✅ Build list of "eligible first picks"
 	local selectable = Group.CreateGroup()
 	for tc in mg:Iter() do
 		local g1 = Group.FromCards(tc)
 		if s.validGroup(g1,tp) then
 			selectable:AddCard(tc)
 		else
-			-- check if it can form a valid pair
 			for other in mg:Iter() do
-				if other ~= tc then
+				if tc ~= other then
 					local g2 = Group.FromCards(tc, other)
 					if s.validGroup(g2,tp) then
 						selectable:AddCard(tc)
@@ -79,31 +76,29 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		end
 	end
 
-	if #selectable == 0 then return false end
-
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	local first = selectable:Select(tp,1,1,nil):GetFirst()
 	local g1 = Group.FromCards(first)
 
+	-- ✅ If solo valid, resolve
 	if s.validGroup(g1,tp) then
-		-- Valid solo — resolve immediately
 		Duel.SetTargetCard(g1)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 		return
 	end
 
-	-- First was not valid alone, so now force a valid second
+	-- ✅ Otherwise, filter valid partners for a second pick
 	local validSeconds = Group.CreateGroup()
 	for tc in mg:Iter() do
 		if tc ~= first then
 			local pair = Group.FromCards(first, tc)
-			if s.validGroup(pair, tp) then
+			if s.validGroup(pair,tp) then
 				validSeconds:AddCard(tc)
 			end
 		end
 	end
 
-	if #validSeconds == 0 then return end -- shouldn't happen due to earlier filter
+	if #validSeconds == 0 then return end -- no valid 2nd, shouldn't happen now
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	local second = validSeconds:Select(tp,1,1,nil):GetFirst()
@@ -113,6 +108,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetTargetCard(finalGroup)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
+
 
 
 -- Returns TRUE if g (size 1‑2) can be used to Xyz‑Summon a Wiccanthrope monster
