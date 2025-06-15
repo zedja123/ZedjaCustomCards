@@ -131,22 +131,24 @@ end
 
 function s.validGroup(g,tp)
 	local count = #g
+
+	-- Only 1 card: must be Rank 4 or lower Wiccanthrope Xyz (for Stormgnarl)
 	if count == 1 then
 		local c = g:GetFirst()
-		-- Allow if it's a single Rank 4 or lower Wiccanthrope Xyz monster
-		return c:IsType(TYPE_XYZ) and c:IsSetCard(0xf11) and c:GetRank() <= 4 and
-			   Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
+		return c:IsType(TYPE_XYZ) and c:IsSetCard(0xf11) and c:GetRank() <= 4
+			and Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g, tp)
+
+	-- Only 2 cards: must not include any Xyz monsters, and must be valid for a Wiccanthrope Xyz summon
 	elseif count == 2 then
-		local c1, c2 = g:GetFirst(), g:GetNext()
-		-- Both must be monsters with Levels (no Xyz monsters)
-		if c1:IsType(TYPE_XYZ) or c2:IsType(TYPE_XYZ) then return false end
-		-- Both must have Level 4
-		if c1:GetLevel() ~= 4 or c2:GetLevel() ~= 4 then return false end
-		-- At least one must be "Wiccanthrope"
-		if not (c1:IsSetCard(0xf11) or c2:IsSetCard(0xf11)) then return false end
-		-- Proceed only if valid Xyz monster exists
-		return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
+		for tc in aux.Next(g) do
+			if tc:IsType(TYPE_XYZ) then
+				return false -- can't mix Xyz with anything
+			end
+		end
+		return Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g, tp)
 	end
+
+	-- Any other case (e.g., 3+ cards): not allowed
 	return false
 end
 
