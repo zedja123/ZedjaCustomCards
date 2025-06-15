@@ -48,70 +48,75 @@ function s.xyzfilter(c,mg,tp)
 	return c:IsSetCard(0xf11) and c:IsXyzSummonable(nil,mg,1,2) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
 end
 
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-	if chkc then return false end -- No re-targeting
+
 	if chk==0 then
-		-- Check for at least one valid 1-card or 2-card group
+		-- Check for at least one valid 1-monster or 2-monster group
 		for tc in mg:Iter() do
-			local g1=Group.FromCards(tc)
-			if s.validGroup(g1,tp) then return true end
+			local solo=Group.FromCards(tc)
+			if s.validGroup(solo,tp) then return true end
 			for other in mg:Iter() do
 				if other~=tc then
-					local g2=Group.FromCards(tc,other)
-					if s.validGroup(g2,tp) then return true end
+					local pair=Group.FromCards(tc,other)
+					if s.validGroup(pair,tp) then return true end
 				end
 			end
 		end
 		return false
 	end
 
-	-- Create a pool of all monsters involved in at least one valid summon
-	local validTargets=Group.CreateGroup()
+	-- Pool of all monsters that can be part of any valid 1- or 2-monster group
+	local validPool=Group.CreateGroup()
 	for tc in mg:Iter() do
-		local g1=Group.FromCards(tc)
-		if s.validGroup(g1,tp) then
-			validTargets:AddCard(tc)
+		local solo=Group.FromCards(tc)
+		if s.validGroup(solo,tp) then
+			validPool:AddCard(tc)
 		else
 			for other in mg:Iter() do
 				if other~=tc then
-					local g2=Group.FromCards(tc,other)
-					if s.validGroup(g2,tp) then
-						validTargets:AddCard(tc)
-						validTargets:AddCard(other)
+					local pair=Group.FromCards(tc,other)
+					if s.validGroup(pair,tp) then
+						validPool:AddCard(tc)
+						validPool:AddCard(other)
 					end
 				end
 			end
 		end
 	end
 
-	if #validTargets==0 then return false end
-
+	-- Step 1: Select first target (must be in a valid group)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local first=validTargets:Select(tp,1,1,nil):GetFirst()
+	local first=validPool:Select(tp,1,1,nil):GetFirst()
+	if not first then return end
 
 	local g1=Group.FromCards(first)
+
+	-- Step 2: Try to resolve as solo
 	if s.validGroup(g1,tp) then
-		-- Try to offer second target only if a valid group with it exists
-		local secondPool=Group.CreateGroup()
-		for tc in validTargets:Iter() do
-			if tc~=first then
-				local g2=Group.FromCards(first,tc)
-				if s.validGroup(g2,tp) then
-					secondPool:AddCard(tc)
-				end
+		-- Immediate resolution with solo
+		Duel.SetTargetCard(first)
+		return
+	end
+
+	-- Step 3: Force second pick from valid pairs involving first
+	local secondPool=Group.CreateGroup()
+	for tc in validPool:Iter() do
+		if tc~=first then
+			local pair=Group.FromCards(first,tc)
+			if s.validGroup(pair,tp) then
+				secondPool:AddCard(tc)
 			end
-		end
-		if #secondPool>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-			local second=secondPool:Select(tp,1,1,nil):GetFirst()
-			Duel.SetTargetCard(Group.FromCards(first,second))
-			return
 		end
 	end
 
-	Duel.SetTargetCard(first)
+	if #secondPool==0 then return end -- shouldn't happen if chk==0 logic was correct
+
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	local second=secondPool:Select(tp,1,1,nil):GetFirst()
+	Duel.SetTargetCard(Group.FromCards(first,second))
 end
+
 
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
@@ -120,7 +125,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if #matGroup==0 then return end
 	s.xyzSummon(tp,matGroup)
 end
-
 
 -- Xyz Summon helper
 function s.xyzSummon(tp,matGroup)
