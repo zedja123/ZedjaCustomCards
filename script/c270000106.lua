@@ -38,14 +38,17 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 	if chk==0 then
-		return mg:GetCount()>=1 and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,mg,tp)
+		return mg:GetCount()>=1 and mg:CheckSubGroup(s.validGroup,1,2,tp)
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local sg=mg:Select(tp,1,2,nil)
-	if not sg or #sg==0 then return end
-	if not Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,sg,tp) then return end
+	local sg=mg:SelectSubGroup(tp,s.validGroup,true,1,2,tp)
+	if not sg then return end
 	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+
+function s.validGroup(g,tp)
+	return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
 end
 
 function s.tfilter(c,e)
