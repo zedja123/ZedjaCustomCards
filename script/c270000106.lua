@@ -47,8 +47,11 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
+
 function s.getSelectableGroup(mg, tp)
 	local res = Group.CreateGroup()
+	local seen = {}
+
 	local mgList = {}
 	local tc = mg:GetFirst()
 	while tc do
@@ -58,24 +61,23 @@ function s.getSelectableGroup(mg, tp)
 
 	for i = 1, #mgList do
 		local c1 = mgList[i]
-		-- single card group
 		local g1 = Group.FromCards(c1)
 		if s.validGroup(g1, tp) then
-			res:AddCard(c1)
+			res:Merge(g1)
 		end
-		-- pairs
+
 		for j = i + 1, #mgList do
 			local c2 = mgList[j]
 			local g2 = Group.FromCards(c1, c2)
 			if s.validGroup(g2, tp) then
-				res:AddCard(c1)
-				res:AddCard(c2)
+				res:Merge(g2)
 			end
 		end
 	end
 
 	return res
 end
+
 
 function s.hasValidSubgroup(mg, tp)
 	local mgList = {}
@@ -131,28 +133,21 @@ end
 
 function s.validGroup(g, tp)
 	local count = #g
-	local hasXyz = false
 
-	for tc in aux.Next(g) do
-		if tc:IsType(TYPE_XYZ) then
-			hasXyz = true
-			break
-		end
-	end
-
-	-- 1 card: must be a Wiccanthrope Xyz Rank 4 or lower (for Stormgnarl)
+	-- 1 card: must be a Wiccanthrope Rank 4 or lower Xyz
 	if count == 1 then
 		local c = g:GetFirst()
 		return c:IsType(TYPE_XYZ) and c:IsSetCard(0xf11) and c:GetRank() <= 4
 			and Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g, tp)
 
-	-- 2 cards: only valid if NONE are Xyz monsters
+	-- 2 cards: neither can be an Xyz
 	elseif count == 2 then
-		if hasXyz then return false end
+		for tc in aux.Next(g) do
+			if tc:IsType(TYPE_XYZ) then return false end
+		end
 		return Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g, tp)
 	end
 
-	-- Any other case (0 or 3+ cards): invalid
 	return false
 end
 
