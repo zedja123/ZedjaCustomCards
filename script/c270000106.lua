@@ -34,14 +34,34 @@ function s.xyzfilter(c,mg,tp)
 	return c:IsSetCard(0xf11) and c:IsXyzSummonable(nil,mg,1,2) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
 end
 
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return false end
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 	if chk==0 then
-		return mg:CheckSubGroup(s.validGroup,1,2,tp)
+		for _,c1 in aux.Next(mg) do
+			local g1=Group.FromCards(c1)
+			if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g1,tp) then
+				return true
+			end
+			for _,c2 in aux.Next(mg) do
+				if c1~=c2 then
+					local g2=Group.FromCards(c1,c2)
+					if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g2,tp) then
+						return true
+					end
+				end
+			end
+		end
+		return false
 	end
+
+	-- Select 1 or 2 valid monsters manually
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local sg=mg:SelectSubGroup(tp,s.validGroup,false,1,2,tp)
-	if not sg then return end
+	local sg=mg:Select(tp,1,2,nil)
+	while sg:GetCount() > 0 and not Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,sg,tp) do
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+		sg=mg:Select(tp,1,2,nil)
+	end
 	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
