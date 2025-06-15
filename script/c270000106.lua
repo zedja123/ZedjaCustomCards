@@ -37,12 +37,44 @@ end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
-	if chk==0 then return s.hasValidSubgroup(mg,tp) end
+	if chk==0 then 
+		local selGroup = s.getSelectableGroup(mg, tp)
+		return #selGroup > 0
+	end
+	local selGroup = s.getSelectableGroup(mg, tp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local sg = mg:SelectSubGroup(tp,s.validGroup,false,1,2,tp)
-	if not sg then return end
+	local sg = selGroup:Select(tp,1,2,nil)
 	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+function s.getSelectableGroup(mg, tp)
+	local res = Group.CreateGroup()
+	local mgList = {}
+	local tc = mg:GetFirst()
+	while tc do
+		table.insert(mgList, tc)
+		tc = mg:GetNext()
+	end
+
+	for i = 1, #mgList do
+		local c1 = mgList[i]
+		-- single card group
+		local g1 = Group.FromCards(c1)
+		if s.validGroup(g1, tp) then
+			res:AddCard(c1)
+		end
+		-- pairs
+		for j = i + 1, #mgList do
+			local c2 = mgList[j]
+			local g2 = Group.FromCards(c1, c2)
+			if s.validGroup(g2, tp) then
+				res:AddCard(c1)
+				res:AddCard(c2)
+			end
+		end
+	end
+
+	return res
 end
 
 function s.hasValidSubgroup(mg, tp)
