@@ -48,11 +48,13 @@ function s.xyzfilter(c,mg,tp)
 	return c:IsSetCard(0xf11) and c:IsXyzSummonable(nil,mg,1,2) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
 end
 
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 
-if chk==0 then
-	local filtered=Group.CreateGroup()
+	-- Build a list of valid solos and valid pairs
+	local valid_solos = {}
+	local valid_pairs = {}
+	local filtered = Group.CreateGroup()
 	for tc in mg:Iter() do
 		if tc:IsFaceup() and tc:IsCanBeEffectTarget(e) then
 			filtered:AddCard(tc)
@@ -67,82 +69,53 @@ if chk==0 then
 	end
 
 	local count = #tab
-	for i=1,count do
-		local g=Group.FromCards(tab[i])
-		if s.validGroup(g,tp) then return true end
-	end
-	for i=1,count do
-		for j=i+1,count do
-			local g=Group.FromCards(tab[i],tab[j])
-			if s.validGroup(g,tp) then return true end
+	for i = 1, count do
+		local g1 = Group.FromCards(tab[i])
+		if s.validGroup(g1, tp) then
+			table.insert(valid_solos, tab[i])
 		end
-	end
-	return false
-end
-
-
-	-- Step 1: Build set of all monsters involved in at least one valid combo
-	local validPool=Group.CreateGroup()
-
-	-- Check all solos
-	for tc in mg:Iter() do
-		if s.validGroup(Group.FromCards(tc),tp) then
-			validPool:AddCard(tc)
-		end
-	end
-
-	-- Check all pairs
-	for tc1 in mg:Iter() do
-		for tc2 in mg:Iter() do
-			if tc1~=tc2 then
-				local pair=Group.FromCards(tc1,tc2)
-				if s.validGroup(pair,tp) then
-					validPool:AddCard(tc1)
-					validPool:AddCard(tc2)
-				end
+		for j = i + 1, count do
+			local g2 = Group.FromCards(tab[i], tab[j])
+			if s.validGroup(g2, tp) then
+				table.insert(valid_pairs, {tab[i], tab[j]})
 			end
 		end
 	end
 
-	if #validPool==0 then return false end
-
-	-- Step 2: Select first target from validPool
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local first=validPool:Select(tp,1,1,nil):GetFirst()
-	if not first then return end
-
-	-- Step 3: Try solo
-	if s.validGroup(Group.FromCards(first),tp) then
-		Duel.SetTargetCard(first)
-		return
+	if chk==0 then
+		return #valid_solos > 0 or #valid_pairs > 0
 	end
 
-	-- Step 4: Force valid second from valid pairs
-	local secondPool=Group.CreateGroup()
-	for tc in validPool:Iter() do
-		if tc~=first then
-			local pair=Group.FromCards(first,tc)
-			if s.validGroup(pair,tp) then
-				secondPool:AddCard(tc)
-			end
-		end
+	-- Build a master group of all valid solo and pair members
+	local selectable = Group.CreateGroup()
+	for _,c in ipairs(valid_solos) do
+		selectable:AddCard(c)
+	end
+	for _,pair in ipairs(valid_pairs) do
+		selectable:AddCard(pair[1])
+		selectable:AddCard(pair[2])
 	end
 
-	if #secondPool==0 then return end
-
+	-- Now prompt the player to choose
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local second=secondPool:Select(tp,1,1,nil):GetFirst()
-	Duel.SetTargetCard(Group.FromCards(first,second))
+	local tg=selectable:SelectSubGroup(tp,
+		function(g)
+			return s.validGroup(g,tp)
+		end,
+	false,1,2)
+	if tg then
+		Duel.SetTargetCard(tg)
+		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+	end
 end
+
 
 
 
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	if not tg or #tg==0 then return end
-	local matGroup=tg:Filter(Card.IsRelateToEffect,nil,e)
-	if #matGroup==0 then return end
-	s.xyzSummon(tp,matGroup)
+	local tg=Duel.GetTargetCards(e)
+	if not tg or tg:IsExists(Card.IsFacedown,1,nil) then return end
+	s.xyzSummon(tp, tg)
 end
 
 -- Xyz Summon helper
