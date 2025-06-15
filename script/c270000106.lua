@@ -67,8 +67,13 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	local first=mg:Select(tp,1,1,nil):GetFirst()
-	Duel.SetTargetCard(first)
-	e:SetLabelObject(first)
+	local g1=Group.FromCards(first)
+	if s.validGroup(g1,tp) then
+		-- Solo: must register the target here so chain opens
+		Duel.SetTargetCard(first)
+		e:SetLabelObject(first)
+	end
+
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
@@ -102,6 +107,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if not second then return end
 
 	local finalGroup=Group.FromCards(first,second)
+	Duel.SetTargetCard(finalGroup)
 	s.xyzSummon(tp, finalGroup)
 end
 
