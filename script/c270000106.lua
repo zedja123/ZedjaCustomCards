@@ -36,50 +36,49 @@ end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
-	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+	local mg = Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 	if chk==0 then
-		-- Only allow activation if at least one valid group exists
-		return s.getValidGroups(mg,tp):GetCount() > 0
+		return mg:CheckSubGroup(s.validGroup,1,2,tp)
 	end
-
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local validGroups = s.getValidGroups(mg,tp)
-	local sg = validGroups:Select(tp,1,1,nil):GetFirst()
+	local sg = mg:SelectSubGroup(tp,s.validGroup,false,1,2,tp)
 	if not sg then return end
-	Duel.SetTargetCard(sg:GetLabelObject())
+	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
 function s.getValidGroups(mg,tp)
-	local res=Group.CreateGroup()
-	local tab={} -- store unique keys
-	local mtab=mg:GetCards()
-	for i=1,#mtab do
-		local c1=mtab[i]
-		local g1=Group.FromCards(c1)
-		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g1,tp) then
-			local gcopy=g1:Clone()
-			gcopy:KeepAlive()
-			gcopy:SetLabelObject(gcopy)
-			res:AddCard(c1)
+	local res = Group.CreateGroup()
+	local tab = {}
+	local mgList = {}
+	local tc = mg:GetFirst()
+	while tc do
+		table.insert(mgList, tc)
+		tc = mg:GetNext()
+	end
+
+	for i = 1, #mgList do
+		local c1 = mgList[i]
+		local g1 = Group.FromCards(c1)
+		if Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g1, tp) then
+			g1:KeepAlive()
+			res:Merge(g1)
 		end
-		for j=i+1,#mtab do
-			local c2=mtab[j]
-			local g2=Group.FromCards(c1,c2)
-			if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g2,tp) then
-				-- Unique key to avoid duplicates
-				local key = tostring(c1:GetFieldID()) .. "-" .. tostring(c2:GetFieldID())
-				if not tab[key] then
-					local gcopy=g2:Clone()
-					gcopy:KeepAlive()
-					gcopy:SetLabelObject(gcopy)
-					res:Merge(g2) -- or add one of the cards to represent the group
-					tab[key]=true
-				end
+		for j = i + 1, #mgList do
+			local c2 = mgList[j]
+			local g2 = Group.FromCards(c1, c2)
+			if Duel.IsExistingMatchingCard(s.xyzfilter, tp, LOCATION_EXTRA, 0, 1, nil, g2, tp) then
+				g2:KeepAlive()
+				res:Merge(g2)
 			end
 		end
 	end
+
 	return res
+end
+
+function s.validGroup(g,tp)
+	return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
 end
 
 function s.tfilter(c,e)
