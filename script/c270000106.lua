@@ -67,7 +67,11 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	local first=mg:Select(tp,1,1,nil):GetFirst()
-	Duel.SetTargetCard(first)
+	local g1=Group.FromCards(first)
+	if s.validGroup(g1,tp) then
+		-- It's a valid solo target: register now so the chain opens
+		Duel.SetTargetCard(first)
+	end
 	e:SetLabelObject(first)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
