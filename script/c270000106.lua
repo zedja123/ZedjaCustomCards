@@ -38,92 +38,48 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local mg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
 	if chk==0 then
-		local found = false
-		local tg=mg:GetFirst()
-		while tg do
-			local g1=Group.FromCards(tg)
-			if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g1,tp) then
-				found = true break
-			end
-			local tg2=mg:GetNext()
-			while tg2 do
-				if tg2~=tg then
-					local g2=Group.FromCards(tg,tg2)
-					if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g2,tp) then
-						found = true break
-					end
-				end
-				tg2=mg:GetNext()
-			end
-			if found then break end
-			tg=mg:GetNext()
-		end
-		return found
+		-- Only allow activation if at least one valid group exists
+		return s.getValidGroups(mg,tp):GetCount() > 0
 	end
 
-	-- Prompt selection of valid 1–2 monster group
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local sg=mg:Select(tp,1,2,nil)
-	while sg and (#sg > 0) and not Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,sg,tp) do
-		Duel.Hint(HINTMSG_XMATERIAL,tp,aux.Stringid(40640057,0)) -- "Select valid material(s)"
-		sg = mg:Select(tp,1,2,nil)
-	end
-
-	Duel.SetTargetCard(sg)
+	local validGroups = s.getValidGroups(mg,tp)
+	local sg = validGroups:Select(tp,1,1,nil):GetFirst()
+	if not sg then return end
+	Duel.SetTargetCard(sg:GetLabelObject())
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 
-
-function s.validGroup(g,tp)
-	return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g,tp)
-end
-
--- Check if any 1- or 2-card combination can be used for Xyz Summon
-function s.hasValidCombo(mg,tp)
-	local g=mg:GetFirst()
-	while g do
-		local single=Group.FromCards(g)
-		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,single,tp) then
-			return true
+function s.getValidGroups(mg,tp)
+	local res=Group.CreateGroup()
+	local tab={} -- store unique keys
+	local mtab=mg:GetCards()
+	for i=1,#mtab do
+		local c1=mtab[i]
+		local g1=Group.FromCards(c1)
+		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g1,tp) then
+			local gcopy=g1:Clone()
+			gcopy:KeepAlive()
+			gcopy:SetLabelObject(gcopy)
+			res:AddCard(c1)
 		end
-		local g2=mg:GetFirst()
-		while g2 do
-			if g2~=g then
-				local pair=Group.FromCards(g,g2)
-				if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,pair,tp) then
-					return true
+		for j=i+1,#mtab do
+			local c2=mtab[j]
+			local g2=Group.FromCards(c1,c2)
+			if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,g2,tp) then
+				-- Unique key to avoid duplicates
+				local key = tostring(c1:GetFieldID()) .. "-" .. tostring(c2:GetFieldID())
+				if not tab[key] then
+					local gcopy=g2:Clone()
+					gcopy:KeepAlive()
+					gcopy:SetLabelObject(gcopy)
+					res:Merge(g2) -- or add one of the cards to represent the group
+					tab[key]=true
 				end
 			end
-			g2=mg:GetNext()
 		end
-		g=mg:GetNext()
 	end
-	return false
-end
-
--- Prompt player to select a valid group of 1 or 2 cards that works for Xyz
-function s.selectValidCombo(mg,tp)
-	local valid = Group.CreateGroup()
-	local g=mg:GetFirst()
-	while g do
-		local single=Group.FromCards(g)
-		if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,single,tp) then
-			valid:AddCard(g)
-		end
-		local g2=mg:GetFirst()
-		while g2 do
-			if g2~=g then
-				local pair=Group.FromCards(g,g2)
-				if Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,pair,tp) then
-					valid:AddCard(g)
-					valid:AddCard(g2)
-				end
-			end
-			g2=mg:GetNext()
-		end
-		g=mg:GetNext()
-	end
-	return valid
+	return res
 end
 
 function s.tfilter(c,e)
