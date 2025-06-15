@@ -58,8 +58,15 @@ if chk==0 then
 			filtered:AddCard(tc)
 		end
 	end
-	local tab=filtered:ToArray()
-	local count=#tab
+
+	local tab = {}
+	local tc = filtered:GetFirst()
+	while tc do
+		table.insert(tab, tc)
+		tc = filtered:GetNext()
+	end
+
+	local count = #tab
 	for i=1,count do
 		local g=Group.FromCards(tab[i])
 		if s.validGroup(g,tp) then return true end
