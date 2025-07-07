@@ -30,7 +30,7 @@ function s.filter(c,e,tp)
 end
 
 function s.filter2(c,e,tp)
-	return c:IsSetCard(0xf15) and c:IsType(TYPE_MONSTER) and c:IsFaceup() and tc:IsAbleToHand()
+	return c:IsSetCard(0xf15) and c:IsType(TYPE_MONSTER) and c:IsFaceup() and c:IsAbleToHand()
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
