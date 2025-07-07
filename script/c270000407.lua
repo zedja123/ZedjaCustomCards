@@ -30,7 +30,7 @@ function s.filter(c,e,tp)
 end
 
 function s.filter2(c,e,tp)
-	return c:IsSetCard(0xf15) and c:IsType(TYPE_MONSTER) and c:IsFaceup()
+	return c:IsSetCard(0xf15) and c:IsType(TYPE_MONSTER) and c:IsFaceup() and tc:IsAbleToHand()
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -67,14 +67,11 @@ function s.grave_target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectTarget(tp,s.filter2,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_GRAVE)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_REMOVED)
 end
 
 function s.grave_operation(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and tc:IsAbleToHand() and (not tc:IsAbleToGrave() or Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))==0) then
+	if tc and tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
-		else
-		Duel.SendtoGrave(tc,REASON_EFFECT)
 	end
 end
