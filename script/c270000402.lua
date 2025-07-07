@@ -32,7 +32,7 @@ end
 
 -- Add 1 "Build Driver" Spell/Trap to hand
 function s.thfilter(c)
-	return c:IsSetCard(0xf15) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
+	return c:IsSetCard(0xf17) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
 end
 
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
