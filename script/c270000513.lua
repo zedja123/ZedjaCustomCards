@@ -40,12 +40,6 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
-function s.reqmat(c,scard,sumtype,tp)
-	return c:IsLinkMonster() and c:IsControler(tp)
-end
-function s.nontunerfilter(c,scard,sumtype,tp)
-	return c:IsSetCard(0xf16) and c:IsNotTuner(scard,tp) and not c:IsLinkMonster()
-end
 -- Synchro Summon condition
 function s.syncon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)

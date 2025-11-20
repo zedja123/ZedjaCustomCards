@@ -45,30 +45,7 @@ function s.initial_effect(c)
 	e3:SetValue(aux.synlimit)
 	c:RegisterEffect(e3)
 end
-Card.IsCanBeSynchroMaterial=(function()
-	local oldfunc=Card.IsCanBeSynchroMaterial
-	return function(mc,sc)
-		local res=oldfunc(mc,sc)
-		return mc:IsLinkMonster() and sc:IsCode(270000512) or res
-	end
-end)()
-Card.GetSynchroLevel=(function()
-	local oldfunc=Card.GetSynchroLevel
-	return function(mc,sc)
-		if mc:IsLinkMonster() and sc:IsCode(270000512) then
-			return mc:GetLink()
-		end
-		return oldfunc(mc,sc)
-	end
-end)()
 
-
-function s.reqmat(c,scard,sumtype,tp)
-	return c:IsLinkMonster() and c:IsControler(tp)
-end
-function s.nontunerfilter(c,scard,sumtype,tp)
-	return c:IsSetCard(0xf16) and c:IsNotTuner(scard,tp) and not c:IsLinkMonster()
-end
 -- Synchro Summon condition
 function s.syncon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
