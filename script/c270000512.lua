@@ -2,7 +2,8 @@
 local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Synchro summon procedure
-	Synchro.AddProcedure(c,Synchro.NonTunerEx(Card.IsType,TYPE_LINK),1,99,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,99,s.exmatfilter)  -- "Milacresy" Tuner and non-Tuner
+	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,99,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,99,s.tunersub) -- "Milacresy" Tuner and non-Tuner
+
 	c:EnableReviveLimit()
 	-- For this card's Synchro Summon, you can treat 1 Link monster you control as Tuner with Level equal to it's Link Rating for material.
 	local e0=Effect.CreateEffect(c)
@@ -46,8 +47,8 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.exmatfilter(c)
-	return c:IsType(TYPE_LINK) and c:IsSetCard(0xf16)
+function s.tunersub(c,scard,sumtype,tp)
+	return c:IsSetCard(0xf16) and c:IsLinkMonster()
 end
 
 -- Synchro Summon condition
