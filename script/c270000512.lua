@@ -46,8 +46,8 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.exmatfilter(c,scard,sumtype,tp)
-	return c:IsType(TYPE_LINK,scard,sumtype,tp) and c:IsSetCard(0xf16)
+function s.exmatfilter(c)
+	return c:IsType(TYPE_LINK) and c:IsSetCard(0xf16)
 end
 
 -- Synchro Summon condition
