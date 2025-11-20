@@ -2,9 +2,18 @@
 local s,id,o=GetID()
 function s.initial_effect(c)
 	-- Synchro summon procedure
-	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,1,s.nontunerfilter,1,99,s.reqmat) -- "Milacresy" Tuner and non-Tuner
+	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,99,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,99) -- "Milacresy" Tuner and non-Tuner
 	c:EnableReviveLimit()
-	
+	-- For this card's Synchro Summon, you can treat 1 Link monster you control as Tuner with Level equal to it's Link Rating for material.
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_FIELD)
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+	e0:SetCode(EFFECT_SYNCHRO_LEVEL)
+	e0:SetRange(LOCATION_EXTRA)
+	e0:SetTargetRange(LOCATION_MZONE,0)
+	e0:SetTarget(function(e,c) return c:IsLinkMonster() and c:IsSetCard(0xf16) end)
+	e0:SetValue(function(e,_,rc) return rc==e:GetHandler() and c:GetLink() end)
+	c:RegisterEffect(e0)
 	-- Shuffle and draw effect
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -30,23 +39,6 @@ function s.initial_effect(c)
 	e2:SetOperation(s.spoperation)
 	c:RegisterEffect(e2)
 end
-Card.IsCanBeSynchroMaterial=(function()
-	local oldfunc=Card.IsCanBeSynchroMaterial
-	return function(mc,sc)
-		local res=oldfunc(mc,sc)
-		return mc:IsLinkMonster() and sc:IsCode(270000513) or res
-	end
-end)()
-Card.GetSynchroLevel=(function()
-	local oldfunc=Card.GetSynchroLevel
-	return function(mc,sc)
-		if mc:IsLinkMonster() and sc:IsCode(270000513) then
-			return mc:GetLink()
-		end
-		return oldfunc(mc,sc)
-	end
-end)()
-
 
 function s.reqmat(c,scard,sumtype,tp)
 	return c:IsLinkMonster() and c:IsControler(tp)

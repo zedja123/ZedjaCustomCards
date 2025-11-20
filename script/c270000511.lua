@@ -1,9 +1,19 @@
 -- Milacresy Rakakeri
 local s,id=GetID()
 function s.initial_effect(c)
-	-- Synchro Summon
-	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,1,s.nontunerfilter,1,1,s.reqmat) -- "Milacresy" Tuner and non-Tuner
+	-- Synchro summon procedure
+	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,1,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,1) -- "Milacresy" Tuner and non-Tuner
 	c:EnableReviveLimit()
+	-- For this card's Synchro Summon, you can treat 1 Link monster you control as Tuner with Level equal to it's Link Rating for material.
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_FIELD)
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+	e0:SetCode(EFFECT_SYNCHRO_LEVEL)
+	e0:SetRange(LOCATION_EXTRA)
+	e0:SetTargetRange(LOCATION_MZONE,0)
+	e0:SetTarget(function(e,c) return c:IsLinkMonster() and c:IsSetCard(0xf16) end)
+	e0:SetValue(function(e,_,rc) return rc==e:GetHandler() and c:GetLink() end)
+	c:RegisterEffect(e0)
 	-- Effect: Banish 5 cards and Special Summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0)) -- Description for effect
