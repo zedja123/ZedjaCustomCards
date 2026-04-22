@@ -2,7 +2,7 @@
 --Scripted by: Zedja
 --Revised by: Whispered
 local s,id=GetID()
-function c270000501.initial_effect(c)
+function s.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
