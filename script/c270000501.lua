@@ -43,7 +43,7 @@ function s.spfilter(c)
 	return c:IsFacedown() or not c:IsSetCard(0xf16)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
+	return not Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1)
 end
 -- Condition: Battle Phase and you control a "Milacresy" monster
 function s.atkcon(e)
