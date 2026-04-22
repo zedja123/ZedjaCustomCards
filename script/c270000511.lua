@@ -11,7 +11,7 @@ function s.initial_effect(c)
 	e0:SetCode(EFFECT_SYNCHRO_LEVEL)
 	e0:SetRange(LOCATION_EXTRA)
 	e0:SetTargetRange(LOCATION_MZONE,0)
-	e0:SetTarget(function(e,c) return c:IsLinkMonster() and c:IsSetCard(0xf16) end)
+	e0:SetTarget(function(e,c) return c:IsLinkMonster() end)
 	e0:SetValue(function(e,_,rc) return rc==e:GetHandler() and c:GetLink() end)
 	c:RegisterEffect(e0)
 	-- Effect: Banish 5 cards and Special Summon
