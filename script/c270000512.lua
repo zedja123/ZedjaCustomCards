@@ -13,7 +13,7 @@ function s.initial_effect(c)
 	e0:SetRange(LOCATION_EXTRA)
 	e0:SetTargetRange(LOCATION_MZONE,0)
 	e0:SetTarget(function(e,c) return c:IsLinkMonster() end)
-	e0:SetValue(function(e,_,rc) return rc==e:GetHandler() and c:GetLink() end)
+	e0:SetValue(function(e,_,rc) return rc==e:GetHandler() and e:GetHandler():GetLink() end)
 	c:RegisterEffect(e0)
 	-- Look at the top 3 cards of your opponent's Deck and rearrange
 	local e1=Effect.CreateEffect(c)
