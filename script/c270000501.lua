@@ -3,6 +3,7 @@
 --Revised by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
+	--Special Summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
@@ -39,12 +40,28 @@ function s.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 
-function s.spfilter(c)
+function s.spconfilter(c)
 	return c:IsFacedown() or not c:IsSetCard(0xf16)
 end
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1)
+function s.spfilter(c)
+    return c:IsFaceup() and c:IsSetCard(0xf16)
 end
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	if not tp then return false end
+	if Duel.IsExistingMatchingCard(s.spconfilter,tp,LOCATION_MZONE,0,1,nil) then return false end
+	return Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0
+		or Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
+end
+function s.spcon(e,c)
+    if c==nil then return true end
+    local tp=c:GetControler()
+    if Duel.IsExistingMatchingCard(s.spconfilter,tp,LOCATION_MZONE,0,1,nil) then 
+        return false 
+    end
+    return Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0
+        or Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
+end
+
 -- Condition: Battle Phase and you control a "Milacresy" monster
 function s.atkcon(e)
 	return Duel.IsBattlePhase()
@@ -55,7 +72,8 @@ function s.atktg(e,c)
 end
 --Target 1 "Milacresy" card in GY or banished; add it to your hand
 function s.thfilter(c)
-	return c:IsSetCard(0xf16) and (c:IsLocation(LOCATION_GRAVE) or c:IsLocation(LOCATION_REMOVED)) and c:IsAbleToHand() and c:IsFaceup()
+    return c:IsSetCard(0xf16) and c:IsAbleToHand()
+        and (c:IsLocation(LOCATION_GRAVE) or (c:IsLocation(LOCATION_REMOVED) and c:IsFaceup()))
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and s.thfilter(chkc) end
