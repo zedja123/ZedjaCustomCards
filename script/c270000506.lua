@@ -1,4 +1,6 @@
 -- Milacresy Obnoxius Doll
+--Scripted by: Zedja
+--Revised by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
 	-- Effect 1: Discard to search or banish
@@ -8,17 +10,16 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCountLimit(1,{id,1})
-	e1:SetCost(s.thcost)
+	e1:SetCost(Cost.SelfDiscard)
 	e1:SetTarget(s.thtg)
 	e1:SetOperation(s.thop)
 	c:RegisterEffect(e1)
-	
 	-- Effect 2: Special Summon if used as Synchro or Link Material
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_TO_GRAVE)
+	e2:SetCode(EVENT_BE_MATERIAL)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCountLimit(1,{id,2})
 	e2:SetCondition(s.spcon)
@@ -28,11 +29,6 @@ function s.initial_effect(c)
 end
 
 -- Effect 1: Discard to search or banish
-function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsDiscardable() end
-	Duel.SendtoGrave(e:GetHandler(),REASON_COST+REASON_DISCARD)
-end
-
 function s.thfilter(c)
 	return c:IsSetCard(0xf16) and (c:IsAbleToHand() or c:IsAbleToRemove())
 end
@@ -60,8 +56,8 @@ end
 
 -- Effect 2: Special Summon if used as Synchro or Link Material
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsReason(REASON_MATERIAL) and 
-		   (e:GetHandler():IsReason(REASON_SYNCHRO) or e:GetHandler():IsReason(REASON_LINK))
+	return e:GetHandler():IsLocation(LOCATION_GRAVE) and (r==REASON_SYNCHRO or r==REASON_LINK)
+		and e:GetHandler():GetReasonCard():IsSetCard(0xf16)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
