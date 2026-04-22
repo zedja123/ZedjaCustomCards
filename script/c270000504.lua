@@ -1,20 +1,22 @@
 --Milacresy Invallunism - Amarae
+--Scripted by: Zedja
+--Revised by: Whispered
 local s,id=GetID()
-function c270000504.initial_effect(c)
+function s.initial_effect(c)
 	-- When Normal or Special Summoned
-local e1=Effect.CreateEffect(c)
-e1:SetDescription(aux.Stringid(id,0))
-e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_REMOVE)
-e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-e1:SetCode(EVENT_SUMMON_SUCCESS)
-e1:SetProperty(EFFECT_FLAG_DELAY)
-e1:SetCountLimit(1,{id,1})
-e1:SetTarget(s.target)
-e1:SetOperation(s.operation)
-c:RegisterEffect(e1)
-local e2=e1:Clone()
-e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-c:RegisterEffect(e2)
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_REMOVE)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_SUMMON_SUCCESS)
+	e1:SetProperty(EFFECT_FLAG_DELAY)
+	e1:SetCountLimit(1,{id,1})
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
+	c:RegisterEffect(e1)
+	local e2=e1:Clone()
+	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	c:RegisterEffect(e2)
 	-- Quick effect during the Main Phase to restrict a monster's use as material
 	local e3=Effect.CreateEffect(c)
 	e3:SetCategory(CATEGORY_DISABLE)
@@ -28,6 +30,31 @@ c:RegisterEffect(e2)
 	c:RegisterEffect(e3)
 end
 
+-- Banish top 3 cards and Special Summon
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>=3
+		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,3,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
+end
+
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<3 then return end
+	local g=Duel.GetDecktopGroup(tp,3)
+	Duel.DisableShuffleCheck()
+	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)==3 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
+		if #sg>0 then
+			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
+		end
+	end
+end
+--
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsMainPhase() -- Can only be activated during the Main Phase
 end
@@ -48,36 +75,12 @@ function s.matoperation(e,tp,eg,ep,ev,re,r,rp)
 	if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		-- Prevent the target from being used as material until the end of the Chain
 		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetDescription(aux.Stringid(id,1))
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CANNOT_BE_MATERIAL)
 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetReset(RESET_CHAIN) -- Resets at the end of the Chain
 		e1:SetValue(1)
 		tc:RegisterEffect(e1)
-	end
-
--- Banish top 3 cards and Special Summon
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>=3
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,3,tp,LOCATION_DECK)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
-end
-
-function s.spfilter(c,e,tp)
-	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-end
-
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<3 then return end
-	local g=Duel.GetDecktopGroup(tp,3)
-	Duel.DisableShuffleCheck()
-	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)==3 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
-		if #sg>0 then
-			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
-		end
-	end
 	end
 end
