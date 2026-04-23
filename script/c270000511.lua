@@ -1,8 +1,10 @@
--- Milacresy Rakakeri
+--Milacresy Rakakeri
+--Scripted by: Zedja
+--Revised by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
 	-- Synchro summon procedure
-	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,1,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,1,s.tunersub) -- "Milacresy" Tuner and non-Tuner
+	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,1,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,99,s.tunersub) -- "Milacresy" Tuner and non-Tuner
 	c:EnableReviveLimit()
 	-- For this card's Synchro Summon, you can treat 1 Link monster you control as Tuner with Level equal to it's Link Rating for material.
 	local e0=Effect.CreateEffect(c)
@@ -25,12 +27,11 @@ function s.initial_effect(c)
 	e1:SetTarget(s.bantg)
 	e1:SetOperation(s.banop)
 	c:RegisterEffect(e1)
-
 	-- Effect: Shuffle and Special Summon
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1)) -- Description for the second effect
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TODECK)
+	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_GRAVE)
 	e1:SetCountLimit(1,{id,2})
 	e2:SetCondition(s.spcon)
@@ -43,23 +44,26 @@ function s.tunersub(c,scard,sumtype,tp)
 	return c:IsSetCard(0xf16) and c:IsLinkMonster()
 end
 
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(0xf16) and c:IsType(TYPE_MONSTER)
+end
+
 function s.con(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
 end
 
 function s.bantg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(nil,tp,LOCATION_DECK,0,5,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,LOCATION_DECK,0,5,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_REMOVED|LOCATION_GRAVE)
 end
 
 function s.banop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetDecktopGroup(tp,5)
 	Duel.DisableShuffleCheck()
-	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
-	local ct=g:FilterCount(Card.IsSetCard,nil,0xf16) -- Count "Milacresy" cards
-	if ct>0 then
+	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_REMOVED+LOCATION_GRAVE,0,1,1,nil)
+		local sg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_REMOVED+LOCATION_GRAVE,0,1,1,nil)
 		if #sg>0 then
 			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 		end
@@ -67,26 +71,25 @@ function s.banop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsLocation(LOCATION_GRAVE) and Duel.GetMatchingGroupCount(Card.IsSetCard,tp,LOCATION_MZONE,0,nil,0xf16)==Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0) -- Check if all controlled monsters are "Milacresy"
-end
-
-function s.spfilter(c,e,tp)
-	return c:IsSetCard(0xf16) and c:IsType(TYPE_MONSTER)  -- Filter for "Milacresy" cards to special summon
+	return e:GetHandler():IsLocation(LOCATION_GRAVE) and
+	Duel.GetMatchingGroupCount(Card.IsSetCard,tp,LOCATION_MZONE,0,nil,0xf16)==Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0) -- Check if all controlled monsters are "Milacresy"
 end
 
 function s.shfilter(c)
-	return c:IsSetCard(0xf16)-- Filter for "Milacresy" cards to special summon
+	return c:IsSetCard(0xf16)
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.shfilter,tp,LOCATION_REMOVED,0,3,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.shfilter,tp,LOCATION_REMOVED,0,3,nil)
+	and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	end
 end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
 	local g=Duel.SelectMatchingCard(tp,s.shfilter,tp,LOCATION_REMOVED,0,3,3,nil)
-	if #g>0 then
-		Duel.SendtoDeck(g,nil,2,REASON_EFFECT)
+	if #g>0 and Duel.SendtoDeck(g,tp,SEQ_DECKSHUFFLE,REASON_EFFECT) then
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 		-- Banish it when it leaves the field
 		local e1=Effect.CreateEffect(c)
