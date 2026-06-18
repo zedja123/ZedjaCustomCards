@@ -1,19 +1,19 @@
 --Milacresy Essence - Layah
+--Scripted by: Zedja
+--Revised by: Whispered
 local s,id,o=GetID()
 function s.initial_effect(c)
-	-- Synchro summon procedure
-	Synchro.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,99,aux.FilterBoolFunction(Card.IsSetCard,0xf16),1,99,s.tunersub) -- "Milacresy" Tuner and non-Tuner
-
 	c:EnableReviveLimit()
-	-- For this card's Synchro Summon, you can treat 1 Link monster you control as Tuner with Level equal to it's Link Rating for material.
+	-- Contact Synchro Summon
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_FIELD)
-	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
-	e0:SetCode(EFFECT_SYNCHRO_LEVEL)
+	e0:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e0:SetCode(EFFECT_SPSUMMON_PROC)
 	e0:SetRange(LOCATION_EXTRA)
-	e0:SetTargetRange(LOCATION_MZONE,0)
-	e0:SetTarget(function(e,c) return c:IsLinkMonster() end)
-	e0:SetValue(function(e,_,rc) return rc==e:GetHandler() and e:GetHandler():GetLink() end)
+	e0:SetValue(SUMMON_TYPE_SYNCHRO)
+	e0:SetCondition(s.sprcon)
+	e0:SetTarget(s.sprtg)
+	e0:SetOperation(s.sprop)
 	c:RegisterEffect(e0)
 	-- Look at the top 3 cards of your opponent's Deck and rearrange
 	local e1=Effect.CreateEffect(c)
@@ -21,12 +21,11 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetCountLimit(1,{id,1})
+	e1:SetCountLimit(1,id)
 	e1:SetCondition(s.syncon)
 	e1:SetTarget(s.rearrangetg)
 	e1:SetOperation(s.rearrangeop)
 	c:RegisterEffect(e1)
-
 	-- Quick Effect: Negate and destroy
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
@@ -34,29 +33,61 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1,{id,2})
+	e2:SetCountLimit(1,{id,1})
 	e2:SetTarget(s.negtg)
 	e2:SetOperation(s.negop)
 	c:RegisterEffect(e2)
-	-- Must be Synchro Summoned
-	local e3=Effect.CreateEffect(c)
-	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e3:SetType(EFFECT_TYPE_SINGLE)
-	e3:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e3:SetValue(aux.synlimit)
-	c:RegisterEffect(e3)
 end
 
-function s.tunersub(c,scard,sumtype,tp)
-	return c:IsSetCard(0xf16) and c:IsLinkMonster()
+--
+function s.sprfilter(c)
+	return c:IsFaceup() and c:IsSetCard(0xf16) and c:IsMonster() and c:IsAbleToGraveAsCost()
 end
-
--- Synchro Summon condition
+function s.sprfilter1(c,tp,g,sc)
+	local lv=c:GetLevel()
+	if c:IsLinkMonster() then lv=c:GetLink() end
+	local g=Duel.GetMatchingGroup(s.sprfilter,tp,LOCATION_MZONE,0,nil)
+	return c:IsSetCard(0xf16) and (c:IsType(TYPE_TUNER) or c:IsLinkMonster())
+		and g:IsExists(s.sprfilter2,1,c,tp,c,sc,lv)
+end
+function s.sprfilter2(c,tp,mc,sc,lv)
+	local sg=Group.FromCards(c,mc)
+	local nlv=c:GetLevel()
+	return lv+nlv==8 and not c:IsType(TYPE_TUNER) and Duel.GetLocationCountFromEx(tp,tp,sg,sc)>0
+end
+function s.sprcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	local g=Duel.GetMatchingGroup(s.sprfilter,tp,LOCATION_MZONE,0,nil)
+	return g:IsExists(s.sprfilter1,1,nil,tp,g,c)
+end
+function s.sprtg(e,tp,eg,ep,ev,re,r,rp,c)
+    local g=Duel.GetMatchingGroup(s.sprfilter,tp,LOCATION_MZONE,0,nil)
+    local g1=g:Filter(s.sprfilter1,nil,tp,c)
+    local mg1=aux.SelectUnselectGroup(g1,e,tp,1,1,nil,1,tp,HINTMSG_TOGRAVE,nil,nil,true)
+    if #mg1>0 then
+        local mc=mg1:GetFirst()
+        local lv=mc:IsLinkMonster() and mc:GetLink() or mc:GetLevel()
+        local g2=g:Filter(s.sprfilter2,mc,tp,mc,c,lv)
+        local mg2=aux.SelectUnselectGroup(g2,e,tp,1,1,nil,1,tp,HINTMSG_TOGRAVE,nil,nil,true)
+        mg1:Merge(mg2)
+    end
+    if #mg1==2 then
+        mg1:KeepAlive()
+        e:SetLabelObject(mg1)
+        return true
+    end
+    return false
+end
+function s.sprop(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=e:GetLabelObject()
+	if not g then return end
+	Duel.SendtoGrave(g,REASON_SYNCHRO)
+end
+-- Look at the top 3 cards of your opponent's Deck and rearrange
 function s.syncon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
 end
-
--- Look at the top 3 cards of your opponent's Deck and rearrange
 function s.rearrangetg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDiscardDeck(tp,3) end
 end
