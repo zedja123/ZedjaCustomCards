@@ -1,17 +1,19 @@
+--
 --Party, Assemble!
+--scripted by Zedja
 local s,id=GetID()
+local RACES_PARTY=RACE_BEAST|RACE_BEASTWARRIOR|RACE_WINGEDBEAST
 function s.initial_effect(c)
-	--Activate: Add 1 Level 4 or lower Beast/Beast-Warrior/Winged Beast
+	--When this card is activated: You can add 1 Level 4 or lower Beast, Beast-Warrior, or Winged Beast monster from your Deck to your hand
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1,id)
-	e1:SetOperation(s.activate)
+	e1:SetTarget(s.acttg)
+	e1:SetOperation(s.actop)
 	c:RegisterEffect(e1)
-
-	--Continuous ATK/DEF boost
+	--Monsters you control gain 50 ATK/DEF for each different Type and each different Attribute among face-up monsters you control
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
 	e2:SetCode(EFFECT_UPDATE_ATTACK)
@@ -22,8 +24,7 @@ function s.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e3)
-
-	--If banished: Special Summon from hand
+	--If this card is banished: You can Special Summon 1 Beast, Beast-Warrior, or Winged Beast monster from your hand
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -35,56 +36,55 @@ function s.initial_effect(c)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
 end
-
---e1: Search on activation
-function s.filter(c)
-	return c:IsLevelBelow(4) and c:IsRace(RACE_BEAST+RACE_BEASTWARRIOR+RACE_WINGEDBEAST) and c:IsAbleToHand()
+function s.thfilter(c)
+	return c:IsMonster() and c:IsLevelBelow(4) and c:IsRace(RACES_PARTY) and c:IsAbleToHand()
 end
-function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil)
-		and Duel.SelectYesNo(tp, aux.Stringid(id, 0)) then
+function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	if Duel.GetFlagEffect(tp,id)==0 and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) then
+		Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+	end
+end
+function s.actop(e,tp,eg,ep,ev,re,r,rp)
+	if not e:GetHandler():IsRelateToEffect(e) or Duel.GetFlagEffect(tp,id)>0 then return end
+	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
+	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+		Duel.RegisterFlagEffect(tp,id,RESET_PHASE|PHASE_END,0,1)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil)
-		if #g>0 then
-			Duel.SendtoHand(g,nil,REASON_EFFECT)
-			Duel.ConfirmCards(1-tp,g)
-		end
+		local sg=g:Select(tp,1,1,nil)
+		Duel.SendtoHand(sg,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,sg)
 	end
 end
-
---e2/e3: ATK/DEF boost based on unique Types and Attributes
+local function bitcount(v)
+	local n=0
+	while v>0 do
+		n=n+(v&1)
+		v=v>>1
+	end
+	return n
+end
 function s.statval(e,c)
-	local tp=c:GetControler()
-	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
-	local types={}
-	local attrs={}
-	for tc in g:Iter() do
-		types[tc:GetRace()]=true
-		attrs[tc:GetAttribute()]=true
+	local races,attrs=0,0
+	for tc in Duel.GetMatchingGroup(Card.IsFaceup,e:GetHandlerPlayer(),LOCATION_MZONE,0,nil):Iter() do
+		races=races|tc:GetRace()
+		attrs=attrs|tc:GetAttribute()
 	end
-	local typecount=0
-	for k,v in pairs(types) do typecount=typecount+1 end
-	local attrcount=0
-	for k,v in pairs(attrs) do attrcount=attrcount+1 end
-	return (typecount + attrcount) * 50
+	return (bitcount(races)+bitcount(attrs))*50
 end
-
---e4: If banished, Special Summon from hand
 function s.spfilter(c,e,tp)
-	return c:IsRace(RACE_BEAST+RACE_BEASTWARRIOR+RACE_WINGEDBEAST) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsRace(RACES_PARTY) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_HAND,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	if Duel.SelectYesNo(tp, aux.Stringid(id, 1)) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp)
-		if #g>0 then
-			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
-		end
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp)
+	if #g>0 then
+		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

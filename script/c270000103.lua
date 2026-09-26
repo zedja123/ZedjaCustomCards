@@ -1,79 +1,63 @@
+--
 --Wiccanthrope Befaist
-local s,id,o=GetID()
-function c270000103.initial_effect(c)
-	-- Special Summon from GY if you control a "Wiccanthrope" monster, except "Wiccanthrope Befaist"
-	local e1 = Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id, 0))
+--scripted by Zedja
+local s,id=GetID()
+local SET_WICCANTHROPE=0xe01
+function s.initial_effect(c)
+	--If you control a "Wiccanthrope" monster, except "Wiccanthrope Befaist", you can Special Summon this card (from your GY)
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetRange(LOCATION_GRAVE)
-	e1:SetCondition(s.spcon)
-	e1:SetCountLimit(1, {id, 1})
+	e1:SetCountLimit(1,{id,0},EFFECT_COUNT_CODE_OATH)
+	e1:SetCondition(s.spproccon)
 	c:RegisterEffect(e1)
-
-	-- If this card is Summoned: Add 1 "Wiccanthrope" Spell/Trap from your Deck to your hand
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
-	e2:SetCode(EVENT_SUMMON_SUCCESS)
-	e2:SetCountLimit(1, {id, 2})
-	e2:SetTarget(s.thtg)
-	e2:SetOperation(s.thop)
-	c:RegisterEffect(e2)
-	local e4 = e2:Clone()
-	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
-	c:RegisterEffect(e4)
-	-- During Main Phase: Banish 1 Spell from your hand/field or GY; Destroy 1 card on the field
+	--If this card is Normal or Special Summoned: You can add 1 "Wiccanthrope" Spell/Trap from your Deck to your hand
+	local e2a=Effect.CreateEffect(c)
+	e2a:SetDescription(aux.Stringid(id,1))
+	e2a:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e2a:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2a:SetProperty(EFFECT_FLAG_DELAY)
+	e2a:SetCode(EVENT_SUMMON_SUCCESS)
+	e2a:SetCountLimit(1,{id,1})
+	e2a:SetTarget(s.thtg)
+	e2a:SetOperation(s.thop)
+	c:RegisterEffect(e2a)
+	local e2b=e2a:Clone()
+	e2b:SetCode(EVENT_SPSUMMON_SUCCESS)
+	c:RegisterEffect(e2b)
+	--You can banish 1 Spell from your hand, field, or GY; destroy 1 card on the field
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
-	e3:SetCategory(CATEGORY_REMOVE+CATEGORY_DESTROY)
+	e3:SetCategory(CATEGORY_DESTROY)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCountLimit(1, {id, 3})
-	e3:SetCondition(s.bancon)
+	e3:SetCountLimit(1,{id,2})
+	e3:SetCost(s.descost)
 	e3:SetTarget(s.destg)
 	e3:SetOperation(s.desop)
 	c:RegisterEffect(e3)
 end
-
-
-
--- Special Summon from GY if you control a "Wiccanthrope" monster, except "Wiccanthrope Befaist"
-
-function s.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0xf11) and not c:IsCode(id)
+s.listed_names={id}
+s.listed_series={SET_WICCANTHROPE}
+function s.spcfilter(c)
+	return c:IsFaceup() and c:IsSetCard(SET_WICCANTHROPE) and not c:IsCode(id)
 end
-
-function s.spcon(e,c)
+function s.spproccon(e,c)
 	if c==nil then return true end
-	return Duel.IsExistingMatchingCard(s.filter,c:GetControler(),LOCATION_MZONE,0,1,nil)
+	local tp=c:GetControler()
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.spcfilter,tp,LOCATION_MZONE,0,1,nil)
 end
-
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,tp,LOCATION_GRAVE)
-end
-
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 or not c:IsRelateToEffect(e) then return end
-	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-end
-
--- If this card is Summoned: Add 1 "Wiccanthrope" Spell/Trap from your Deck to your hand
 function s.thfilter(c)
-	return c:IsSetCard(0xf11) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
+	return c:IsSetCard(SET_WICCANTHROPE) and c:IsSpellTrap() and c:IsAbleToHand()
 end
-
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
@@ -82,32 +66,27 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
-
--- During Main Phase: Banish 1 Spell from your hand/field or GY; Destroy 1 card on the field
-
-function s.bancon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsMainPhase()
+function s.costfilter(c)
+	return c:IsSpell() and c:IsAbleToRemoveAsCost()
 end
-
-function s.banfilter(c)
-	return c:IsType(TYPE_SPELL) and c:IsAbleToRemove()
-end
-
-function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil)
-		and Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,nil,1,0,0)
-end
-
-function s.desop(e,tp,eg,ep,ev,re,r,rp)
+function s.descost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_HAND|LOCATION_ONFIELD|LOCATION_GRAVE,0,1,nil)
+		and Duel.IsExistingMatchingCard(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g1=Duel.SelectMatchingCard(tp,s.banfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
-	if #g1>0 and Duel.Remove(g1,POS_FACEUP,REASON_EFFECT)>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g2=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-		if #g2>0 then
-			Duel.Destroy(g2,REASON_EFFECT)
-		end
+	local g=Duel.SelectMatchingCard(tp,s.costfilter,tp,LOCATION_HAND|LOCATION_ONFIELD|LOCATION_GRAVE,0,1,1,nil)
+	Duel.Remove(g,POS_FACEUP,REASON_COST)
+end
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+	local g=Duel.GetFieldGroup(tp,LOCATION_ONFIELD,LOCATION_ONFIELD)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+	if #g>0 then
+		Duel.HintSelection(g)
+		Duel.Destroy(g,REASON_EFFECT)
 	end
 end

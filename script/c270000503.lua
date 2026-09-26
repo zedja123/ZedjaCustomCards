@@ -1,86 +1,84 @@
+--
 --Milacresy Extrallunism - Bibi-bee
+--scripted by Zedja
 local s,id=GetID()
+local SET_MILACRESY=0xe05
 function s.initial_effect(c)
-	-- Special Summon this card if sent to the GY or banished by "Milacresy" card effect
+	--If this card is sent to the GY or banished by the effect of a "Milacresy" card: You can shuffle 3 other "Milacresy" cards from your GY and/or banishment into the Deck; Special Summon this card
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TODECK)
-	e1:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_SINGLE)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_TO_GRAVE)
-	e1:SetCondition(function(e,tp,eg,ep,ev,re) return e:GetHandler():IsReason(REASON_EFFECT) and re:GetHandler():IsSetCard(0xf16) end)
-	e1:SetCost(s.cost)
-	e1:SetTarget(s.target)
-	e1:SetOperation(s.operation)
-	e1:SetCountLimit(1, {id, 1})
+	e1:SetCountLimit(1,{id,0})
+	e1:SetCondition(s.spcon)
+	e1:SetCost(s.spcost)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-
 	local e2=e1:Clone()
 	e2:SetCode(EVENT_REMOVE)
 	c:RegisterEffect(e2)
-
-	-- Add a "Milacresy" Spell/Trap when Special Summoned
+	--If this card is Special Summoned: You can add 1 "Milacresy" Spell/Trap from your Deck to your hand, also "Milacresy" monsters you control cannot be destroyed by card effects until the end of this Chain
 	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_TOHAND)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetCountLimit(1, {id, 2})
-	e3:SetTarget(s.addtg)
-	e3:SetOperation(s.addop)
+	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e3:SetCountLimit(1,{id,1})
+	e3:SetTarget(s.thtg)
+	e3:SetOperation(s.thop)
 	c:RegisterEffect(e3)
 end
-
-function s.shfilter(c)
-	return c:IsSetCard(0xf16) and c:IsAbleToDeckOrExtraAsCost() and c:IsFaceup()
+s.listed_series={SET_MILACRESY}
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsFaceup() and r&REASON_EFFECT==REASON_EFFECT and re and re:GetHandler():IsSetCard(SET_MILACRESY)
 end
-
--- Cost: Shuffle 3 "Milacresy" cards from your GY or banished
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.tdfilter(c)
+	return c:IsSetCard(SET_MILACRESY) and c:IsFaceup() and c:IsAbleToDeckAsCost()
+end
+function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.IsExistingMatchingCard(s.shfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,3,c) end
-	local g=Duel.SelectMatchingCard(tp,s.shfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,3,3,c)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,3,c) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+	local g=Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,3,3,c)
 	Duel.HintSelection(g)
-	Duel.SendtoDeck(g,nil,3,REASON_COST)
+	Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_COST)
 end
-
--- Target: This card from GY or banished
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) and e:GetHandler():GetLocation(LOCATION_GRAVE+LOCATION_REMOVED) end
-	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, e:GetHandler(), 1, 0, 0)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
 end
-
--- Operation: Special Summon this card
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	Duel.SpecialSummon(e:GetHandler(), 0, tp, tp, false, false, POS_FACEUP)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	end
 end
-function s.addfilter(c)
-	return c:IsSetCard(0xf16) and (c:IsType(TYPE_SPELL) or c:IsType(TYPE_TRAP))
+function s.thfilter(c)
+	return c:IsSetCard(SET_MILACRESY) and c:IsSpellTrap() and c:IsAbleToHand()
 end
--- Target: Add a "Milacresy" Spell/Trap from Deck to hand
-function s.addtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.addfilter,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0, CATEGORY_TOHAND, nil, 0, tp, 1)
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-
--- Operation: Add the selected Spell/Trap to hand
-function s.addop(e,tp,eg,ep,ev,re,r,rp)
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,s.addfilter,tp,LOCATION_DECK,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
-
-		-- Apply protection effect after the negation and destruction resolves
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
-		e1:SetTargetRange(LOCATION_MZONE,0)
-		e1:SetTarget(s.prottg)
-		e1:SetValue(1)
-		e1:SetReset(RESET_PHASE+PHASE_END+RESET_CHAIN)
-		Duel.RegisterEffect(e1,tp)
 	end
-end
-
-function s.prottg(e,c)
-	return c:IsSetCard(0xf16) and c:IsType(TYPE_MONSTER)
+	--Also "Milacresy" monsters you control cannot be destroyed by card effects until the end of this Chain
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+	e1:SetTargetRange(LOCATION_MZONE,0)
+	e1:SetTarget(function(e,c) return c:IsSetCard(SET_MILACRESY) end)
+	e1:SetValue(1)
+	e1:SetReset(RESET_CHAIN)
+	Duel.RegisterEffect(e1,tp)
 end

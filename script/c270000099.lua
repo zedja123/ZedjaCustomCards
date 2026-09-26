@@ -1,149 +1,140 @@
+--
 --Albaz, the Fallen
---Scripted by Zedja
+--scripted by Zedja
 local s,id=GetID()
 function s.initial_effect(c)
-	-- Fusion Material: 1 Code: 68468459 OR 1 Fusion Monster + 1+ monsters on the field
 	c:EnableReviveLimit()
-	Fusion.AddProcMixRep(c,true,true,s.ffilter,1,99,s.matfilter1)
-	
-	-- Special Summon by tributing 1 Fusion Monster you control
+	--Fusion Materials: "Fallen of Albaz" or 1 Fusion Monster + 1+ monsters on the field
+	Fusion.AddProcMixRep(c,true,true,s.ffilter,1,99,s.matfilter)
+	--You can also Special Summon this card (from your Extra Deck) by Tributing 1 Fusion Monster you control
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(aux.Stringid(id,0))
+	e0:SetType(EFFECT_TYPE_FIELD)
+	e0:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e0:SetCode(EFFECT_SPSUMMON_PROC)
+	e0:SetRange(LOCATION_EXTRA)
+	e0:SetCondition(s.hspcon)
+	e0:SetTarget(s.hsptg)
+	e0:SetOperation(s.hspop)
+	c:RegisterEffect(e0)
+	--This card's name becomes "Fallen of Albaz" while on the field or in the GY
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_SPSUMMON_PROC)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e1:SetRange(LOCATION_EXTRA)
-	e1:SetCondition(s.spcon)
-	e1:SetOperation(s.spop)
-	e1:SetValue(SUMMON_TYPE_FUSION)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e1:SetCode(EFFECT_CHANGE_CODE)
+	e1:SetRange(LOCATION_MZONE|LOCATION_GRAVE)
+	e1:SetValue(CARD_ALBAZ)
 	c:RegisterEffect(e1)
-	--Change name
+	--You can Tribute this card; Special Summon 1 Fusion Monster that mentions "Fallen of Albaz" as material from your Extra Deck (this is treated as a Fusion Summon)
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_SINGLE)
-	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e2:SetCode(EFFECT_CHANGE_CODE)
-	e2:SetRange(LOCATION_MZONE+LOCATION_GRAVE)
-	e2:SetValue(CARD_ALBAZ)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1,{id,0})
+	e2:SetCost(Cost.SelfTribute)
+	e2:SetTarget(s.sptg)
+	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
-
-	-- Tribute this card to Special Summon 1 Fusion Monster that mentions "Fallen of Albaz" as material
+	--Register that this card was sent to the GY this turn
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,0))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
-	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetCountLimit(1,{id,1})
-	e3:SetCost(s.spcost)
-	e3:SetTarget(s.sptg)
-	e3:SetOperation(s.spop2)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e3:SetCode(EVENT_TO_GRAVE)
+	e3:SetOperation(s.regop)
 	c:RegisterEffect(e3)
-
-	--Register the fact it was sent to GY
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e4:SetCode(EVENT_TO_GRAVE)
-	e4:SetOperation(s.regop)
-	c:RegisterEffect(e4)
 end
-
--- Fusion Materials: Code 68468459 or 1 Fusion Monster + 1+ monsters on the field
-function s.matfilter1(c,fc,sumtype,tp)
-	return c:IsCode(68468459) or c:IsType(TYPE_FUSION,fc,sumtype,tp)
+s.listed_names={CARD_ALBAZ}
+s.material={CARD_ALBAZ}
+function s.matfilter(c,fc,sumtype,tp)
+	return c:IsSummonCode(fc,sumtype,tp,CARD_ALBAZ) or c:IsType(TYPE_FUSION,fc,sumtype,tp)
 end
-
-function s.ffilter(c)
+function s.ffilter(c,fc,sumtype,tp)
 	return c:IsOnField()
 end
-
--- Special Summon condition: Tribute 1 Fusion Monster you control
-function s.spcon(e,c)
+function s.hspfilter(c,tp,sc)
+	return c:IsFaceup() and c:IsType(TYPE_FUSION) and c:IsReleasable() and Duel.GetLocationCountFromEx(tp,tp,c,sc)>0
+end
+function s.hspcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	return Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and
-		Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_MZONE,0,1,nil,TYPE_FUSION)
+	return Duel.IsExistingMatchingCard(s.hspfilter,tp,LOCATION_MZONE,0,1,nil,tp,c)
 end
-
--- Operation: Tribute 1 Fusion Monster and Special Summon this card
-function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,Card.IsType,tp,LOCATION_MZONE,0,1,1,nil,TYPE_FUSION)
-	if #g>0 then
-		Duel.SendtoGrave(g,REASON_COST)
+function s.hsptg(e,tp,eg,ep,ev,re,r,rp,chk,c)
+	local g=Duel.GetMatchingGroup(s.hspfilter,tp,LOCATION_MZONE,0,nil,tp,c)
+	local sg=aux.SelectUnselectGroup(g,e,tp,1,1,nil,1,tp,HINTMSG_RELEASE,nil,nil,true)
+	if #sg>0 then
+		sg:KeepAlive()
+		e:SetLabelObject(sg)
+		return true
 	end
+	return false
 end
-
--- Cost: Tribute this card
-function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsReleasable() end
-	Duel.Release(e:GetHandler(),REASON_COST)
+function s.hspop(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=e:GetLabelObject()
+	if not g then return end
+	Duel.Release(g,REASON_COST)
+	g:DeleteGroup()
 end
-
--- Target: Special Summon 1 Fusion Monster that mentions "Fallen of Albaz" as material from the Extra Deck
+function s.spfilter(c,e,tp,mc)
+	return c:IsType(TYPE_FUSION) and c:ListsCodeAsMaterial(CARD_ALBAZ)
+		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0
+end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		return Duel.GetLocationCountFromEx(tp)>=0
-			and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
-	end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,e:GetHandler()) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
-
-function s.spfilter(c,e,tp)
-	return (c:IsCode(CARD_ALBAZ) or c:ListsCode(CARD_ALBAZ)) and not c:IsCode(id)
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_FUSION)
-end
-
--- Operation: Special Summon the selected Fusion Monster
-function s.spop2(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
-	if #g>0 then
-		Duel.SpecialSummon(g,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
-		g:GetFirst():CompleteProcedure() -- Treat as a Fusion Summon
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local sc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,nil):GetFirst()
+	if not sc then return end
+	sc:SetMaterial(nil)
+	if Duel.SpecialSummon(sc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)>0 then
+		sc:CompleteProcedure()
 	end
 end
--------
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	--During the End Phase, if this card is in the GY because it was sent there this turn: You can send 1 Fusion Monster that mentions "Fallen of Albaz" as material from your Extra Deck to the GY; add to your hand or Special Summon 1 "Fallen of Albaz", or 1 monster that mentions it, from your Deck
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,2))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_PHASE+PHASE_END)
 	e1:SetRange(LOCATION_GRAVE)
-	e1:SetCountLimit(1,{id,2})
+	e1:SetCountLimit(1,{id,1})
+	e1:SetCost(s.thcost)
 	e1:SetTarget(s.thtg)
 	e1:SetOperation(s.thop)
-	e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END)
+	e1:SetReset(RESETS_STANDARD_PHASE_END)
 	c:RegisterEffect(e1)
 end
-
+function s.costfilter(c)
+	return c:IsType(TYPE_FUSION) and c:ListsCodeAsMaterial(CARD_ALBAZ) and c:IsAbleToGraveAsCost()
+end
+function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_EXTRA,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,s.costfilter,tp,LOCATION_EXTRA,0,1,1,nil)
+	Duel.SendtoGrave(g,REASON_COST)
+end
 function s.thfilter(c,e,tp,ft)
-	return c:IsMonster() and (c:ListsCode(CARD_ALBAZ) or c:IsCode(68468459))
-		and (c:IsAbleToHand() or (c:IsCanBeSpecialSummoned(e,0,tp,false,false) and ft>0))
+	return c:IsMonster() and (c:IsCode(CARD_ALBAZ) or c:ListsCode(CARD_ALBAZ))
+		and (c:IsAbleToHand() or (ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)))
 end
-function s.tgfilter(c,e,tp,ft)
-	return c:ListsCode(CARD_ALBAZ) and c:IsAbleToGraveAsCost() and c:IsType(TYPE_FUSION)
-end
-	--Activation legality
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil,e,tp,ft) or Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_EXTRA)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil,e,tp,ft) end
+	Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 end
-
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
-	local tg=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_EXTRA,0,1,1,nil) -- Select the matching card
-	if #tg>0 then
-		Duel.SendtoGrave(tg,REASON_EFFECT)
-	end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
 	local tc=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,ft):GetFirst()
-	if tc then
-		aux.ToHandOrElse(tc,tp,function(c)
-			return tc:IsCanBeSpecialSummoned(e,0,tp,false,false) and ft>0 end,
-		function(c)
-			Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP) end,
+	if not tc then return end
+	aux.ToHandOrElse(tc,tp,
+		function(c) return ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end,
+		function(c) Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end,
 		aux.Stringid(id,3))
-	end
 end
