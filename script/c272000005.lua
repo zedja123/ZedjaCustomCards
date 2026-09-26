@@ -82,19 +82,18 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,1-tp,LOCATION_DECK|LOCATION_EXTRA)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	--"look at ... and Special Summon": both parts are required, so do nothing if no monster can be Summoned
 	local g=Duel.GetFieldGroup(tp,0,LOCATION_DECK|LOCATION_EXTRA)
-	if #g==0 then return end
-	Duel.ConfirmCards(tp,g)
 	local sg=g:Filter(s.spfilter,nil,e,tp)
-	if #sg>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local tc=sg:Select(tp,1,1,nil):GetFirst()
-		local b1=s.fieldcheck(tc,e,tp,tp)
-		local b2=s.fieldcheck(tc,e,tp,1-tp)
-		local op=Duel.SelectEffect(tp,{b1,aux.Stringid(id,2)},{b2,aux.Stringid(id,3)})
-		local p=op==1 and tp or 1-tp
-		Duel.SpecialSummon(tc,0,tp,p,true,false,POS_FACEUP)
-	end
+	if #sg==0 then return end
+	Duel.ConfirmCards(tp,g)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local tc=sg:Select(tp,1,1,nil):GetFirst()
+	local b1=s.fieldcheck(tc,e,tp,tp)
+	local b2=s.fieldcheck(tc,e,tp,1-tp)
+	local op=Duel.SelectEffect(tp,{b1,aux.Stringid(id,2)},{b2,aux.Stringid(id,3)})
+	local p=op==1 and tp or 1-tp
+	Duel.SpecialSummon(tc,0,tp,p,true,false,POS_FACEUP)
 	Duel.ShuffleDeck(1-tp)
 	Duel.ShuffleExtra(1-tp)
 end
