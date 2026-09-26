@@ -1,86 +1,82 @@
+--
 --Milacresy Invallunism - Amarae
---Scripted by: Zedja
---Revised by: Whispered
+--scripted by Zedja
+--revised by Whispered
 local s,id=GetID()
+local SET_MILACRESY=0xe05
 function s.initial_effect(c)
-	-- When Normal or Special Summoned
+	--If this card is Summoned: You can banish the top 3 cards of your Deck, then you can Special Summon 1 "Milacresy" monster from your Deck or banishment
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_REMOVE)
+	e1:SetCategory(CATEGORY_REMOVE+CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e1:SetCode(EVENT_SUMMON_SUCCESS)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
-	e1:SetCountLimit(1,{id,1})
-	e1:SetTarget(s.sptg)
-	e1:SetOperation(s.spop)
+	e1:SetCode(EVENT_SUMMON_SUCCESS)
+	e1:SetCountLimit(1,{id,0})
+	e1:SetTarget(s.rmtg)
+	e1:SetOperation(s.rmop)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
-	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e2:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
 	c:RegisterEffect(e2)
-	-- Quick effect during the Main Phase to restrict a monster's use as material
-	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_DISABLE)
-	e3:SetType(EFFECT_TYPE_QUICK_O)
-	e3:SetCode(EVENT_FREE_CHAIN)
-	e3:SetRange(LOCATION_MZONE) -- Can be activated from the Monster Zone
-	e3:SetCountLimit(1,{id,2}) -- Once per turn
-	e3:SetCondition(s.condition)
-	e3:SetTarget(s.target)
-	e3:SetOperation(s.matoperation)
+	local e3=e1:Clone()
+	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
+	--During the Main Phase (Quick Effect): You can target 1 monster on the field; it cannot be used as material for a Fusion, Synchro, Xyz, or Link Summon until the end of this Chain
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,2))
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e4:SetCode(EVENT_FREE_CHAIN)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetHintTiming(0,TIMING_MAIN_END|TIMINGS_CHECK_MONSTER)
+	e4:SetCountLimit(1,{id,1})
+	e4:SetCondition(function() return Duel.IsMainPhase() end)
+	e4:SetTarget(s.mattg)
+	e4:SetOperation(s.matop)
+	c:RegisterEffect(e4)
 end
-
--- Banish top 3 cards and Special Summon
-function s.spfilter(c,e,tp)
-	return c:IsSetCard(0xf16) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-end
-
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>=3
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) end
+s.listed_series={SET_MILACRESY}
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetDecktopGroup(tp,3):FilterCount(Card.IsAbleToRemove,nil)==3 end
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,3,tp,LOCATION_DECK)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK|LOCATION_REMOVED)
 end
-
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<3 then return end
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(SET_MILACRESY) and c:IsMonster() and (c:IsLocation(LOCATION_DECK) or c:IsFaceup())
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetDecktopGroup(tp,3)
+	if #g<3 then return end
 	Duel.DisableShuffleCheck()
-	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)==3 then
+	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)>0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK|LOCATION_REMOVED,0,1,nil,e,tp)
+		and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
+		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
+		local sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK|LOCATION_REMOVED,0,1,1,nil,e,tp)
 		if #sg>0 then
 			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 		end
 	end
 end
---
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsMainPhase() -- Can only be activated during the Main Phase
+function s.mattg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) end
+	if chk==0 then return Duel.IsExistingTarget(nil,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	Duel.SelectTarget(tp,nil,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
 end
-
-function s.filter(c)
-	return c:IsFaceup() -- Check for any face-up monster on the field
-end
-
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and s.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-end
-
-function s.matoperation(e,tp,eg,ep,ev,re,r,rp)
+function s.matop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() then
-		-- Prevent the target from being used as material until the end of the Chain
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetDescription(aux.Stringid(id,1))
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CANNOT_BE_MATERIAL)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetReset(RESET_CHAIN) -- Resets at the end of the Chain
-		e1:SetValue(1)
-		tc:RegisterEffect(e1)
-	end
+	if not tc:IsRelateToEffect(e) then return end
+	--It cannot be used as material for a Fusion, Synchro, Xyz, or Link Summon until the end of this Chain
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetDescription(aux.Stringid(id,3))
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+	e1:SetCode(EFFECT_CANNOT_BE_MATERIAL)
+	e1:SetValue(aux.cannotmatfilter(SUMMON_TYPE_FUSION,SUMMON_TYPE_SYNCHRO,SUMMON_TYPE_XYZ,SUMMON_TYPE_LINK))
+	e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_CHAIN)
+	tc:RegisterEffect(e1)
 end

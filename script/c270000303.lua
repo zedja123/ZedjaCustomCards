@@ -1,201 +1,177 @@
+--
 --Lavoisier Bertha
-local s,id,o=GetID()
-function c270000303.initial_effect(c)
-	-- Pendulum Summon restriction
+--scripted by Zedja
+local s,id=GetID()
+local SET_LAVOISIER=0xe03
+function s.initial_effect(c)
+	--Pendulum Summon procedure
 	Pendulum.AddProcedure(c)
-	
-	-- Cannot Pendulum Summon except "Lavoisier" monsters
+	--You cannot Pendulum Summon, except "Lavoisier" monsters. This effect cannot be negated
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
 	e1:SetRange(LOCATION_PZONE)
 	e1:SetTargetRange(1,0)
 	e1:SetTarget(s.pendlimit)
 	c:RegisterEffect(e1)
-	
-	-- Destroy this card to add 1 "Lavoisier" card from GY to hand
+	--You can target 1 "Lavoisier" card in your GY; destroy this card, and if you do, add that target to your hand
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
-	e2:SetCategory(CATEGORY_TOHAND)
+	e2:SetCategory(CATEGORY_DESTROY+CATEGORY_TOHAND)
 	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_PZONE)
-	e2:SetCountLimit(1,{id,3})
-	e2:SetCost(s.thcost)
-	e2:SetTarget(s.thtg)
-	e2:SetOperation(s.thop)
+	e2:SetCountLimit(1,{id,0})
+	e2:SetTarget(s.gythtg)
+	e2:SetOperation(s.gythop)
 	c:RegisterEffect(e2)
-
-	-- Monster Effect: Destroy 1 card from your hand; Add 1 "Lavoisier" Spell/Trap
-	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_DESTROY+CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_SUMMON_SUCCESS)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetCountLimit(1,{id,4})
-	e3:SetTarget(s.sthtg)
-	e3:SetOperation(s.stop)
-	c:RegisterEffect(e3)
-	local e4=e3:Clone()
-	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
+	--If this card is Summoned: You can destroy 1 card in your hand, and if you do, add 1 "Lavoisier" Spell/Trap from your Deck to your hand
+	local e3a=Effect.CreateEffect(c)
+	e3a:SetDescription(aux.Stringid(id,1))
+	e3a:SetCategory(CATEGORY_DESTROY+CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e3a:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3a:SetProperty(EFFECT_FLAG_DELAY)
+	e3a:SetCode(EVENT_SUMMON_SUCCESS)
+	e3a:SetCountLimit(1,{id,1})
+	e3a:SetTarget(s.thtg)
+	e3a:SetOperation(s.thop)
+	c:RegisterEffect(e3a)
+	local e3b=e3a:Clone()
+	e3b:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
+	c:RegisterEffect(e3b)
+	local e3c=e3a:Clone()
+	e3c:SetCode(EVENT_SPSUMMON_SUCCESS)
+	c:RegisterEffect(e3c)
+	--You can shuffle any number of "Lavoisier" monsters from your face-up Extra Deck and/or GY into the Deck; Special Summon 1 "Lavoisier" Link Monster from your Extra Deck whose Link Rating equals the number of monsters shuffled
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,2))
+	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e4:SetType(EFFECT_TYPE_IGNITION)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetCountLimit(1,{id,2})
+	e4:SetCost(s.linkspcost)
+	e4:SetTarget(s.linksptg)
+	e4:SetOperation(s.linkspop)
 	c:RegisterEffect(e4)
--- Shuffle and spsummon with = shuffled
-	local e6=Effect.CreateEffect(c)
-	e6:SetType(EFFECT_TYPE_IGNITION)
-	e6:SetCode(EVENT_FREE_CHAIN)
-	e6:SetRange(LOCATION_MZONE)
-	e6:SetCountLimit(1,{id,5})
-	e6:SetCost(s.spcost3)
-	e6:SetTarget(s.sptg3)
-	e6:SetOperation(s.spop3)
-	c:RegisterEffect(e6)
-	-- Special Summon "Lavoisier" Pendulum Monster
-	local e7=Effect.CreateEffect(c)
-	e7:SetDescription(aux.Stringid(id,1))
-	e7:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e7:SetType(EFFECT_TYPE_IGNITION)
-	e7:SetRange(LOCATION_MZONE)
-	e7:SetCountLimit(1)
-	e7:SetTarget(s.sptg)
-	e7:SetOperation(s.spop)
-	-- While a Link monster points to this card, that card gains the effect
-	local e8=Effect.CreateEffect(c)
-	e8:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
-	e8:SetRange(LOCATION_MZONE)
-	e8:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
-	e8:SetTarget(s.eftg)
-	e8:SetLabelObject(e7)
-	c:RegisterEffect(e8)
+	--While a Link Monster points to this card, that Link Monster gains this effect: Once per turn: You can Special Summon 1 "Lavoisier" Pendulum Monster from your GY or face-up Extra Deck, but negate its effects
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,3))
+	e5:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetCountLimit(1)
+	e5:SetTarget(s.pensptg)
+	e5:SetOperation(s.penspop)
+	local e5a=Effect.CreateEffect(c)
+	e5a:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
+	e5a:SetRange(LOCATION_MZONE)
+	e5a:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e5a:SetTarget(s.granttg)
+	e5a:SetLabelObject(e5)
+	c:RegisterEffect(e5a)
 end
-function s.eftg(e,c)
-	return c:GetLinkedGroup():IsContains(e:GetHandler())
-end
-
--- Pendulum Summon restriction
+s.listed_series={SET_LAVOISIER}
 function s.pendlimit(e,c,sump,sumtype,sumpos,targetp)
-	return not c:IsSetCard(0xf13) and (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
+	return (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM and not c:IsSetCard(SET_LAVOISIER)
 end
-
--- Cost: Destroy this card
-function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsDestructable() end
-	Duel.Destroy(e:GetHandler(),REASON_COST)
+function s.gythfilter(c)
+	return c:IsSetCard(SET_LAVOISIER) and c:IsAbleToHand()
 end
-
--- Target 1 "Lavoisier" card in the GY
-function s.thfilter(c)
-	return c:IsSetCard(0xf13) and c:IsAbleToHand()
-end
-
-function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingTarget(s.thfilter,tp,LOCATION_GRAVE,0,1,nil) end
+function s.gythtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local c=e:GetHandler()
+	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and s.gythfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.gythfilter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectTarget(tp,s.thfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.gythfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,c,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
-
--- Add the targeted card to the hand
-function s.thop(e,tp,eg,ep,ev,re,r,rp)
+function s.gythop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
+	if c:IsRelateToEffect(e) and Duel.Destroy(c,REASON_EFFECT)>0 and tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,tc)
 	end
 end
-
--- Monster Effect: Destroy 1 card from your hand; Add 1 "Lavoisier" Spell/Trap
-function s.sthfilter(c)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
+function s.thfilter(c)
+	return c:IsSetCard(SET_LAVOISIER) and c:IsSpellTrap() and c:IsAbleToHand()
 end
-
-function s.sthtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.sthfilter,tp,LOCATION_DECK,0,1,nil) 
-		and Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_HAND,0,1,nil) end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(nil,tp,LOCATION_HAND,0,1,nil)
+		and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,nil,1,tp,LOCATION_HAND)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-
-function s.stop(e,tp,eg,ep,ev,re,r,rp)
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_HAND,0,1,1,nil)
-	if #g>0 and Duel.Destroy(g,REASON_EFFECT)~=0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local sg=Duel.SelectMatchingCard(tp,s.sthfilter,tp,LOCATION_DECK,0,1,1,nil)
-		if #sg>0 then
-			Duel.SendtoHand(sg,nil,REASON_EFFECT)
-			Duel.ConfirmCards(1-tp,sg)
-		end
+	local dg=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_HAND,0,1,1,nil)
+	if #dg==0 or Duel.Destroy(dg,REASON_EFFECT)==0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
 	end
 end
-
--- Shuffle and spsummon with = shuffled
-
-function s.shfilter(c)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeckOrExtraAsCost() and c:IsFaceup()
+function s.tdfilter(c)
+	return c:IsSetCard(SET_LAVOISIER) and c:IsMonster() and c:IsFaceup() and c:IsAbleToDeckOrExtraAsCost()
 end
-function s.spfilter1(c,e,tp,ct,g)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_LINK) and c:IsLink(ct)
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP)
-		and Duel.GetLocationCountFromEx(tp,tp,g,c)>0
+function s.linkfilter(c,e,tp,ct)
+	return c:IsSetCard(SET_LAVOISIER) and c:IsLinkMonster() and c:IsLink(ct)
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+		and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 end
-function s.spcost3(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=Duel.GetMatchingGroup(s.shfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,nil)
+function s.linkspcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local g=Duel.GetMatchingGroup(s.tdfilter,tp,LOCATION_EXTRA|LOCATION_GRAVE,0,nil)
 	local nums={}
-	for i=1,#g do
-		if Duel.IsExistingMatchingCard(s.spfilter1,tp,LOCATION_EXTRA,0,1,nil,e,tp,i,g) then
-			table.insert(nums,i)
+	for ct=1,#g do
+		if Duel.IsExistingMatchingCard(s.linkfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,ct) then
+			table.insert(nums,ct)
 		end
 	end
 	if chk==0 then return #nums>0 end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_LVRANK)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_NUMBER)
 	local ct=Duel.AnnounceNumber(tp,table.unpack(nums))
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local rg=g:Select(tp,ct,ct,nil)
-	Duel.SendtoDeck(rg,tp,SEQ_DECKSHUFFLE,REASON_COST)
+	Duel.HintSelection(rg)
+	Duel.SendtoDeck(rg,nil,SEQ_DECKSHUFFLE,REASON_COST)
 	e:SetLabel(ct)
 end
-function s.sptg3(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end --existence of card to summon checked in cost
+function s.linksptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
-function s.spop3(e,tp,eg,ep,ev,re,r,rp)
-	--special Summon
+function s.linkspop(e,tp,eg,ep,ev,re,r,rp)
 	local ct=e:GetLabel()
-	if not ct then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.spfilter1,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,ct)
+	local g=Duel.SelectMatchingCard(tp,s.linkfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,ct)
 	if #g>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
-
--- Filter function for "Lavoisier" Pendulum monsters in the GY or Extra Deck
-function s.spfilter(c,e,tp)
-	return c:IsSetCard(0xf13) and c:IsType(TYPE_PENDULUM) and (c:IsLocation(LOCATION_EXTRA) and c:IsFaceup() and Duel.GetLocationCountFromEx(tp,rp,nil,c)>0 or c:IsLocation(LOCATION_GRAVE))
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function s.granttg(e,c)
+	return c:IsLinkMonster() and c:GetLinkedGroup():IsContains(e:GetHandler())
 end
-
--- Target function for Special Summon
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE+LOCATION_EXTRA)
-end
-
--- Operation function for Special Summon
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,1,nil,e,tp)
-	if #g>0 then
-		local tc=g:GetFirst()
-		if Duel.SpecialSummon(tc,0,tp,tp,true,true,POS_FACEUP)~=0 then
-			-- Negate the effects of the Special Summoned monster
-			local e1=Effect.CreateEffect(e:GetHandler())
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_DISABLE)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			tc:RegisterEffect(e1,true)
-		end
+function s.penspfilter(c,e,tp)
+	if not (c:IsSetCard(SET_LAVOISIER) and c:IsType(TYPE_PENDULUM) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)) then return false end
+	if c:IsLocation(LOCATION_EXTRA) then
+		return c:IsFaceup() and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 	end
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+end
+function s.pensptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.penspfilter,tp,LOCATION_GRAVE|LOCATION_EXTRA,0,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE|LOCATION_EXTRA)
+end
+function s.penspop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local tc=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.penspfilter),tp,LOCATION_GRAVE|LOCATION_EXTRA,0,1,1,nil,e,tp):GetFirst()
+	if tc and Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
+		--Negate its effects
+		tc:NegateEffects(e:GetHandler())
+	end
+	Duel.SpecialSummonComplete()
 end

@@ -1,132 +1,86 @@
+--
 --Build Rider - Rabbit Tank
-local s,id,o=GetID()
+--scripted by Zedja
+local s,id=GetID()
+local SET_BUILD_RIDER=0x1e04
+local SET_BUILD_DRIVER=0x2e04
 function s.initial_effect(c)
-	c:SetUniqueOnField(1,0,id)
-	-- Link Summon
 	c:EnableReviveLimit()
-	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),1,2)
-
-	-- Also WATER Attribute
+	c:SetUniqueOnField(1,0,id)
+	--Link Summon procedure: 1+ "Build Rider" monsters
+	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_BUILD_RIDER),1)
+	--While face-up on the field, this card is also WATER-Attribute
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e1:SetRange(LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED)
 	e1:SetCode(EFFECT_ADD_ATTRIBUTE)
+	e1:SetRange(LOCATION_MZONE)
 	e1:SetValue(ATTRIBUTE_WATER)
 	c:RegisterEffect(e1)
-
-	-- Add 1 "Build Driver" or "Build Rider" card from Deck to Hand
+	--If this card is Special Summoned: You can add 1 "Build Driver" or "Build Rider" card from your Deck to your hand
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_TOHAND + CATEGORY_SEARCH)
-	e2:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DELAY)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetCountLimit(1,{id,1})
-	e2:SetTarget(s.search_target)
-	e2:SetOperation(s.search_operation)
+	e2:SetCountLimit(1,id)
+	e2:SetTarget(s.thtg)
+	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
-
-	-- Negate effects (Quick Effect)
+	--Once per turn (Quick Effect): You can target 1 face-up card your opponent controls; negate its effects until the end of this turn, and if you do, if it is a monster, you can have this card gain ATK equal to half that monster's ATK until the end of this turn
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
-	e3:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DISABLE)
+	e3:SetCategory(CATEGORY_DISABLE+CATEGORY_ATKCHANGE)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetCountLimit(1,{id,2})
+	e3:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
+	e3:SetCountLimit(1)
 	e3:SetTarget(s.distg)
 	e3:SetOperation(s.disop)
 	c:RegisterEffect(e3)
-
-	-- Restrict control to 1
-	c:SetUniqueOnField(1,0,id)
-	-- Custom Link Summon condition
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD)
-	e4:SetCode(EFFECT_SPSUMMON_PROC)
-	e4:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e4:SetRange(LOCATION_EXTRA)
-	e4:SetCondition(s.linkcon)
-	e4:SetOperation(s.linkop)
-	e4:SetValue(SUMMON_TYPE_LINK)
-	c:RegisterEffect(e4)
 end
-
--- CUSTOM LINK SUMMON INIT 
-
--- Material filter
-function s.matfilter(c,lc,sumtype,tp)
-	return c:IsCode(270000402) and not c:IsDisabled()
+s.listed_series={SET_BUILD_RIDER,SET_BUILD_DRIVER}
+function s.thfilter(c)
+	return c:IsSetCard({SET_BUILD_RIDER,SET_BUILD_DRIVER}) and c:IsAbleToHand()
 end
--- Link Summon using Kiryu
--- Custom Link Summon condition
-function s.linkcon(e,c,og)
-	if c==nil then return true end
-	local tp=c:GetControler()
-	local zone=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	return zone>0 and Duel.IsExistingMatchingCard(s.matfilter,tp,LOCATION_MZONE,0,1,nil) 
-		and Duel.GetMatchingGroupCount(aux.TRUE,tp,LOCATION_MZONE,0,nil)==1
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-
--- Custom Link Summon operation
-function s.linkop(e,tp,eg,ep,ev,re,r,rp,c,og)
-	local tp=c:GetControler()
-	local g=Duel.SelectMatchingCard(tp,s.matfilter,tp,LOCATION_MZONE,0,1,1,nil)
-	Duel.SendtoGrave(g,REASON_MATERIAL+REASON_LINK)
-end
-
--- CUSTOM LINK SUMMON END
-
--- Target function: Select a "Build Driver" or "Build Rider" card from the deck
-function s.search_target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		return Duel.IsExistingMatchingCard(s.filter, tp, LOCATION_DECK, 0, 1, nil)
-	end
-	Duel.SetOperationInfo(0, CATEGORY_TOHAND, nil, 1, tp, LOCATION_DECK)
-end
-
--- Operation function: Add the selected card to hand
-function s.search_operation(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp, s.filter, tp, LOCATION_DECK, 0, 1, 1, nil)
-	if #g > 0 then
-		Duel.SendtoHand(g, nil, REASON_EFFECT)
-		Duel.ConfirmCards(1-tp, g)
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
 	end
 end
-
--- Filter function for "Build Driver" or "Build Rider" cards
-function s.filter(c)
-	return c:IsSetCard(0xf15) and c:IsAbleToHand()
-end
-
--- Negate effect (Quick Effect)
 function s.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsNegatableMonster,tp,0,LOCATION_ONFIELD,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,Card.IsNegatableMonster,tp,0,LOCATION_ONFIELD,1,1,nil)
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and chkc:IsNegatable() end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsNegatable,tp,0,LOCATION_ONFIELD,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_NEGATE)
+	local g=Duel.SelectTarget(tp,Card.IsNegatable,tp,0,LOCATION_ONFIELD,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsFaceup() and not tc:IsDisabled() then
-		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
-		local e1=Effect.CreateEffect(e:GetHandler())
+	if not (tc:IsRelateToEffect(e) and tc:IsFaceup() and tc:IsCanBeDisabledByEffect(e)) then return end
+	--Negate its effects until the end of this turn
+	tc:NegateEffects(c,RESET_PHASE|PHASE_END,true)
+	Duel.AdjustInstantly(tc)
+	local atk=math.floor(tc:GetAttack()/2)
+	if tc:IsMonster() and atk>0 and c:IsRelateToEffect(e) and c:IsFaceup()
+		and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+		--This card gains ATK equal to half that monster's ATK until the end of this turn
+		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		tc:RegisterEffect(e1)
-		if tc:IsType(TYPE_MONSTER) then
-			local atk=tc:GetAttack()/2
-			if atk>0 then
-				local e2=Effect.CreateEffect(e:GetHandler())
-				e2:SetType(EFFECT_TYPE_SINGLE)
-				e2:SetCode(EFFECT_UPDATE_ATTACK)
-				e2:SetValue(atk)
-				e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-				e:GetHandler():RegisterEffect(e2)
-			end
-		end
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetValue(atk)
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD_DISABLE|RESET_PHASE|PHASE_END)
+		c:RegisterEffect(e1)
 	end
 end

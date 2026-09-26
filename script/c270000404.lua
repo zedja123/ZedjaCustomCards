@@ -1,92 +1,70 @@
+--
 --Build Rider - Misora
-local s,id,o=GetID()
+--scripted by Zedja
+local s,id=GetID()
+local SET_BUILD_RIDER=0x1e04
 function s.initial_effect(c)
-	-- Special Summon from hand if only control "Build Rider" monsters
-	local e1 = Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id, 0))
+	--If you control only "Build Rider" monsters, you can Special Summon this card (from your hand)
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetRange(LOCATION_HAND)
-	e1:SetCondition(s.spcon)
-	e1:SetCountLimit(1, {id, 1})
+	e1:SetCountLimit(1,{id,0},EFFECT_COUNT_CODE_OATH)
+	e1:SetCondition(s.spproccon)
 	c:RegisterEffect(e1)
-
-	-- Banish this card from GY and banish opponent's card to Special Summon banished "Build Rider"
+	--You can target 1 of your banished "Build Rider" monsters and 1 card in your opponent's GY; banish this card from your GY and that card in your opponent's GY, and if you do, Special Summon that "Build Rider" monster, but negate its effects
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON + CATEGORY_REMOVE)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_REMOVE+CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCountLimit(1, {id, 2})
-	e2:SetCost(s.cost)
-	e2:SetTarget(s.target)
-	e2:SetOperation(s.operation)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetTarget(s.sptg)
+	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
 end
-
-function s.spcon(e,c)
+s.listed_series={SET_BUILD_RIDER}
+function s.nonriderfilter(c)
+	return c:IsFacedown() or not c:IsSetCard(SET_BUILD_RIDER)
+end
+function s.spproccon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)>0
-		and not Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_MZONE,0,1,nil)
+		and not Duel.IsExistingMatchingCard(s.nonriderfilter,tp,LOCATION_MZONE,0,1,nil)
 end
-
-function s.spfilter(c)
-	return c:IsFaceup() and not c:IsSetCard(0xf15)
+function s.spfilter(c,e,tp)
+	return c:IsFaceup() and c:IsSetCard(SET_BUILD_RIDER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
-
--- Cost function: Banish this card from the Graveyard
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		return Duel.IsExistingMatchingCard(s.filter_banished, tp, LOCATION_REMOVED, 0, 1, nil)
-			and Duel.IsExistingMatchingCard(s.filter_grave, tp, 0, LOCATION_GRAVE, 1, nil) end
-	local g1=Duel.GetMatchingGroup(s.filter_banished, tp, LOCATION_REMOVED, 0, nil)
-	local g2=Duel.GetMatchingGroup(s.filter_grave, tp, 0, LOCATION_GRAVE, nil)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local c=e:GetHandler()
+	if chkc then return false end
+	if chk==0 then return c:IsAbleToRemove() and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingTarget(s.spfilter,tp,LOCATION_REMOVED,0,1,nil,e,tp)
+		and Duel.IsExistingTarget(Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local sc=Duel.SelectTarget(tp,s.spfilter,tp,LOCATION_REMOVED,0,1,1,nil,e,tp):GetFirst()
+	e:SetLabelObject(sc)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local rc=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,1,nil):GetFirst()
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,Group.FromCards(c,rc),2,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,sc,1,0,0)
 end
-
--- Target function: Check for valid targets and set operation info
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		return Duel.IsExistingMatchingCard(s.filter_banished, tp, LOCATION_REMOVED, 0, 1, nil)
-			and Duel.IsExistingMatchingCard(s.filter_grave, tp, 0, LOCATION_GRAVE, 1, nil) and Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_LINK)>0
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local sc=e:GetLabelObject()
+	local tg=Duel.GetTargetCards(e)
+	local rc=(tg-sc):GetFirst()
+	if not (c:IsRelateToEffect(e) and rc and rc:IsRelateToEffect(e)) then return end
+	if Duel.Remove(Group.FromCards(c,rc),POS_FACEUP,REASON_EFFECT)==2
+		and sc and sc:IsRelateToEffect(e) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.SpecialSummonStep(sc,0,tp,tp,false,false,POS_FACEUP) then
+		--Negate its effects
+		sc:NegateEffects(c)
 	end
-	Duel.SetOperationInfo(0, CATEGORY_REMOVE, nil, 2, tp, LOCATION_GRAVE)
-	Duel.SetOperationInfo(0, CATEGORY_SPECIAL_SUMMON, nil, 1, tp, LOCATION_REMOVED)
-end
-
--- Filter function for banished "Build Rider" monsters
-function s.filter_banished(c)
-	return c:IsSetCard(0xf15) and c:IsFaceup() and c:IsAbleToRemove()
-end
-
--- Filter function for opponent's cards in the Graveyard
-function s.filter_grave(c)
-	return c:IsAbleToRemove()
-end
-
--- Operation function: Remove selected cards and special summon the banished monster
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local tc1=Duel.SelectMatchingCard(tp, s.filter_banished, tp, LOCATION_REMOVED, 0, 1, 1, nil):GetFirst()
-	local tc2=Duel.SelectMatchingCard(tp, s.filter_grave, tp, 0, LOCATION_GRAVE, 1, 1, nil):GetFirst()
-	if tc1 and tc2 then
-		-- Banish the selected cards
-		Duel.Remove(tc1, POS_FACEUP, REASON_EFFECT)
-		Duel.Remove(tc2, POS_FACEUP, REASON_EFFECT)
-		Duel.Remove(e:GetHandler(), POS_FACEUP, REASON_COST)
-		-- Special summon the banished "Build Rider" monster
-		Duel.SpecialSummon(tc1, 0, tp, tp, false, false, POS_FACEUP)
-		
-		-- Negate the effects of the summoned monster
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_DISABLE)
-		e1:SetReset(RESET_EVENT + RESETS_STANDARD)
-		tc1:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(e:GetHandler())
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_DISABLE_EFFECT)
-		e2:SetReset(RESET_EVENT + RESETS_STANDARD)
-		tc1:RegisterEffect(e2)
-	end
+	Duel.SpecialSummonComplete()
 end

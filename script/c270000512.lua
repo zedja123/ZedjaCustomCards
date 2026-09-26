@@ -1,127 +1,92 @@
+--
 --Milacresy Essence - Layah
---Scripted by: Zedja
---Revised by: Whispered
-local s,id,o=GetID()
+--scripted by Zedja
+--revised by Whispered
+local s,id=GetID()
+local SET_MILACRESY=0xe05
 function s.initial_effect(c)
 	c:EnableReviveLimit()
-	-- Contact Synchro Summon
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_FIELD)
-	e0:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e0:SetCode(EFFECT_SPSUMMON_PROC)
-	e0:SetRange(LOCATION_EXTRA)
-	e0:SetValue(SUMMON_TYPE_SYNCHRO)
-	e0:SetCondition(s.sprcon)
-	e0:SetTarget(s.sprtg)
-	e0:SetOperation(s.sprop)
-	c:RegisterEffect(e0)
-	-- Look at the top 3 cards of your opponent's Deck and rearrange
+	c:AddMustBeSynchroSummoned()
+	--Synchro Summon procedure: 1+ "Milacresy" Tuners + 1+ non-Tuner "Milacresy" monsters
+	Synchro.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_MILACRESY),1,99,Synchro.NonTunerEx2(s.nontunerfilter),1,99,s.lnktunerfilter,nil,s.tunerreq)
+	--For this card's Synchro Summon, you can treat 1 "Milacresy" Link Monster you control as a Tuner with a Level equal to its Link Rating
+	for lk=1,6 do
+		local e0=Effect.CreateEffect(c)
+		e0:SetType(EFFECT_TYPE_FIELD)
+		e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+		e0:SetCode(EFFECT_SYNCHRO_LEVEL)
+		e0:SetRange(LOCATION_EXTRA)
+		e0:SetTargetRange(LOCATION_MZONE,0)
+		e0:SetTarget(function(e,c) return c:IsSetCard(SET_MILACRESY) and c:IsLink(lk) end)
+		e0:SetValue(lk)
+		c:RegisterEffect(e0)
+	end
+	local e0b=Effect.CreateEffect(c)
+	e0b:SetType(EFFECT_TYPE_FIELD)
+	e0b:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+	e0b:SetCode(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL)
+	e0b:SetRange(LOCATION_EXTRA)
+	e0b:SetTargetRange(LOCATION_MZONE,0)
+	e0b:SetTarget(function(e,c) return c:IsSetCard(SET_MILACRESY) and c:IsLinkMonster() end)
+	e0b:SetValue(function(e,sc) return sc and not sc:IsSetCard(SET_MILACRESY) end)
+	c:RegisterEffect(e0b)
+	--If this card is Synchro Summoned: You can look at the top 3 cards of your opponent's Deck, and if you do, place them on top of their Deck in any order
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetCountLimit(1,id)
-	e1:SetCondition(s.syncon)
-	e1:SetTarget(s.rearrangetg)
-	e1:SetOperation(s.rearrangeop)
+	e1:SetCountLimit(1,{id,0})
+	e1:SetCondition(function(e) return e:GetHandler():IsSynchroSummoned() end)
+	e1:SetTarget(s.sorttg)
+	e1:SetOperation(s.sortop)
 	c:RegisterEffect(e1)
-	-- Quick Effect: Negate and destroy
+	--(Quick Effect): You can target 1 face-up monster on the field; negate its effects, and if you do, destroy it
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
+	e2:SetCategory(CATEGORY_DISABLE+CATEGORY_DESTROY)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
+	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
 	e2:SetCountLimit(1,{id,1})
-	e2:SetTarget(s.negtg)
-	e2:SetOperation(s.negop)
+	e2:SetTarget(s.distg)
+	e2:SetOperation(s.disop)
 	c:RegisterEffect(e2)
 end
-
---
-function s.sprfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0xf16) and c:IsMonster() and c:IsAbleToGraveAsCost()
+s.listed_series={SET_MILACRESY}
+function s.lnktunerfilter(c,sc,sumtype,tp)
+	return c:IsSetCard(SET_MILACRESY,sc,sumtype,tp) and c:IsLinkMonster()
 end
-function s.sprfilter1(c,tp,g,sc)
-	local lv=c:GetLevel()
-	if c:IsLinkMonster() then lv=c:GetLink() end
-	local g=Duel.GetMatchingGroup(s.sprfilter,tp,LOCATION_MZONE,0,nil)
-	return c:IsSetCard(0xf16) and (c:IsType(TYPE_TUNER) or c:IsLinkMonster())
-		and g:IsExists(s.sprfilter2,1,c,tp,c,sc,lv)
+function s.nontunerfilter(c,sc,sumtype,tp)
+	return c:IsSetCard(SET_MILACRESY,sc,sumtype,tp) and not c:IsLinkMonster()
 end
-function s.sprfilter2(c,tp,mc,sc,lv)
-	local sg=Group.FromCards(c,mc)
-	local nlv=c:GetLevel()
-	return lv+nlv==8 and not c:IsType(TYPE_TUNER) and Duel.GetLocationCountFromEx(tp,tp,sg,sc)>0
+function s.tunerreq(g,sc,tp)
+	return g:FilterCount(Card.IsLinkMonster,nil)<=1
 end
-function s.sprcon(e,c)
-	if c==nil then return true end
-	local tp=c:GetControler()
-	local g=Duel.GetMatchingGroup(s.sprfilter,tp,LOCATION_MZONE,0,nil)
-	return g:IsExists(s.sprfilter1,1,nil,tp,g,c)
+function s.sorttg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetFieldGroupCount(tp,0,LOCATION_DECK)>=3 end
 end
-function s.sprtg(e,tp,eg,ep,ev,re,r,rp,c)
-    local g=Duel.GetMatchingGroup(s.sprfilter,tp,LOCATION_MZONE,0,nil)
-    local g1=g:Filter(s.sprfilter1,nil,tp,c)
-    local mg1=aux.SelectUnselectGroup(g1,e,tp,1,1,nil,1,tp,HINTMSG_TOGRAVE,nil,nil,true)
-    if #mg1>0 then
-        local mc=mg1:GetFirst()
-        local lv=mc:IsLinkMonster() and mc:GetLink() or mc:GetLevel()
-        local g2=g:Filter(s.sprfilter2,mc,tp,mc,c,lv)
-        local mg2=aux.SelectUnselectGroup(g2,e,tp,1,1,nil,1,tp,HINTMSG_TOGRAVE,nil,nil,true)
-        mg1:Merge(mg2)
-    end
-    if #mg1==2 then
-        mg1:KeepAlive()
-        e:SetLabelObject(mg1)
-        return true
-    end
-    return false
+function s.sortop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetFieldGroupCount(tp,0,LOCATION_DECK)<3 then return end
+	Duel.SortDecktop(tp,1-tp,3)
 end
-function s.sprop(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=e:GetLabelObject()
-	if not g then return end
-	Duel.SendtoGrave(g,REASON_SYNCHRO)
-end
--- Look at the top 3 cards of your opponent's Deck and rearrange
-function s.syncon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
-end
-function s.rearrangetg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsPlayerCanDiscardDeck(tp,3) end
-end
-function s.rearrangeop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetDecktopGroup(1-tp,3)
-	if #g>0 then
-		Duel.ConfirmDecktop(1-tp,3)
-		local tg=g:Select(tp,3,3,nil)
-		Duel.MoveSequence(tg:GetFirst(),0)
-		Duel.MoveSequence(tg:GetNext(),1)
-		Duel.MoveSequence(tg:GetNext(),2)
-		Duel.DisableShuffleCheck()
-	end
-end
-
--- Negate and destroy
-function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsFaceup,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+function s.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsNegatableMonster() end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsNegatableMonster,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_NEGATE)
-	local g=Duel.SelectTarget(tp,Card.IsFaceup,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_NEGATE,g,1,0,0)
+	local g=Duel.SelectTarget(tp,Card.IsNegatableMonster,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
-function s.negop(e,tp,eg,ep,ev,re,r,rp)
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and Duel.NegateRelatedChain(tc,RESET_TURN_SET) then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e1)
-		if tc:IsRelateToEffect(e) then
-			Duel.Destroy(tc,REASON_EFFECT)
-		end
+	if not (tc:IsRelateToEffect(e) and tc:IsFaceup() and tc:IsCanBeDisabledByEffect(e)) then return end
+	--Negate its effects, and if you do, destroy it
+	tc:NegateEffects(e:GetHandler(),nil,true)
+	Duel.AdjustInstantly(tc)
+	if tc:IsDisabled() then
+		Duel.Destroy(tc,REASON_EFFECT)
 	end
 end

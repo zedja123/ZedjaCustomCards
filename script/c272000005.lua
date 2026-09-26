@@ -1,118 +1,100 @@
-local s,id,o=GetID()
+--
+--Rank-Up-Magic - Chaos Puppet Form
+--scripted by Zedja
+local s,id=GetID()
 function s.initial_effect(c)
-	-- Rank-Up effect
+	--During the Main Phase: Special Summon 1 "Gimmick Puppet" Xyz Monster from your Extra Deck or GY, then Special Summon from your Extra Deck, 1 "Number C" or "CXyz" monster that is 1 Rank higher than that monster, by using it as material
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_DUEL)
-	e1:SetCondition(s.condition)
+	e1:SetHintTiming(0,TIMING_MAIN_END)
+	e1:SetCountLimit(1,{id,0},EFFECT_COUNT_CODE_DUEL)
+	e1:SetCondition(function() return Duel.IsMainPhase() end)
 	e1:SetTarget(s.target)
-	e1:SetOperation(s.operation)
+	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
-	-- Effect 1: Banish from GY to look at opponent's Deck and Extra Deck, Special Summon 1 monster
+	--You can banish this card from your GY; look at your opponent's Deck and Extra Deck, and Special Summon 1 monster from among them to either player's field, ignoring its Summoning conditions
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCountLimit(2,id,EFFECT_COUNT_CODE_DUEL)
-	e2:SetCost(aux.bfgcost)
+	e2:SetCountLimit(1,{id,1},EFFECT_COUNT_CODE_DUEL)
+	e2:SetCost(Cost.SelfBanish)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
 end
-function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==tp and Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2
-end
-
+s.listed_series={SET_GIMMICK_PUPPET,SET_NUMBER_C,SET_CXYZ}
 function s.filter1(c,e,tp)
+	if not (c:IsSetCard(SET_GIMMICK_PUPPET) and c:IsType(TYPE_XYZ) and (c:GetRank()>0 or c:IsStatus(STATUS_NO_LEVEL))
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)) then return false end
+	if c:IsLocation(LOCATION_EXTRA) then
+		if Duel.GetLocationCountFromEx(tp,tp,nil,c)<=0 then return false end
+	elseif Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then
+		return false
+	end
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)
-	return c:IsSetCard(0x1083) and not (c:IsSetCard(0x1073) or c:IsSetCard(0x1048)) and c:IsType(TYPE_XYZ) and (c:GetRank()>0 or c:IsStatus(STATUS_NO_LEVEL)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-		and Duel.IsExistingMatchingCard(s.filter3,tp,LOCATION_EXTRA,0,1,nil,e,tp,c,c:GetRank()+1)
+	return (#pg<=0 or (#pg==1 and pg:IsContains(c)))
+		and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,c,e,tp,c,c:GetRank()+1)
 end
-
-function s.filter2(c,e,tp)
-	return (c:IsSetCard(0x1073) or c:IsSetCard(0x1048)) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
+function s.filter2(c,e,tp,mc,rk)
+	if c.rum_limit and not c.rum_limit(mc,e) then return false end
+	return c:IsType(TYPE_XYZ) and c:IsRank(rk) and c:IsSetCard({SET_NUMBER_C,SET_CXYZ})
+		and mc:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp) and mc:IsCanBeXyzMaterial(c,tp)
+		and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0 and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 end
-
-function s.filter3(c,e,tp,mc)
-	return c:IsRank(mc:GetRank()+1) and (c:IsSetCard(0x1073) or c:IsSetCard(0x1048)) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
-end
-
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		return Duel.IsExistingMatchingCard(s.filter1,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,1,nil,e,tp)
-			and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,nil)
-	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA+LOCATION_GRAVE)
+	if chk==0 then return Duel.IsPlayerCanSpecialSummonCount(tp,2)
+		and Duel.IsExistingMatchingCard(s.filter1,tp,LOCATION_EXTRA|LOCATION_GRAVE,0,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,2,tp,LOCATION_EXTRA|LOCATION_GRAVE)
 end
-
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g1=Duel.SelectMatchingCard(tp,s.filter1,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,1,1,nil,e,tp)
-	if #g1>0 and Duel.SpecialSummon(g1,0,tp,tp,false,false,POS_FACEUP)~=0 then
-		local mc=g1:GetFirst()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g2=Duel.SelectMatchingCard(tp,s.filter3,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,mc)
-		local sc=g2:GetFirst()
-		if sc then
-			Duel.Overlay(sc,Group.FromCards(mc))
-			Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
-			sc:CompleteProcedure()
-		end
+	local tc=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.filter1),tp,LOCATION_EXTRA|LOCATION_GRAVE,0,1,1,nil,e,tp):GetFirst()
+	if not tc or Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)==0 then return end
+	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(tc),tp,nil,nil,REASON_XYZ)
+	if #pg>1 or (#pg==1 and not pg:IsContains(tc)) then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local sc=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,tc,tc:GetRank()+1):GetFirst()
+	if sc then
+		Duel.BreakEffect()
+		sc:SetMaterial(Group.FromCards(tc))
+		Duel.Overlay(sc,tc)
+		Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
+		sc:CompleteProcedure()
 	end
 end
-
+function s.fieldcheck(c,e,tp,p)
+	if not c:IsCanBeSpecialSummoned(e,0,tp,true,false,POS_FACEUP,p) then return false end
+	if c:IsLocation(LOCATION_EXTRA) then
+		return Duel.GetLocationCountFromEx(p,tp,nil,c)>0
+	end
+	return Duel.GetLocationCount(p,LOCATION_MZONE,tp)>0
+end
 function s.spfilter(c,e,tp)
-	return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and (c:IsLocation(LOCATION_DECK) and (Duel.GetLocationCount(tp,LOCATION_MZONE)>0 or Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0))
-		or (c:IsLocation(LOCATION_EXTRA) and (Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 or Duel.GetLocationCountFromEx(1-tp,tp,nil,c)>0))
+	return c:IsMonster() and (s.fieldcheck(c,e,tp,tp) or s.fieldcheck(c,e,tp,1-tp))
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK|LOCATION_EXTRA,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK+LOCATION_EXTRA)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter,tp,0,LOCATION_DECK|LOCATION_EXTRA,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,1-tp,LOCATION_DECK|LOCATION_EXTRA)
 end
-
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetFieldGroup(tp,0,LOCATION_EXTRA+LOCATION_DECK)
+	local g=Duel.GetFieldGroup(tp,0,LOCATION_DECK|LOCATION_EXTRA)
 	if #g==0 then return end
 	Duel.ConfirmCards(tp,g)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local gr=Duel.SelectMatchingCard(tp,s.spfilter,1-tp,LOCATION_DECK+LOCATION_EXTRA,0,1,1,TYPE_MONSTER,e,tp)
-	local gf=gr:GetFirst()
-		if gf:IsLinkMonster() then
-			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
-			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and Duel.GetLocationCountFromEx(1-tp,tp,nil,c)>0
-			local op=0
-			if b1 and b2 then
-				op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
-			elseif b1 then
-				op=Duel.SelectOption(tp,aux.Stringid(id,2))
-			elseif b2 then
-				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
-			else return end
-			if op==0 then
-				Duel.SpecialSummon(gf,0,tp,tp,true,true,POS_FACEUP)
-			else
-				Duel.SpecialSummon(gf,0,tp,1-tp,true,true,POS_FACEUP)
-			end
-		elseif not gf:IsLinkMonster() then
-			local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-			local b2=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
-			local op=0
-			if b1 and b2 then
-				op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
-			elseif b1 then
-				op=Duel.SelectOption(tp,aux.Stringid(id,2))
-			elseif b2 then
-				op=Duel.SelectOption(tp,aux.Stringid(id,3))+1
-			else return end
-			if op==0 then
-				Duel.SpecialSummon(gf,0,tp,tp,true,true,POS_FACEUP)
-			else
-				Duel.SpecialSummon(gf,0,tp,1-tp,true,true,POS_FACEUP)
-			end
-		end
-		Duel.ShuffleDeck(1-tp)
-		Duel.ShuffleExtra(1-tp)
+	local sg=g:Filter(s.spfilter,nil,e,tp)
+	if #sg>0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local tc=sg:Select(tp,1,1,nil):GetFirst()
+		local b1=s.fieldcheck(tc,e,tp,tp)
+		local b2=s.fieldcheck(tc,e,tp,1-tp)
+		local op=Duel.SelectEffect(tp,{b1,aux.Stringid(id,2)},{b2,aux.Stringid(id,3)})
+		local p=op==1 and tp or 1-tp
+		Duel.SpecialSummon(tc,0,tp,p,true,false,POS_FACEUP)
+	end
+	Duel.ShuffleDeck(1-tp)
+	Duel.ShuffleExtra(1-tp)
 end

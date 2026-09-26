@@ -1,112 +1,100 @@
+--
 --Build Rider - Rabbit Tank Sparkling
-local s,id,o=GetID()
+--scripted by Zedja
+local s,id=GetID()
+local SET_BUILD_RIDER=0x1e04
 function s.initial_effect(c)
-	-- Link Summon
 	c:EnableReviveLimit()
-	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xf15),1,3)
-	c:SetSPSummonOnce(id)
-
-	-- Also FIRE Attribute
+	c:AddMustBeLinkSummoned()
+	--Link Summon procedure: 1+ "Build Rider" monsters
+	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_BUILD_RIDER),1)
+	--You can only Link Summon "Build Rider - Rabbit Tank Sparkling" once per turn
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e0:SetCondition(function(e) return e:GetHandler():IsLinkSummoned() end)
+	e0:SetOperation(s.regop)
+	c:RegisterEffect(e0)
+	--This card is also FIRE-Attribute
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e1:SetRange(LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED)
 	e1:SetCode(EFFECT_ADD_ATTRIBUTE)
+	e1:SetRange(LOCATION_MZONE|LOCATION_GRAVE|LOCATION_REMOVED)
 	e1:SetValue(ATTRIBUTE_FIRE)
 	c:RegisterEffect(e1)
-
-	-- Cannot be targeted by card effects
+	--Cannot be targeted by card effects
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
-	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
-	e2:SetRange(LOCATION_MZONE)
+	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e2:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-	e2:SetValue(aux.tgoval)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetValue(1)
 	c:RegisterEffect(e2)
-
-	-- Gain ATK and attack all monsters once each during the Battle Phase
+	--Once per turn, during the Battle Phase (Quick Effect): You can have this card gain ATK equal to half the combined original ATK of all monsters your opponent controls until the end of the Battle Phase, also it can attack all monsters your opponent controls once each this turn
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetCategory(CATEGORY_ATKCHANGE)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCondition(s.bpcon)
-	e3:SetTarget(s.bptg)
-	e3:SetOperation(s.bpoperation)
-	e3:SetCountLimit(1,{id,1}) -- Once per turn
+	e3:SetHintTiming(TIMING_BATTLE_START|TIMING_BATTLE_PHASE)
+	e3:SetCountLimit(1)
+	e3:SetCondition(function() return Duel.IsBattlePhase() and not Duel.IsDamageStep() end)
+	e3:SetOperation(s.atkop)
 	c:RegisterEffect(e3)
-
-	-- Prevent opponent's activation during Battle Phase if you control another "Build Rider"
+	--If you control another face-up "Build Rider" monster, your opponent cannot activate cards or effects during the Battle Phase
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_FIELD)
-	e4:SetCode(EFFECT_CANNOT_ACTIVATE)
 	e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e4:SetCode(EFFECT_CANNOT_ACTIVATE)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetTargetRange(0,1)
 	e4:SetCondition(s.actcon)
-	e4:SetValue(s.aclimit)
+	e4:SetValue(1)
 	c:RegisterEffect(e4)
-
-	--Must be Link Summoned
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_SINGLE)
-	e5:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e5:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e5:SetValue(aux.lnklimit)
-	c:RegisterEffect(e5)
 end
-
--- Condition: Only activate during the Battle Phase
-function s.bpcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsBattlePhase()
+s.listed_series={SET_BUILD_RIDER}
+function s.regop(e,tp,eg,ep,ev,re,r,rp)
+	--You cannot Link Summon "Build Rider - Rabbit Tank Sparkling" for the rest of this turn
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetTargetRange(1,0)
+	e1:SetTarget(function(e,c,sump,sumtype) return c:IsCode(id) and sumtype&SUMMON_TYPE_LINK==SUMMON_TYPE_LINK end)
+	e1:SetReset(RESET_PHASE|PHASE_END)
+	Duel.RegisterEffect(e1,tp)
 end
-
--- Target: No specific targeting required
-function s.bptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-end
-
--- Operation: Gain ATK and attack all monsters once each
-function s.bpoperation(e,tp,eg,ep,ev,re,r,rp)
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil) -- Get all face-up monsters opponent controls
-	if #g>0 then
-		local atk=0
-		local tc=g:GetFirst()
-		-- Calculate total ATK gain (half the original ATK of all opponent's monsters)
-		while tc do
-			atk=atk+(tc:GetBaseAttack()/2)
-			tc=g:GetNext()
-		end
-		-- Gain ATK
-		if c:IsFaceup() and c:IsRelateToEffect(e) then
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_UPDATE_ATTACK)
-			e1:SetValue(atk)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_BATTLE)
-			c:RegisterEffect(e1)
-		end
-		-- Can attack all opponent's monsters once each
-		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_ATTACK_ALL)
-		e2:SetValue(1) -- Allows it to attack all opponent's monsters
-		e2:SetCondition(s.attack_limit_condition)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		c:RegisterEffect(e2)
+	if not (c:IsRelateToEffect(e) and c:IsFaceup()) then return end
+	local atk=0
+	for tc in Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil):Iter() do
+		atk=atk+math.max(tc:GetBaseAttack(),0)
 	end
+	atk=math.floor(atk/2)
+	if atk>0 then
+		--Gains ATK until the end of the Battle Phase
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetValue(atk)
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD_DISABLE|RESET_PHASE|PHASE_BATTLE)
+		c:RegisterEffect(e1)
+	end
+	--Also it can attack all monsters your opponent controls once each this turn
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+	e2:SetCode(EFFECT_ATTACK_ALL)
+	e2:SetValue(1)
+	e2:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END)
+	c:RegisterEffect(e2)
 end
-
-function s.attack_limit_condition(e)
-	return Duel.GetAttacker()==e:GetHandler()
-end
-
--- Condition for preventing opponent's activation during Battle Phase
 function s.actcon(e)
-	local ph=Duel.GetCurrentPhase()
-	local tp=Duel.GetTurnPlayer()
-	return ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0xf15),e:GetHandlerPlayer(),LOCATION_MZONE,0,1,e:GetHandler()) 
+	return Duel.IsBattlePhase()
+		and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,SET_BUILD_RIDER),e:GetHandlerPlayer(),LOCATION_MZONE,0,1,e:GetHandler())
 end
-function s.aclimit(e,re,tp)
-	return re:IsActiveType(TYPE_MONSTER+TYPE_SPELL+TYPE_TRAP) and re:IsHasType(EFFECT_TYPE_ACTIVATE)
-end
-
