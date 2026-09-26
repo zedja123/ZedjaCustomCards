@@ -7,11 +7,12 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--Synchro Summon procedure: 1 "Fire King" Tuner + 1+ non-Tuner "Fire King" monsters
 	Synchro.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_FIRE_KING),1,1,Synchro.NonTunerEx(Card.IsSetCard,SET_FIRE_KING),1,99)
-	--If this card is Synchro Summoned: Destroy all face-up cards your opponent controls
+	--If this card is Synchro Summoned: You can destroy all face-up cards your opponent controls
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_DESTROY)
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetCondition(function(e) return e:GetHandler():IsSynchroSummoned() end)
 	e1:SetTarget(s.destg)
@@ -30,11 +31,12 @@ function s.initial_effect(c)
 	e2:SetTarget(s.distg)
 	e2:SetOperation(s.disop)
 	c:RegisterEffect(e2)
-	--If this Synchro Summoned card is destroyed: Special Summon 1 "Garunix Eternity, Hyang of the Fire Kings" from your Extra Deck, ignoring its Summoning conditions, and if you do, attach this card from your GY to it as material
+	--If this Synchro Summoned card is destroyed: You can Special Summon 1 "Garunix Eternity, Hyang of the Fire Kings" from your Extra Deck, ignoring its Summoning conditions, and if you do, attach this card from your GY to it as material
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,4))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_DESTROYED)
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.exsptg)
@@ -45,7 +47,7 @@ s.listed_names={CARD_GARUNIX_ETERNITY}
 s.listed_series={SET_FIRE_KING}
 s.material_setcode=SET_FIRE_KING
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_ONFIELD,1,nil) end
 	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_ONFIELD,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,0,0)
 end
@@ -104,7 +106,7 @@ function s.exspfilter(c,e,tp)
 		and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 end
 function s.exsptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.exspfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function s.exspop(e,tp,eg,ep,ev,re,r,rp)
