@@ -42,7 +42,7 @@ function s.thfilter(c)
 	return c:IsSetCard(SET_LAVOISIER) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
