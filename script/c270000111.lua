@@ -76,6 +76,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	--Then you can banish 1 Spell from your hand, field, or GY, and if you do, return 1 of your banished "Wiccanthrope" Spells to the GY, except the Spell banished by this effect
 	if Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.rmfilter),tp,LOCATION_HAND|LOCATION_ONFIELD|LOCATION_GRAVE,0,1,nil)
+		and Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_REMOVED,0,1,nil)
 		and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
