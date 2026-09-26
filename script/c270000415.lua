@@ -13,7 +13,7 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e1:SetCode(EFFECT_ADD_ATTRIBUTE)
-	e1:SetRange(LOCATION_MZONE|LOCATION_GRAVE|LOCATION_REMOVED)
+	e1:SetRange(LOCATION_MZONE)
 	e1:SetValue(ATTRIBUTE_DARK)
 	c:RegisterEffect(e1)
 	--If this card is Special Summoned: You can target 1 card in either GY; banish it

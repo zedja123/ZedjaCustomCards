@@ -9,7 +9,7 @@ function s.initial_effect(c)
 	c:SetUniqueOnField(1,0,id)
 	--Link Summon procedure: 1+ "Build Rider" monsters
 	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_BUILD_RIDER),1)
-	--While face-up on the field, this card is also WATER-Attribute
+	--This card is also WATER-Attribute
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
