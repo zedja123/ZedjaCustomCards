@@ -52,19 +52,28 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 s.listed_series={SET_BUILD_RIDER,SET_BUILD_DRIVER}
+--The only monster tp controls, if it is a face-up "Build Rider - Kiryu"
+--(a granted effect belongs to the card that receives it, so e:GetOwner() is not this card)
+function s.solokiryu(tp)
+	local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
+	local mc=g:GetFirst()
+	if #g==1 and mc:IsFaceup() and mc:IsCode(id) then return mc end
+	return nil
+end
 function s.linkcon(e,c,must,g,min,max)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	local mc=e:GetOwner()
-	if not (mc:IsLocation(LOCATION_MZONE) and mc:IsFaceup() and mc:IsControler(tp)) then return false end
-	if Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)~=1 then return false end
+	local mc=s.solokiryu(tp)
+	if not mc then return false end
 	if must and (#must>1 or not must:IsContains(mc)) then return false end
 	if g and not g:IsContains(mc) then return false end
 	return mc:IsCanBeLinkMaterial(c,tp) and mc:IsSetCard(SET_BUILD_RIDER,c,SUMMON_TYPE_LINK,tp)
 		and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0
 end
 function s.linktg(e,tp,eg,ep,ev,re,r,rp,chk,c,must,g,min,max)
-	local mg=Group.FromCards(e:GetOwner())
+	local mc=s.solokiryu(tp)
+	if not mc then return false end
+	local mg=Group.FromCards(mc)
 	mg:KeepAlive()
 	e:SetLabelObject(mg)
 	return true
