@@ -30,15 +30,11 @@ Debug.Message("aux.dxmcostgen: "..type(aux.dxmcostgen))
 	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
 	e2:SetCountLimit(1,{id,1})
  e2:SetCost(function(e,tp,eg,ep,ev,re,r,rp,chk)
+    Debug.Message("VILECOIL COST: chk="..chk)
+    if chk==0 then return true end
+    Debug.Message("VILECOIL COST PAYMENT REACHED")
     local c=e:GetHandler()
-    Debug.Message("VILECOIL COST CHECK: "..chk)
-
-    if chk==0 then
-        return c:CheckRemoveOverlayCard(tp,1,REASON_COST)
-    end
-
-    local removed=c:RemoveOverlayCard(tp,1,1,REASON_COST)
-    Debug.Message("VILECOIL DETACHED: "..removed)
+    c:RemoveOverlayCard(tp,1,1,REASON_COST)
 end)
 	e2:SetTarget(s.settg)
 	e2:SetOperation(s.setop)
