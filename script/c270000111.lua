@@ -61,7 +61,6 @@ function s.tgfilter(c,ex)
 	return c:IsFaceup() and c:IsSetCard(SET_WICCANTHROPE) and c:IsSpell() and c~=ex
 end
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
-Debug.Message("VILECOIL E2 OPERATION")
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 	local sc=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_REMOVED,0,1,1,nil):GetFirst()
 	if not (sc and Duel.SSet(tp,sc)>0) then return end
