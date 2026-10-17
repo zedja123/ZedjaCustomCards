@@ -20,6 +20,8 @@ function s.initial_effect(c)
 	e1:SetOperation(s.rmop)
 	c:RegisterEffect(e1)
 	--(Quick Effect): You can detach 1 material from this card; Set 1 of your banished "Wiccanthrope" Spells, and it can be activated this turn, then you can banish 1 Spell from your hand, field, or GY, and if you do, return 1 of your banished "Wiccanthrope" Spells to the GY, except the Spell banished by this effect
+Debug.Message("Cost.DetachFromSelf: "..type(Cost.DetachFromSelf))
+Debug.Message("aux.dxmcostgen: "..type(aux.dxmcostgen))
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetType(EFFECT_TYPE_QUICK_O)
