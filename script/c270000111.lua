@@ -29,16 +29,7 @@ Debug.Message("aux.dxmcostgen: "..type(aux.dxmcostgen))
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
 	e2:SetCountLimit(1,{id,1})
-	e2:SetCost(function(e,tp,eg,ep,ev,re,r,rp,chk)
-    local c=e:GetHandler()
-    Debug.Message("COST CALLBACK: chk="..chk)
-    Debug.Message("OVERLAY COUNT: "..c:GetOverlayCount())
-    if chk==0 then
-        return c:GetOverlayCount()>0
-    end
-    c:RemoveOverlayCard(tp,1,1,REASON_COST)
-    Debug.Message("AFTER DETACH: "..c:GetOverlayCount())
-end)
+	e2:SetCost(Cost.DetachFromSelf(1,1,nil))
 	e2:SetTarget(s.settg)
 	e2:SetOperation(s.setop)
 	c:RegisterEffect(e2)
